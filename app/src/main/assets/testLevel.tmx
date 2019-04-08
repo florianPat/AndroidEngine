@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="8" tilewidth="64" tileheight="64" nextobjectid="16">
+ <tileset firstgid="1" name="assets1" tilewidth="64" tileheight="64" tilecount="7" columns="0">
+  <tile id="0">
+   <image width="64" height="64" source="assetsRaw/64x64/Brick1.png"/>
+  </tile>
+  <tile id="1">
+   <image width="64" height="64" source="assetsRaw/64x64/Brick2.png"/>
+  </tile>
+  <tile id="2">
+   <image width="64" height="64" source="assetsRaw/64x64/Brick3.png"/>
+  </tile>
+  <tile id="3">
+   <image width="64" height="64" source="assetsRaw/64x64/Brick4.png"/>
+  </tile>
+  <tile id="4">
+   <image width="64" height="64" source="assetsRaw/64x64/Key.png"/>
+  </tile>
+  <tile id="5">
+   <image width="64" height="64" source="assetsRaw/64x64/Schalter.png"/>
+  </tile>
+  <tile id="6">
+   <image width="64" height="64" source="assetsRaw/64x64/Truhe.png"/>
+  </tile>
+ </tileset>
+ <tileset firstgid="8" name="assets2" tilewidth="64" tileheight="70" tilecount="3" columns="0">
+  <tile id="0">
+   <image width="48" height="48" source="assetsRaw/nicht64x64/Diamond.png"/>
+  </tile>
+  <tile id="1">
+   <image width="32" height="70" source="assetsRaw/nicht64x64/fackel.png"/>
+  </tile>
+  <tile id="2">
+   <image width="64" height="64" source="assetsRaw/player/PlayerIdel.png"/>
+  </tile>
+ </tileset>
+ <layer name="Kachelebene 1" width="32" height="8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
+0,0,0,0,9,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,
+3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,0,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+</data>
+ </layer>
+ <objectgroup color="#00ffff" name="diamonds">
+  <object id="1" x="384" y="256" width="64" height="64"/>
+  <object id="2" x="960" y="0" width="64" height="64"/>
+  <object id="3" x="1024" y="256" width="64" height="64"/>
+  <object id="4" x="1664" y="64" width="64" height="64"/>
+ </objectgroup>
+ <objectgroup color="#00007f" name="Ground">
+  <object id="5" x="0" y="448" width="704" height="64"/>
+  <object id="6" x="704" y="384" width="64" height="64"/>
+  <object id="7" x="832" y="256" width="64" height="64"/>
+  <object id="8" x="1088" y="128" width="384" height="64"/>
+  <object id="9" x="1024" y="448" width="1024" height="63"/>
+ </objectgroup>
+ <objectgroup color="#ff0000" name="button">
+  <object id="10" x="1920" y="384" width="64" height="64"/>
+ </objectgroup>
+ <objectgroup color="#00ff00" name="playerStart">
+  <object id="11" x="128" y="384" width="64" height="64"/>
+ </objectgroup>
+ <objectgroup color="#ffff00" name="truhe">
+  <object id="12" x="1216" y="64" width="64" height="64"/>
+ </objectgroup>
+</map>

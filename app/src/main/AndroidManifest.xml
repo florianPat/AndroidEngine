@@ -1,0 +1,26 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.patruck.florian.AndroidEngine">
+
+    <!--- NOTE: You can change "AndroidEngine" in anything you want! -->
+
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="AndroidEngine"
+        android:hasCode="false"
+        android:roundIcon="@mipmap/ic_launcher_round">
+        
+        <activity android:name="android.app.NativeActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="AndroidEngine">
+            <meta-data android:name="android.app.lib_name"
+                android:value="native-activity" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+    </application>
+</manifest>
