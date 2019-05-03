@@ -1,5 +1,7 @@
 #pragma once
 
+#include <math.h>
+
 template <typename T>
 class Vector2
 {
@@ -97,8 +99,8 @@ public:
 		return !(*this == rhs);
 	}
 public:
-	T x;
-	T y;
+	T x = 0;
+	T y = 0;
 };
 
 typedef Vector2<float> Vector2f;

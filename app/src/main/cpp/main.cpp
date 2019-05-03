@@ -1,9 +1,11 @@
 #include "MainLevel.h"
+#include "Font.h"
 
 static void registerAssetLoaders(AssetManager* assetManager)
 {
-	assetManager->registerAssetLoader("png", AssetLoader::initLoader<Texture>(true));
-	assetManager->registerAssetLoader("wav", AssetLoader::initLoader<Sound>(false));
+	assetManager->registerAssetLoader("png", AssetLoader::initLoader<Texture, true>());
+	assetManager->registerAssetLoader("wav", AssetLoader::initLoader<Sound, false>());
+	assetManager->registerAssetLoader("ttf", AssetLoader::initLoaderWithOptions<Font, true>());
 }
 
 void android_main(android_app* app)

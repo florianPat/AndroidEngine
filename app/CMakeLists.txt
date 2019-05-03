@@ -51,6 +51,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/Clock.cpp
              src/main/cpp/EventLevelReload.cpp
              src/main/cpp/EventManager.cpp
+             src/main/cpp/Font.cpp
              src/main/cpp/GameObjectManager.cpp
              src/main/cpp/GLUtils.cpp
              src/main/cpp/Ifstream.cpp

@@ -1,0 +1,51 @@
+#pragma once
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include "String.h"
+#include "RenderTexture.h"
+#include <unordered_map>
+#include "Vector2.h"
+
+class Font
+{
+    struct GlyphRegion
+    {
+        Vector2f bitmapTopLeft;
+        Vector2i xy;
+        Vector2i size;
+        uint advanceX;
+    };
+private:
+    static constexpr int NUM_GLYPHS = '~' - ' ';
+    int size = 0;
+    int faceHeight = 0;
+    RenderTexture renderTexture;
+    //NOTE: Stack overflow danger?
+    GlyphRegion regions[NUM_GLYPHS];
+    Shader* spriteShader = nullptr;
+    FT_Library library = nullptr;
+    Texture texture;
+public:
+    struct FontOptions
+    {
+        int size = 0;
+        class RenderWindow& renderWindow;
+    };
+private:
+    bool createGlyphRenderTextureAndMap(FT_Face& face);
+    bool loadFaceFromLibrary(const void* fileBuffer, long long fileSize, FT_Face& face);
+    void destructFace(FT_Face& face);
+public:
+    bool loadFromFile(const String& filename, void* options);
+    bool reloadFromFile(const String& filename);
+public:
+    Font() = default;
+    Font(const Font& other) = delete;
+    Font(Font&& other);
+    Font& operator=(const Font& rhs) = delete;
+    Font& operator=(Font&& rhs);
+    long long getSize() const { return (sizeof(Font)); }
+    void drawText(const String& text, const Vector2f& pos, class RenderWindow& renderWindow);
+    explicit operator bool() const;
+};

@@ -18,6 +18,10 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include "Sound.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include "Font.h"
+
 
 class RenderWindow
 {
@@ -57,7 +61,7 @@ private:
 	SLObjectItf playerObj = 0;
 	SLPlayItf player = 0;
 	SLAndroidSimpleBufferQueueItf playerBuffer = 0;
-	Vector<Sound*> activeSnds;
+	FT_Library fontLibrary = nullptr;
 public:
 	RenderWindow(android_app* app, int width, int height, ViewportType viewportType);
 	RenderWindow(const RenderWindow& other) = delete;
@@ -82,6 +86,7 @@ public:
 	Clock& getClock() const;
 	void play(const Sound* snd);
 	Shader* getSpriteShader();
+	FT_Library getFontLibrary();
 private:
 	void deactivate();
 	void processAppEvent(int32_t command);
@@ -98,4 +103,6 @@ private:
 	void stopSnd();
 	void setupGfxGpu();
 	void checkIfToRecoverFromContextLoss();
+	bool startFont();
+	void stopFont();
 };

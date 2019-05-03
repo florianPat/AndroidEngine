@@ -36,6 +36,7 @@ protected:
 	Texture* texture[NUM_TEXTURES];
 	//Sprite sprite;
 	Sound* sound[100 - NUM_TEXTURES];
+	Font* font;
 protected:
 	std::function<void(EventData*)> eventLevelReloadFunction = std::bind(&Level::eventLevelReloadHandler, this, std::placeholders::_1);
 	DelegateFunction delegateLevelReload = utils::getDelegateFromFunction(eventLevelReloadFunction);
@@ -46,6 +47,7 @@ protected:
 	void updateModelAndComposeFrame();
 public:
 	Level(RenderWindow& window, String tiledMapName);
+	virtual ~Level() = default;
 	bool Go();
 	std::unique_ptr<Level> getNewLevel();
 };
