@@ -8,6 +8,7 @@
 #include "Clock.cpp"
 #include "EventLevelReload.cpp"
 #include "EventManager.cpp"
+#include "Font.cpp"
 #include "GameObjectManager.cpp"
 #include "GLUtils.cpp"
 #include "Ifstream.cpp"

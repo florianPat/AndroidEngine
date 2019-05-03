@@ -11,7 +11,9 @@ class Texture
 private:
 	static constexpr bool pixeld = false;
 
-	GLuint texture = 0;
+	//NOTE: Done because if you default construct a texture, then copy construct one, the destructor
+	// could delete it if it is the 0st one
+	GLuint texture = -1;
 	int width = 0;
 	int height = 0;
 public:
@@ -20,6 +22,7 @@ public:
 public:
 	Texture() = default;
 	Texture(GLuint texture, int width, int height);
+	Texture(const void* buffer, int width, int height, GLint internalFormat = GL_RGBA);
 	Texture(const Texture& other) = delete;
 	Texture(Texture&& other);
 	Texture& operator=(const Texture& rhs) = delete;
@@ -27,7 +30,7 @@ public:
 	~Texture();
 	int getWidth() const { return width; }
 	int getHeight() const { return height; }
-	long long getSize() const { return width * height * sizeof(int32_t); }
+	long long getSize() const { return (width * height * sizeof(int32_t) + sizeof(Texture)); }
 	explicit operator bool() const;
 	void bind(int slot = 0) const;
 };

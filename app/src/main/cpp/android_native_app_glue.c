@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <sys/resource.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <jni.h>
 
  /*
  * Copyright (C) 2010 The Android Open Source Project

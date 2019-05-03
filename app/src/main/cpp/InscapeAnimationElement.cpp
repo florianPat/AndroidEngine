@@ -228,10 +228,7 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String & inkscapeFileNa
 
 bool InkscapeAnimationElement::FindGroupLayer(String & lineContent) const
 {
-	if (lineContent.find("id=\"layer") == String::npos)
-		return true;
-	else
-		return false;
+	return (lineContent.find("id=\"layer") == String::npos);
 }
 
 IntRect InkscapeAnimationElement::getElementRect(ShortString& keyFrameId, ShortString& elementId) const

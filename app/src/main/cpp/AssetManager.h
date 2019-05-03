@@ -22,7 +22,7 @@ private:
 public:
 	AssetManager() = delete;
 	template <typename T>
-	T* getOrAddRes(const String& filename);
+	T* getOrAddRes(const String& filename, void* argOptions = nullptr);
 	bool unloadNotUsedRes(const String& filename);
 	void clear();
 	bool isLoaded(const String& filename);
@@ -32,7 +32,7 @@ public:
 };
 
 template<typename T>
-T * AssetManager::getOrAddRes(const String & filename)
+T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 {
 	auto res = ressourceCache.find(filename);
 	if (res != ressourceCache.end())
@@ -44,15 +44,15 @@ T * AssetManager::getOrAddRes(const String & filename)
 	{
 		std::unique_ptr<char[]> asset = std::make_unique<char[]>(sizeof(T));
 		T* tP = (T*) asset.get();
-		*tP = T();
+		new (tP) T();
 		String ext = filename.substr(filename.length() - 3);
 		assert(assetLoaderCache.find(ext) != assetLoaderCache.end());
 		AssetLoader assetLoader = assetLoaderCache.at(ext);
 
 		//(TODO: Think about how to let the user also construct a asset from a stream)
-		if (!assetLoader.loadFromFile(asset.get(), filename))
+		if (!assetLoader.loadFromFile(asset.get(), filename, argOptions))
 		{
-			utils::logBreak("Could not load asset!");
+			utils::log("Could not load asset!");
 			return nullptr;
 		}
 

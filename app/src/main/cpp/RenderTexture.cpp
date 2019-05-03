@@ -30,6 +30,7 @@ RenderTexture & RenderTexture::operator=(RenderTexture && rhs)
 RenderTexture::~RenderTexture()
 {
 	CallGL(glDeleteFramebuffers(1, &renderTexture));
+	windowWidth = 0;
 }
 
 bool RenderTexture::create(uint width, uint height, Shader* shaderSpriteIn)
@@ -40,7 +41,7 @@ bool RenderTexture::create(uint width, uint height, Shader* shaderSpriteIn)
 	windowWidth = viewportSize[2];
 	windowHeight = viewportSize[3];
 
-	CallGL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &screenTexture));
+	CallGL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*) &screenTexture));
 
 	CallGL(glGenFramebuffers(1, &renderTexture));
 	CallGL(glBindFramebuffer(GL_FRAMEBUFFER, renderTexture));
@@ -49,7 +50,8 @@ bool RenderTexture::create(uint width, uint height, Shader* shaderSpriteIn)
 
 	CallGL(glGenTextures(1, &textureId));
 
-	texture = Texture(textureId, width, height);
+	assert(!texture);
+	new (&texture) Texture(textureId, width, height);
 
 	CallGL(glActiveTexture(GL_TEXTURE0));
 	CallGL(glBindTexture(GL_TEXTURE_2D, textureId));
@@ -76,18 +78,18 @@ bool RenderTexture::create(uint width, uint height, Shader* shaderSpriteIn)
 	return true;
 }
 
-void RenderTexture::clear()
+void RenderTexture::clear(const Color& color)
 {
 	CallGL(glBindFramebuffer(GL_FRAMEBUFFER, renderTexture));
 
 	CallGL(glViewport(0, 0, texture.getWidth(), texture.getHeight()));
 
-	CallGL(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+	CallGL(glClearColor(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f));
 	CallGL(glClear(GL_COLOR_BUFFER_BIT));
 
 	CallGL(glBindFramebuffer(GL_FRAMEBUFFER, screenTexture));
 
-	CallGL(glViewport(0, 0, windowWidth, windowHeight));
+    CallGL(glViewport(0, 0, windowWidth, windowHeight));
 }
 
 const Texture & RenderTexture::getTexture() const
@@ -110,10 +112,10 @@ void RenderTexture::draw(const Sprite & sprite)
 
 	texture->bind();
 
-	float texRectLeft = sprite.getTextureRect().left / texture->getWidth();
-	float texRectTop = sprite.getTextureRect().top / texture->getHeight();
-	float texRectRight = sprite.getTextureRect().getRight() / texture->getWidth();
-	float texRectBottom = sprite.getTextureRect().getBottom() / texture->getHeight();
+	float texRectLeft = ((float)sprite.getTextureRect().left) / texture->getWidth();
+	float texRectTop = ((float)sprite.getTextureRect().top) / texture->getHeight();
+	float texRectRight = ((float)sprite.getTextureRect().getRight()) / texture->getWidth();
+	float texRectBottom = ((float)sprite.getTextureRect().getBottom()) / texture->getHeight();
 
 	Vector2f texCoord[4] = { { texRectLeft, texRectTop },
 	{ texRectRight, texRectTop },
@@ -145,11 +147,16 @@ void RenderTexture::draw(const Sprite & sprite)
 
 	shaderSprite->bind();
 	shaderSprite->setUniformMat4f("u_mvp", mvp);
-	shaderSprite->setUniform4f("u_color", c.r / 255, c.g / 255, c.b / 255, c.a / 255);
+	shaderSprite->setUniform4f("u_color", c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
 
 	CallGL(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, 0));
 
 	CallGL(glBindFramebuffer(GL_FRAMEBUFFER, screenTexture));
 
 	CallGL(glViewport(0, 0, windowWidth, windowHeight));
+}
+
+RenderTexture::operator bool() const
+{
+	return (windowWidth != 0);
 }

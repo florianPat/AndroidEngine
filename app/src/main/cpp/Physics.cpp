@@ -419,7 +419,7 @@ Vector<ShortString> Physics::getAllCollisionIdsWhichContain(const ShortString & 
 #endif
 
 Physics::Body::Body(Vector2f&& pos, const ShortString& name, Collider* collider, bool isTrigger, bool isStatic)
-	: isStatic(isStatic), isTrigger(isTrigger), pos(std::move(pos)), id(name), physicsElements{}, index(-1)
+	: isStatic(isStatic), isTrigger(isTrigger), pos(pos), id(name), physicsElements{}, index(-1)
 {
 	PhysicElement physicsElement = {};
 	physicsElement.collidersInPointer = true;
@@ -433,7 +433,7 @@ Physics::Body::Body(const ShortString& name, Collider&& collider, bool isTrigger
 {
 	PhysicElement physicsElement = {};
 	physicsElement.collidersInPointer = false;
-	physicsElement.colliders.collidersValue = std::move(collider);
+	physicsElement.colliders.collidersValue = collider;
 
 	this->physicsElements.push_back(physicsElement);
 }
@@ -445,7 +445,7 @@ Physics::Body::Body(const ShortString& name, Vector<Collider>&& colliders, bool 
 	{
 		PhysicElement physicsElement = {};
 		physicsElement.collidersInPointer = false;
-		physicsElement.colliders.collidersValue = std::move(*it);
+		physicsElement.colliders.collidersValue = *it;
 
 		this->physicsElements.push_back(physicsElement);
 	}
@@ -506,7 +506,7 @@ const Physics::Collider * Physics::PhysicElement::getCollider() const
 	if (collidersInPointer)
 		return colliders.collidersPointer;
 	else
-		return (Collider *)&colliders.collidersValue;
+		return &colliders.collidersValue;
 }
 
 Physics::Collider::Collider() : type(Type::rect), collider{ {} }
@@ -527,18 +527,18 @@ Physics::Collider::Collider(FloatCircle & circle) : type(Type::circle), collider
 	collider.circle = circle;
 }
 
-Physics::Collider::Collider(FloatRect && rect) : type(Type::rect), collider{ std::move(rect) }
+Physics::Collider::Collider(FloatRect && rect) : type(Type::rect), collider{ rect }
 {
 }
 
 Physics::Collider::Collider(OBB && obb) : type(Type::obb), collider{ {} }
 {
-	collider.obb = std::move(obb);
+	collider.obb = obb;
 }
 
 Physics::Collider::Collider(FloatCircle && circle) : type(Type::circle), collider{ {} }
 {
-	collider.circle = std::move(circle);
+	collider.circle = circle;
 }
 
 Physics::Collider::Type Physics::Collider::GetType() const
@@ -555,10 +555,7 @@ bool Physics::Collider::intersects(const Collider & other) const
 	else if (other.type == Type::circle && type == Type::circle)
 	{
 		Vector2f vec = collider.circle.center - other.collider.circle.center;
-		if (sqrtf(vec.x * vec.x + vec.y * vec.y) < collider.circle.radius + other.collider.circle.radius)
-			return true;
-		else
-			return false;
+		return (sqrtf(vec.x * vec.x + vec.y * vec.y) < collider.circle.radius + other.collider.circle.radius);
 	}
 	else
 	{
@@ -701,7 +698,7 @@ Physics::OBB::OBB(float left, float top, float width, float height, float angle)
 Physics::OBB::OBB(Vector2f && topLeft, float width, float height, float angle) : angle(utils::degreesToRadians(angle)),
 																				 xAxis(cosf(this->angle), sinf(this->angle)), 
 																				 yAxis((-sinf(this->angle)), cosf(this->angle)),
-																				 width(width), height(height), pos(std::move(topLeft)), origin(0.0f, 0.0f)
+																				 width(width), height(height), pos(topLeft), origin(0.0f, 0.0f)
 {
 }
 
@@ -709,15 +706,15 @@ Physics::OBB::OBB(float left, float top, float width, float height, float angle,
 																									xAxis(cosf(this->angle), sinf(this->angle)), 
 																									yAxis((-sinf(this->angle)), cosf(this->angle)),
 																									width(width), height(height), pos(Vector2f{ left, top }), 
-																									origin(std::move(origin))
+																									origin(origin)
 {
 }
 
 Physics::OBB::OBB(Vector2f && topLeft, float width, float height, float angle, Vector2f&& origin) : angle(utils::degreesToRadians(angle)),
 																								 xAxis(cosf(this->angle), sinf(this->angle)), 
 																								 yAxis((-sinf(this->angle)), cosf(this->angle)),
-																								 width(width), height(height), pos(std::move(topLeft)), 
-																								 origin(std::move(origin))
+																								 width(width), height(height), pos(topLeft),
+																								 origin(origin)
 {
 }
 
@@ -733,7 +730,7 @@ float Physics::OBB::getAngle() const
 	return utils::radiansToDegrees(angle);
 }
 
-Physics::FloatCircle::FloatCircle(Vector2f && center, float radius) : radius(radius), center(std::move(center))
+Physics::FloatCircle::FloatCircle(Vector2f && center, float radius) : radius(radius), center(center)
 {
 }
 

@@ -3,9 +3,9 @@
 
 AAssetManager* AssetManager::aassetManager = nullptr;
 
-AssetManager::AssetManager(AAssetManager * aassetManager) : ressourceCache(), timeOfInsertCache()
+AssetManager::AssetManager(AAssetManager * aassetManagerIn) : ressourceCache(), timeOfInsertCache()
 {
-	this->aassetManager = aassetManager;
+	aassetManager = aassetManagerIn;
 }
 
 bool AssetManager::unloadNotUsedRes(const String & filename)
@@ -46,9 +46,12 @@ void AssetManager::reloadAllRes()
 	{
 		AssetLoader assetLoader = assetLoaderCache.at(it->first.substr(it->first.length() - 3));
 
-		if(!assetLoader.reloadFromFile(it->second.get(), it->first))
+		if(assetLoader.isGpu)
 		{
-			utils::logBreak("Could not reload asset!");
+			if(!assetLoader.reloadFromFile(it->second.get(), it->first))
+			{
+				utils::logBreak("Could not reload asset!");
+			}
 		}
 	}
 }

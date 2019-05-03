@@ -10,13 +10,14 @@
 
 class RenderTexture
 {
+	//NOTE: This could be a source of bugs! See Texture for details
 	GLuint renderTexture = 0;
-	GLint screenTexture = 0;
+	GLuint screenTexture = 0;
 	Texture texture;
 	Mat4x4 orhtoProj;
 	Shader* shaderSprite = nullptr;
-	float windowWidth = 0;
-	float windowHeight = 0;
+	int windowWidth = 0;
+	int windowHeight = 0;
 public:
 	RenderTexture() = default;
 	RenderTexture(const RenderTexture& other) = delete;
@@ -25,8 +26,9 @@ public:
 	RenderTexture& operator=(RenderTexture&& rhs);
 	~RenderTexture();
 	bool create(uint width, uint height, Shader* shaderSprite);
-	void clear();
+	void clear(const Color& color = Color());
 	const Texture& getTexture() const;
 	void display();
 	void draw(const Sprite& sprite);
+	explicit operator bool() const;
 };

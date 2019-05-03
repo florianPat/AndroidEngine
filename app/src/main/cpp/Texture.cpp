@@ -92,6 +92,11 @@ bool Texture::loadFromFile(const String & filename)
 			format = GL_LUMINANCE_ALPHA;
 			break;
 		}
+		default:
+		{
+			InvalidCodePath;
+			break;
+		}
 	}
 	png_read_update_info(png, info);
 
@@ -121,7 +126,7 @@ bool Texture::loadFromFile(const String & filename)
 	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
 	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
-	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image));
+	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image));
 
 	delete[] image;
 
@@ -163,7 +168,8 @@ Texture & Texture::operator=(Texture && rhs)
 
 Texture::~Texture()
 {
-	CallGL(glDeleteTextures(1, &texture));
+    CallGL(glDeleteTextures(1, &texture));
+    width = 0;
 }
 
 Texture::operator bool() const
@@ -175,4 +181,21 @@ void Texture::bind(int slot) const
 {
 	CallGL(glActiveTexture(GL_TEXTURE0 + slot));
 	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
+}
+
+Texture::Texture(const void* buffer, int width, int height, GLint internalFormat)
+{
+	CallGL(glGenTextures(1, &texture));
+	CallGL(glActiveTexture(GL_TEXTURE0));
+	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
+
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, buffer));
+
+	this->width = width;
+	this->height = height;
 }

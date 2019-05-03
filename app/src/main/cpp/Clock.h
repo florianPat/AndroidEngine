@@ -60,8 +60,8 @@ private:
 	int64_t now();
 	void update();
 private:
-	int64_t firstTime = 0.0;
-	int64_t lastTime = 0.0;
-	int64_t elapsed = 0.0f;
-	int64_t elapsedTotal = 0.0f;
+	int64_t firstTime = 0;
+	int64_t lastTime = 0;
+	int64_t elapsed = 0;
+	int64_t elapsedTotal = 0;
 };

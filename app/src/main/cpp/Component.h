@@ -12,7 +12,7 @@ typedef void(*UpdateAndDrawFunc)(char* thiz, float dt);
 class Component
 {
 protected:
-	const unsigned int id;
+	const int id;
 	EventManager* eventManager;
 	void(*updateAndDrawFunc)(char* thiz, float dt);
 	AssetManager* assetManager;
@@ -23,11 +23,12 @@ public:
 																						assetManager(assetManager), owner(owner) {};
 	void updateAndDraw(float dt) { updateAndDrawFunc((char*)this, dt); };
 	virtual gomSort::SortKey sort() { return gomSort::SortKey{ 0, 0.0f }; };
-	unsigned int getId() { return id; };
+	int getId() { return id; };
 
 	template <typename T>
 	static UpdateAndDrawFunc instantiateFunc()
 	{
 		return [](char* thiz, float dt) {T* p = (T*)thiz; p->updateAndDraw(dt); };
 	}
+	virtual ~Component() = default;
 };

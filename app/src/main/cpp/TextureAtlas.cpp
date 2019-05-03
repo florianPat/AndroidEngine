@@ -63,6 +63,12 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 					size_t spacePos = lineContent.find(' ');
 					lineContent.erase(0, ++spacePos);
 					fileHeader.repeat = lineContent;
+					break;
+				}
+				default:
+				{
+					InvalidCodePath;
+					break;
 				}
 			}
 		}
@@ -104,6 +110,11 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 				case 4: {}	break;
 				case 5: {}	break;
 				case 6: {}	break;
+				default:
+				{
+					InvalidCodePath;
+					break;
+				}
 			}
 		}
 

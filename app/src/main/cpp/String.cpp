@@ -428,7 +428,7 @@ size_t String::find_last_of(char c, size_t pos) const
 	if (pos == npos)
 		pos = size() - 1;
 
-	for (int i = pos; i >= 0; --i)
+	for (size_t i = pos; i >= 0; --i)
 	{
 		if (at(i) == c)
 			return i;
@@ -525,7 +525,7 @@ bool operator==(const char * lhs, const String & rhs)
 
 bool operator!=(const char * lhs, const String & rhs)
 {
-	return !(rhs == rhs);
+	return !(rhs == lhs);
 }
 
 bool utils::isWordInLine(const String & word, const String & lineContent)
@@ -683,6 +683,7 @@ ShortString::ShortString(String && other) : String(other)
 	assert(shortRep == true);
 }
 
+/*
 ShortString & ShortString::operator=(const String & rhs)
 {
 	((String*)(this))->operator=(rhs);
@@ -696,6 +697,7 @@ ShortString & ShortString::operator=(String && rhs)
 
 	return *this;
 }
+ */
 
 LongString::LongString() : String(SHORT_STRING_SIZE, false)
 {
@@ -717,18 +719,4 @@ LongString::LongString(const String & other) : String(other)
 LongString::LongString(String && other) : String(other)
 {
 	assert(shortRep == false);
-}
-
-LongString & LongString::operator=(const String & rhs)
-{
-	((String*)(this))->operator=(rhs);
-
-	return *this;
-}
-
-LongString & LongString::operator=(String && rhs)
-{
-	((String*)(this))->operator=(std::move(rhs));
-
-	return *this;
 }

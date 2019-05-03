@@ -1,6 +1,7 @@
 #include "Utils.h"
+#include "Types.h"
 
-static int counter = 0;
+static uint counter = 0;
 
 unsigned int utils::getGUID()
 {

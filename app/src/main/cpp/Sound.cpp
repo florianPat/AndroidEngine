@@ -30,23 +30,23 @@ bool Sound::loadFromFile(const String & filename)
 	{
 		switch (it.getType())
 		{
-		case (uint)ChunkId::FMT:
-		{
-			Fmt* fmt = (Fmt*)it.getChunkData();
-			nChannels = fmt->nChannles;
+			case (uint)ChunkId::FMT:
+			{
+				Fmt* fmt = (Fmt*)it.getChunkData();
+				nChannels = fmt->nChannles;
 
-			assert(fmt->wFormatTag == 1); //NOTE: Only PCM music!
-			assert(fmt->nSamplesPerSecond == 48000);
-			assert(fmt->wBitsPerSample == 16);
-			assert(fmt->nBlockAlign == (sizeof(short)*fmt->nChannles));
-			break;
-		}
-		case (uint)ChunkId::DATA:
-		{
-			sampleData = (short*)it.getChunkData();
-			sampleDataSize = it.getChunkDataSize();
-			break;
-		}
+				assert(fmt->wFormatTag == 1); //NOTE: Only PCM music!
+				assert(fmt->nSamplesPerSecond == 48000);
+				assert(fmt->wBitsPerSample == 16);
+				assert(fmt->nBlockAlign == (sizeof(short)*fmt->nChannles));
+				break;
+			}
+			case (uint)ChunkId::DATA:
+			{
+				sampleData = (short*)it.getChunkData();
+				sampleDataSize = it.getChunkDataSize();
+				break;
+			}
 		}
 	}
 
@@ -84,15 +84,6 @@ bool Sound::loadFromFile(const String & filename)
 	return true;
 }
 
-bool Sound::reloadFromFile(const String & filename)
-{
-	return loadFromFile(filename);
-}
-
-Sound::Sound()
-{
-}
-
 const Vector<Vector<short>>& Sound::getSamples() const
 {
 	return samples;
@@ -105,7 +96,7 @@ const int Sound::getNSamples() const
 
 long long Sound::getSize() const
 {
-	return (getNSamples() * sizeof(short));
+	return (getNSamples() * sizeof(short) + sizeof(Sound));
 }
 
 const short * Sound::getBuffer() const

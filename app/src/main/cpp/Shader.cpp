@@ -9,7 +9,7 @@ String loadShader(const String& filename)
 	file.open(filename);
 	assert(file);
 
-	LongString result(file.getSize());
+	LongString result((size_t) file.getSize());
 	while (!file.eof())
 	{
 		LongString line;
@@ -93,7 +93,7 @@ Shader::Shader(const String & filename, const Vector<ShortString>& attribLocs) :
 		CallGL(glAttachShader(program, shaders[i]));
 	}
 
-	for (int i = 0; i < attribLocs.size(); ++i)
+	for (uint i = 0; i < attribLocs.size(); ++i)
 	{
 		CallGL(glBindAttribLocation(program, i, attribLocs[i].c_str()));
 	}

@@ -48,10 +48,10 @@ void GameObjectManager::destroyActors()
 
 unsigned int GameObjectManager::getActorId(unsigned long long id)
 {
-	return (id >> 32);
+	return (uint) (id >> 32);
 }
 
 unsigned int GameObjectManager::getComponentId(unsigned long long id)
 {
-	return (id & 0xffffffff);
+	return (uint) (id & 0xffffffff);
 }

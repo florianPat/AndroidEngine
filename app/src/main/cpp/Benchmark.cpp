@@ -3,7 +3,7 @@
 
 void Benchmark::start(const ShortString & benchmarkNameIn)
 {
-	assert(running == false);
+	assert(!running);
 	running = true;
 	benchmarkName = benchmarkNameIn;
 	clock.restart();
@@ -12,7 +12,7 @@ void Benchmark::start(const ShortString & benchmarkNameIn)
 void Benchmark::stop()
 {
 	float time = clock.getTime().asSeconds();
-	assert(running == true);
+	assert(running);
 	running = false;
 	utils::logF("%s: has taken: %f", benchmarkName.c_str(), time);
 }

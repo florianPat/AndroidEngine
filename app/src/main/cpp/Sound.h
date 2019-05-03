@@ -62,9 +62,8 @@ private:
 	int nSamples = 0;
 public:
 	bool loadFromFile(const String& filename);
-	bool reloadFromFile(const String& filename);
 public:
-	Sound();
+	Sound() = default;
 	const Vector<Vector<short>>& getSamples() const;
 	const int getNSamples() const;
 	long long getSize() const;

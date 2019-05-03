@@ -196,6 +196,7 @@ public:
 		lhs += rhs;
 		return lhs;
 	}
+	//TODO: Should all these int`s be size_t`s instead?
 	ConstIterator operator+(int rhs)
 	{
 		ConstIterator lhs = *this;
@@ -459,8 +460,7 @@ inline size_t Array<T, N>::size() const
 template <typename T, size_t N>
 inline size_t Array<T, N>::capacity() const
 {
-	//TODO: Use constexpr if in C++17
-	if (N == 0)
+	if constexpr (N == 0)
 		return arrayUnion.heapArray.capacity;
 	else
 		return N;
@@ -680,7 +680,6 @@ inline Iterator<T> Array<T, N>::erasePop_back(size_t pos)
 
 	assert((pos < arraySize));
 
-	//TODO: Think about this and the assigment operator in other places...
 	arrayData[pos].~T();
 	new (&arrayData[pos]) T(std::move(arrayData[arraySize - 1]));
 
@@ -728,8 +727,7 @@ inline void Array<T, N>::pop_back()
 template<typename T, size_t N>
 inline constexpr T * Array<T, N>::getRightPointer()
 {
-	//TODO: Use constexpr if in C++17
-	if (N == 0)
+	if constexpr (N == 0)
 		return arrayUnion.heapArray.p;
 	else
 		return arrayUnion.arrayValue;
@@ -738,8 +736,7 @@ inline constexpr T * Array<T, N>::getRightPointer()
 template<typename T, size_t N>
 inline constexpr const T * Array<T, N>::getRightPointer() const
 {
-	//TODO: Use constexpr if in C++17
-	if (N == 0)
+	if constexpr (N == 0)
 		return arrayUnion.heapArray.p;
 	else
 		return arrayUnion.arrayValue;
@@ -748,8 +745,7 @@ inline constexpr const T * Array<T, N>::getRightPointer() const
 template<typename T, size_t N>
 inline Array<T, N>::~Array()
 {
-	//TODO: Use constexpr if in C++17
-	if (N == 0)
+	if constexpr (N == 0)
 	{
 		if (arrayUnion.heapArray.p != nullptr)
 		{

@@ -154,8 +154,6 @@ struct ShortString : public String
 	ShortString(const char(&s)[N]);
 	ShortString(const String& other);
 	ShortString(String&& other);
-	ShortString& operator=(const String& rhs);
-	ShortString& operator=(String&& rhs);
 };
 
 struct LongString : public String
@@ -167,8 +165,6 @@ struct LongString : public String
 	LongString(const char(&s)[N]);
 	LongString(const String& other);
 	LongString(String&& other);
-	LongString& operator=(const String& rhs);
-	LongString& operator=(String&& rhs);
 };
 
 #include <string>

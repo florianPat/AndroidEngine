@@ -5,13 +5,13 @@
 
 Clock::Clock()
 {
-	srand(time(NULL));
+	srand(time(nullptr));
 	restart();
 }
 
 void Clock::restart()
 {
-	elapsed = 0.0f;
+	elapsed = 0;
 	firstTime = now();
 	lastTime = firstTime;
 }
@@ -32,7 +32,7 @@ Time Clock::getElapsedTimeTotal()
 
 int64_t Clock::now()
 {
-	timespec timeVal;
+	timespec timeVal = { 0 };
 	if (clock_gettime(CLOCK_REALTIME, &timeVal) != 0)
 	{
 		utils::logBreak("clock_gettime error!");
@@ -42,7 +42,7 @@ int64_t Clock::now()
 
 void Clock::update()
 {
-	double currentTime = now();
+	int64_t currentTime = now();
 	elapsed = currentTime - lastTime;
 	elapsedTotal = currentTime - firstTime;
 	lastTime = currentTime;

@@ -10,7 +10,7 @@ android {
         versionName "1.0"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++14 -Wall -lm -lz"
+                cppFlags "-std=c++17 -Wall -lm -lz"
                 // For not stl: -DANDROID_STL=none
             }
         }
@@ -20,7 +20,6 @@ android {
             minifyEnabled false
         }
         debug {
-            debuggable true
             externalNativeBuild {
                 cmake {
                     cppFlags += "-DDEBUG=1"
