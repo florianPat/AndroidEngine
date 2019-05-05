@@ -12,7 +12,7 @@ Sprite::Sprite(const Texture* texture, const IntRect & rect) : texture(texture),
 
 void Sprite::setTexture(const Texture* textureIn, bool resetRect)
 {
-	assert(texture != nullptr);
+	assert(textureIn != nullptr);
 	assert(*textureIn);
 	texture = textureIn;
 	if (resetRect)

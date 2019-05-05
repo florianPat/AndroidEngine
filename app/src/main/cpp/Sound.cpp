@@ -109,7 +109,7 @@ Sound::operator bool() const
 	return (nSamples != 0);
 }
 
-Sound::RiffIt::RiffIt(void * at, void* stop) : at(reinterpret_cast<uint8_t*>(at)), stop(reinterpret_cast<uint8_t*>(stop))
+Sound::RiffIt::RiffIt(void * at, void* stop) : at(reinterpret_cast<uchar*>(at)), stop(reinterpret_cast<uchar*>(stop))
 {
 }
 

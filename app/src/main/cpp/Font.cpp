@@ -29,76 +29,53 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
     //NOTE: -1 because ' ' does not get rendered!
     uint renderTextureSize = (uint) size * (NUM_GLYPHS - 1);
     renderTexture.create(renderTextureSize, size, spriteShader);
-    renderTexture.clear(Color(0, 0, 0, 0));
+    renderTexture.clear();
     uint* pixels = (uint*) malloc(size * size * sizeof(uint));
 
     Vector2i xy = { 0, 0 };
-    for(uchar c = ' '; c <= '~'; ++c)
+    Texture texture;
+    Sprite sprite;
+
+    if(!loadGlyphIntoMap(' ', regions[' ' - ' '], face, xy))
+        return false;
+
+    for(uchar c = '!'; c <= '~'; ++c)
     {
-        uint glyphIndex = FT_Get_Char_Index(face, c);
-        int error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+        GlyphRegion& glyphRegion = regions[c - ' '];
+        if(!loadGlyphIntoMap(c, glyphRegion, face, xy))
+            return false;
+
+        int error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
         if(error)
         {
-            utils::log("could not load char from face");
+            utils::log("could not render char from face");
 
             destructFace(face);
             return false;
         }
-        else
+
+        ushort numGrayLevels = face->glyph->bitmap.num_grays;
+        //TODO: Get rid of this loop!
+        for(int y = 0, pixelY = glyphRegion.size.y - 1; y < glyphRegion.size.y; ++y, --pixelY)
         {
-            error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
-            if(error)
+            for(int x = 0; x < glyphRegion.size.x; ++x)
             {
-                utils::log("could not render char from face");
-
-                destructFace(face);
-                return false;
-            }
-            else
-            {
-                GlyphRegion& glyphRegion = regions[c - ' '];
-                glyphRegion.xy = xy;
-                glyphRegion.size = { (int) face->glyph->bitmap.width,
-                                     (int) face->glyph->bitmap.rows };
-                glyphRegion.bitmapTopLeft.x = face->glyph->bitmap_left;
-                glyphRegion.bitmapTopLeft.y = (face->glyph->bitmap_top - glyphRegion.size.y);
-                glyphRegion.advanceX = ((uint) face->glyph->advance.x) >> 6u;
-
-                assert(face->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
-                assert(glyphRegion.size.x <= size && glyphRegion.size.y <= size);
-
-                ushort numGrayLevels = face->glyph->bitmap.num_grays;
-                for(int y = 0, pixelY = glyphRegion.size.y - 1; y < glyphRegion.size.y; ++y, --pixelY)
-                {
-                    for(int x = 0; x < glyphRegion.size.x; ++x)
-                    {
-                        uchar currentPixelGrayLevel = face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x];
-                        /*currentPixelGrayLevel = currentPixelGrayLevel >= (uchar)128 ?
-                                                (uchar)128 - (currentPixelGrayLevel - (uchar)128) :
-                                                (uchar)128 + ((uchar)128 - currentPixelGrayLevel);*/
-                        uchar color = (uchar) ((float) currentPixelGrayLevel / numGrayLevels * 255.0f);
-                        pixels[pixelY * face->glyph->bitmap.pitch + x] = (color | (color << 8u) |
-                                                                          (color << 16u) | (color << 24u));
-                    }
-                }
-
-                //TODO: Can I get rid of this branch?
-                if(c != ' ')
-                {
-                    texture = Texture(pixels, glyphRegion.size.x, glyphRegion.size.y);
-                    Sprite sprite(&texture);
-                    sprite.setPosition((Vector2f) xy);
-                    renderTexture.draw(sprite);
-
-                    xy.x += texture.getWidth();
-                    if((xy.x + size) >= renderTextureSize)
-                        InvalidCodePath;
-                }
+                uchar currentPixelGrayLevel = face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x];
+                //NOTE: Premultiplied alpha for free ;)
+                uchar color = (uchar) ((float) currentPixelGrayLevel / numGrayLevels * 255.0f);
+                pixels[pixelY * face->glyph->bitmap.pitch + x] = (color | (color << 8u) |
+                                                                  (color << 16u) | (color << 24u));
             }
         }
-    }
 
-    renderTexture.display();
+        texture = Texture(pixels, face->glyph->bitmap.pitch, glyphRegion.size.y);
+        sprite.setTexture(&texture, true);
+        sprite.setPosition((Vector2f) xy);
+        renderTexture.draw(sprite);
+
+        xy.x += texture.getWidth();
+        assert((xy.x + size) <= renderTextureSize);
+    }
 
     free(pixels);
     destructFace(face);
@@ -232,4 +209,31 @@ Font::operator bool() const
 void Font::destructFace(FT_Face& face)
 {
     FT_Done_Face(face);
+}
+
+bool Font::loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vector2i& xy)
+{
+    uint glyphIndex = FT_Get_Char_Index(face, c);
+    int error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+    if(error)
+    {
+        utils::log("could not load char from face");
+
+        destructFace(face);
+        return false;
+    }
+    else
+    {
+        glyphRegion.xy = xy;
+        glyphRegion.size = {(int) face->glyph->bitmap.width,
+                            (int) face->glyph->bitmap.rows};
+        glyphRegion.bitmapTopLeft.x = face->glyph->bitmap_left;
+        glyphRegion.bitmapTopLeft.y = (face->glyph->bitmap_top - glyphRegion.size.y);
+        glyphRegion.advanceX = ((uint) face->glyph->advance.x) >> 6u;
+
+        assert(face->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
+        assert(glyphRegion.size.x <= size && glyphRegion.size.y <= size);
+    }
+
+    return true;
 }

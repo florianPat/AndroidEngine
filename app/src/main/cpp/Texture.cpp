@@ -4,10 +4,33 @@
 #include "Utils.h"
 #include "Ifstream.h"
 #include "GLUtils.h"
+#include "Types.h"
 
-void callback_readPng(png_structp pStruct, png_bytep pData, png_size_t pSize) {
-	Ifstream* asset = ((Ifstream*)png_get_io_ptr(pStruct));
-	asset->read(pData, pSize);
+static void callbackReadPng(png_structp pngStruct, png_bytep data, png_size_t size) {
+	Ifstream* asset = ((Ifstream*)png_get_io_ptr(pngStruct));
+	asset->read(data, size);
+}
+
+static void callbackReadTransform(png_structp ptr, png_row_infop rowInfo, png_bytep data)
+{
+    assert(rowInfo->bit_depth == 8); // 1 byte, uchar
+    assert(rowInfo->rowbytes == (rowInfo->width * sizeof(uint)));
+    assert(rowInfo->color_type == PNG_COLOR_TYPE_RGB || rowInfo->color_type == PNG_COLOR_TYPE_RGBA);
+
+    if(rowInfo->color_type == PNG_COLOR_TYPE_RGBA)
+    {
+        assert(rowInfo->channels == 4); //RGBA
+        assert(rowInfo->pixel_depth == (4 * 8));
+
+        for(int i = 0; i < rowInfo->rowbytes; i += 4)
+        {
+            float alpha = data[i + 3] / 255.0f;
+
+            data[i + 0] = (uchar) (data[i + 0] / 255.0f * alpha * 255.0f);
+            data[i + 1] = (uchar) (data[i + 1] / 255.0f * alpha * 255.0f);
+            data[i + 2] = (uchar) (data[i + 2] / 255.0f * alpha * 255.0f);
+        }
+    }
 }
 
 bool Texture::loadFromFile(const String & filename)
@@ -18,13 +41,9 @@ bool Texture::loadFromFile(const String & filename)
 	if (!asset)
 		return false;
 
-	GLint format;
 	png_byte header[8];
 	png_structp png = nullptr;
 	png_infop info = nullptr;
-	png_byte* image = nullptr;
-	png_bytep* rowPtrs = nullptr;
-	png_int_32 rowSize;
 	bool transparency;
 
 	asset.read(header, sizeof(header));
@@ -36,9 +55,13 @@ bool Texture::loadFromFile(const String & filename)
 		return false;
 	info = png_create_info_struct(png);
 	if (!info)
+	{
+		png_destroy_read_struct(&png, nullptr, nullptr);
 		return false;
+	}
 
-	png_set_read_fn(png, &asset, callback_readPng);
+	png_set_read_fn(png, &asset, callbackReadPng);
+    png_set_read_user_transform_fn(png, callbackReadTransform);
 
 	png_set_sig_bytes(png, 8);
 	png_read_info(png, info);
@@ -62,6 +85,7 @@ bool Texture::loadFromFile(const String & filename)
 		png_set_strip_16(png);
 	}
 
+	GLint format;
 	switch (colorType)
 	{
 		case PNG_COLOR_TYPE_PALETTE:
@@ -94,22 +118,26 @@ bool Texture::loadFromFile(const String & filename)
 		}
 		default:
 		{
+			png_destroy_read_struct(&png, &info, nullptr);
 			InvalidCodePath;
 			break;
 		}
 	}
 	png_read_update_info(png, info);
 
-	rowSize = png_get_rowbytes(png, info);
+	png_size_t rowSize = png_get_rowbytes(png, info);
 	if (rowSize <= 0)
-		return false;
-
-	image = new png_byte[rowSize * height];
-	rowPtrs = new png_bytep[height];
-
-	for (uint32_t i = 0; i < height; ++i)
 	{
-		rowPtrs[height - (i + 1)] = image + i * rowSize;
+		png_destroy_read_struct(&png, &info, nullptr);
+		return false;
+	}
+
+	png_byte* image = new png_byte[rowSize * height];
+	png_bytep* rowPtrs = new png_bytep[height];
+
+	for (uint i = 0, otherI = height - 1; i < height; ++i, --otherI)
+	{
+		rowPtrs[otherI] = &image[i * rowSize];
 	}
 	png_read_image(png, rowPtrs);
 
@@ -144,10 +172,6 @@ bool Texture::reloadFromFile(const String& filename)
 	}
 
 	return loadFromFile(filename);
-}
-
-Texture::Texture(GLuint texture, int width, int height) : texture(texture), width(width), height(height)
-{
 }
 
 Texture::Texture(Texture && other) : texture(std::exchange(other.texture, 0)), width(std::exchange(other.width, 0)),

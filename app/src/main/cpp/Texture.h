@@ -21,7 +21,6 @@ public:
 	bool reloadFromFile(const String& filename);
 public:
 	Texture() = default;
-	Texture(GLuint texture, int width, int height);
 	Texture(const void* buffer, int width, int height, GLint internalFormat = GL_RGBA);
 	Texture(const Texture& other) = delete;
 	Texture(Texture&& other);
@@ -33,4 +32,5 @@ public:
 	long long getSize() const { return (width * height * sizeof(int32_t) + sizeof(Texture)); }
 	explicit operator bool() const;
 	void bind(int slot = 0) const;
+	GLuint getTextureId() const { return texture; }
 };

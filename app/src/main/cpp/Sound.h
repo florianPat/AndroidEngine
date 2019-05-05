@@ -31,23 +31,23 @@ class Sound
 
 	struct Fmt
 	{
-		uint16_t wFormatTag;
-		uint16_t nChannles;
+		ushort wFormatTag;
+		ushort nChannles;
 		uint nSamplesPerSecond;
 		uint nAvgBytesPerSec;
-		uint16_t nBlockAlign;
-		uint16_t wBitsPerSample;
-		uint16_t cbSize;
-		uint16_t wValidBitsPerSample;
+		ushort nBlockAlign;
+		ushort wBitsPerSample;
+		ushort cbSize;
+		ushort wValidBitsPerSample;
 		uint dwChannelMask;
-		uint16_t subFormat[16];
+		ushort subFormat[16];
 	};
 #pragma pack(pop)
 
 	class RiffIt
 	{
-		uint8_t* at;
-		uint8_t* stop;
+		uchar* at;
+		uchar* stop;
 	public:
 		RiffIt(void* at, void* stop);
 		explicit operator bool() const;

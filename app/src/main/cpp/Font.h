@@ -25,7 +25,6 @@ private:
     GlyphRegion regions[NUM_GLYPHS];
     Shader* spriteShader = nullptr;
     FT_Library library = nullptr;
-    Texture texture;
 public:
     struct FontOptions
     {
@@ -36,6 +35,7 @@ private:
     bool createGlyphRenderTextureAndMap(FT_Face& face);
     bool loadFaceFromLibrary(const void* fileBuffer, long long fileSize, FT_Face& face);
     void destructFace(FT_Face& face);
+    bool loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vector2i& xy);
 public:
     bool loadFromFile(const String& filename, void* options);
     bool reloadFromFile(const String& filename);

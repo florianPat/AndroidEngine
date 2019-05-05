@@ -46,24 +46,10 @@ bool RenderTexture::create(uint width, uint height, Shader* shaderSpriteIn)
 	CallGL(glGenFramebuffers(1, &renderTexture));
 	CallGL(glBindFramebuffer(GL_FRAMEBUFFER, renderTexture));
 
-	GLuint textureId = 0;
-
-	CallGL(glGenTextures(1, &textureId));
-
 	assert(!texture);
-	new (&texture) Texture(textureId, width, height);
+	new (&texture) Texture(nullptr, width, height);
 
-	CallGL(glActiveTexture(GL_TEXTURE0));
-	CallGL(glBindTexture(GL_TEXTURE_2D, textureId));
-
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-
-	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
-
-	CallGL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0));
+	CallGL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getTextureId(), 0));
 
 	GLenum result;
 	CallGL(result = glCheckFramebufferStatus(GL_FRAMEBUFFER));
@@ -95,10 +81,6 @@ void RenderTexture::clear(const Color& color)
 const Texture & RenderTexture::getTexture() const
 {
 	return texture;
-}
-
-void RenderTexture::display()
-{
 }
 
 void RenderTexture::draw(const Sprite & sprite)

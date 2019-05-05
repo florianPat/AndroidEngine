@@ -238,7 +238,6 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 				}
 			}
 		}
-		texture.display();
 
 		textureSprite = Sprite(&texture.getTexture());
 	}
@@ -302,5 +301,5 @@ String TiledMap::ParseTiles(Ifstream & file)
 		file.getline(lineContent); //Maybe new <tileset>...
 	}
 
-	return lineContent;
+	return std::move(lineContent);
 }
