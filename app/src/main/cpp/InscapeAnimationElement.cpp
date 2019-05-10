@@ -205,9 +205,8 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String& inkscapeFileNam
 						it->second.left -= baseVec.x;
 						it->second.top -= baseVec.y;
 
-						//NOTE: Hard coded 64 because thats my image size
-						assert(it->second.left <= 64 && it->second.left >= 0);
-						assert(it->second.top <= 64 && it->second.top >= 0);
+						assert(it->second.left <= IMAGE_SIZE && it->second.left >= 0);
+						assert(it->second.top <= IMAGE_SIZE && it->second.top >= 0);
 					}
 				}
 				else

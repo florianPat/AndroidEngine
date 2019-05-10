@@ -4,9 +4,11 @@
 
 class IndexBuffer
 {
-	GLuint rendererId;
-	int count;
+	//NOTE: Same as in Texture!
+	GLuint rendererId = -1;
+	int count = 0;
 public:
+	IndexBuffer() = default;
 	IndexBuffer(unsigned int* indices, int count);
 	IndexBuffer(const IndexBuffer& other) = delete;
 	IndexBuffer(IndexBuffer&& other);

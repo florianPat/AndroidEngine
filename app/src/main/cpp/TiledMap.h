@@ -38,6 +38,7 @@ class TiledMap
 	Sprite textureSprite;
 	AssetManager* assetManager = nullptr;
 public:
+	//TODO: Refactor into an asset!
 	TiledMap(const String& filepath, GameObjectManager& gom, EventManager& em, RenderWindow& window, Vector<ShortString>&& toGameObjects = Vector<ShortString>{});
 	const Vector<Physics::Collider>& getObjectGroup(const ShortString& objectGroupName);
 	const std::unordered_map<ShortString, ObjectGroup>& getObjectGroups();

@@ -25,6 +25,7 @@ IndexBuffer & IndexBuffer::operator=(IndexBuffer && rhs)
 IndexBuffer::~IndexBuffer()
 {
 	CallGL(glDeleteBuffers(1, &rendererId));
+	count = 0;
 }
 
 void IndexBuffer::bind() const

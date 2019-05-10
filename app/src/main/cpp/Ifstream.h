@@ -9,7 +9,7 @@ public:
 	enum class SeekDir {beg, cur, end};
 private:
 	AAsset* asset = nullptr;
-	AAssetManager* aassetManager = nullptr;
+	static AAssetManager* aassetManager;
 	bool good = true;
 public:
 	Ifstream(const String& filename);
@@ -33,4 +33,5 @@ public:
 	void open(const String& filename);
 	const void* getFullData();
 	void close();
+	static void setAassetManager(AAssetManager* aassetManagerIn);
 };

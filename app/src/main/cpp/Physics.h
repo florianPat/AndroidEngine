@@ -9,11 +9,8 @@
 class Physics
 {
 public:
-	class FloatCircle
+	struct FloatCircle
 	{
-	private:
-		friend class Physics;
-	public:
 		float radius;
 		Vector2f center;
 	public:

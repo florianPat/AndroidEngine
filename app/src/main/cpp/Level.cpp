@@ -24,7 +24,9 @@ void Level::updateModelAndComposeFrame()
 	gom.updateAndDrawActors(dt);
 
 	//NOTE: Place for level specific update and render
-    font->drawText("Hello!\nThis is text rendering992.,;(%$$", {10.0f, window.getRenderHeight() - 400.0f}, window);
+    font->drawText("Hello!\nThis is text rendering992.,;(%$$", {10.0f, window.getRenderHeight() - 400.0f});
+    sprite.setRotation(sprite.getRotation() + 100.0f * dt);
+    window.draw(sprite);
 
 	physics.debugRenderBodies(window);
 
@@ -92,8 +94,14 @@ r()
 	*/
 
 	// -- init after clear of assetManager
-	Font::FontOptions options = { 32, window };
+	Font::FontOptions options = { 32, &this->window };
 	font = window.getAssetManager()->getOrAddRes<Font>("fonts/framd.ttf", &options);
+
+	spriteTexture = window.getAssetManager()->getOrAddRes<Texture>("Truhe.png");
+	new (&sprite) Sprite(spriteTexture);
+    sprite.setScale(2.0f);
+	sprite.setOrigin(sprite.getSize() / 2.0f);
+	sprite.setPosition(300.0f, 400.0f);
 	// -- end of init
 
 	eventManager.addListener(EventLevelReload::eventId, delegateLevelReload);

@@ -5,7 +5,7 @@
 #include "IndexBuffer.h"
 #include "Vector.h"
 
-//NOTE: Does not work with OpenGL ES 2, but I left it in the folder, but discarded it from the project.
+//NOTE: Does not work with OpenGL ES 2
 //Now I will just if it out
 
 class VertexArray

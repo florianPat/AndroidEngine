@@ -6,6 +6,7 @@
 #include "RenderTexture.h"
 #include <unordered_map>
 #include "Vector2.h"
+#include "RenderWindow.h"
 
 class Font
 {
@@ -17,19 +18,19 @@ class Font
         uint advanceX;
     };
 private:
-    static constexpr int NUM_GLYPHS = '~' - ' ';
+    static constexpr int NUM_GLYPHS = '~' - ' ' + 1;
     int size = 0;
     int faceHeight = 0;
     RenderTexture renderTexture;
     //NOTE: Stack overflow danger?
     GlyphRegion regions[NUM_GLYPHS];
-    Shader* spriteShader = nullptr;
     FT_Library library = nullptr;
+    RenderWindow* renderWindow = nullptr;
 public:
     struct FontOptions
     {
         int size = 0;
-        class RenderWindow& renderWindow;
+        RenderWindow* renderWindow;
     };
 private:
     bool createGlyphRenderTextureAndMap(FT_Face& face);
@@ -46,6 +47,6 @@ public:
     Font& operator=(const Font& rhs) = delete;
     Font& operator=(Font&& rhs);
     long long getSize() const { return (sizeof(Font)); }
-    void drawText(const String& text, const Vector2f& pos, class RenderWindow& renderWindow);
+    void drawText(const String& text, const Vector2f& pos);
     explicit operator bool() const;
 };

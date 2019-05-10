@@ -20,11 +20,16 @@
 #include "Sound.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include "Font.h"
-
 
 class RenderWindow
 {
+    struct Vertex
+    {
+        Vector2f position;
+        Vector2f tex;
+        float colorR, colorG, colorB, colorA;
+        float mvMatrix[6];
+    };
 public:
 	enum class ViewportType
 	{
@@ -38,30 +43,39 @@ private:
 	bool validNativeWindow = false;
 	bool initFinished = false;
 	bool running = true;
-	Clock clock;
 
+    Clock clock;
+    AssetManager assetManager;
+    FT_Library fontLibrary = nullptr;
+
+    //TODO: Refactor this into its own Gfx class?
 	int32_t renderWidth = 0, renderHeight = 0;
 	int screenWidth = 0, screenHeight = 0;
 	int viewportWidth = 0, viewportHeight = 0;
 	EGLDisplay display = EGL_NO_DISPLAY;
 	EGLSurface surface = EGL_NO_SURFACE;
 	EGLContext context = EGL_NO_CONTEXT;
-	AssetManager assetManager;
-	Shader shaderSprite;
-	Shader shaderRectShape;
-	View view;
-	Mat4x4 orhtoProj;
 	ViewportType viewportType;
 	bool glContextLost = false;
-	
+    View view;
+    Shader shaderSprite;
+    Shader shaderRectShape;
+    Mat4x4 orhtoProj;
+    int nTextureUnits = 0;
+    IndexBuffer ib;
+    VertexBuffer vb;
+    GLuint currentBoundTexture = -1;
+    static constexpr int NUM_SPRITES_TO_BATCH = 32;
+    static constexpr int NUM_VERTICES_TO_BATCH = NUM_SPRITES_TO_BATCH * 4;
+    int nSpritesBatched = 0;
+    std::unique_ptr<Vertex[]> vertices;
+
 	SLObjectItf engineObj = 0;
 	SLEngineItf engine = 0;
 	SLObjectItf outputMix = 0;
-
 	SLObjectItf playerObj = 0;
 	SLPlayItf player = 0;
 	SLAndroidSimpleBufferQueueItf playerBuffer = 0;
-	FT_Library fontLibrary = nullptr;
 public:
 	RenderWindow(android_app* app, int width, int height, ViewportType viewportType);
 	RenderWindow(const RenderWindow& other) = delete;
@@ -72,9 +86,12 @@ public:
 
 	void clear();
 	void close();
+	void bindOtherOrthoProj(const Mat4x4& otherOrthoProj);
+	void unbindOtherOrthoProj();
 	void draw(const Sprite& sprite);
 	void draw(const RectangleShape& rect);
 	void draw(const CircleShape& circle);
+	void flush();
 	void render();
 	AssetManager* getAssetManager();
 	View& getDefaultView();
@@ -85,7 +102,6 @@ public:
 	void recoverFromContextLoss();
 	Clock& getClock() const;
 	void play(const Sound* snd);
-	Shader* getSpriteShader();
 	FT_Library getFontLibrary();
 private:
 	void deactivate();
@@ -105,4 +121,6 @@ private:
 	void checkIfToRecoverFromContextLoss();
 	bool startFont();
 	void stopFont();
+	void setupSpriteRendering();
+	int nVerticesBatched() const;
 };

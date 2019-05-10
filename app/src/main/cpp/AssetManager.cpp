@@ -1,13 +1,6 @@
 #include "AssetManager.h"
 #include "Utils.h"
 
-AAssetManager* AssetManager::aassetManager = nullptr;
-
-AssetManager::AssetManager(AAssetManager * aassetManagerIn) : ressourceCache(), timeOfInsertCache()
-{
-	aassetManager = aassetManagerIn;
-}
-
 bool AssetManager::unloadNotUsedRes(const String & filename)
 {
 	auto res = ressourceCache.find(filename);
@@ -54,11 +47,6 @@ void AssetManager::reloadAllRes()
 			}
 		}
 	}
-}
-
-void AssetManager::read(AAsset * asset, void * buffer, size_t size)
-{
-	assert(AAsset_read(asset, buffer, size) == size);
 }
 
 void AssetManager::registerAssetLoader(const String & fileExt, const AssetLoader & assetLoader)

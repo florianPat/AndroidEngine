@@ -6,10 +6,10 @@
 bool Font::loadFromFile(const String& filename, void* fontOpts)
 {
     FontOptions* opts = (FontOptions*) fontOpts;
-    library = opts->renderWindow.getFontLibrary();
-    spriteShader = opts->renderWindow.getSpriteShader();
+    library = opts->renderWindow->getFontLibrary();
     size = opts->size;
-    assert(library != nullptr && opts->size != 0 && spriteShader != nullptr);
+    renderWindow = opts->renderWindow;
+    assert(library != nullptr && opts->size != 0 && renderWindow != nullptr);
 
     FT_Face face = nullptr;
 
@@ -24,12 +24,13 @@ bool Font::loadFromFile(const String& filename, void* fontOpts)
 
 bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
 {
-    assert(spriteShader != nullptr);
+    assert(renderWindow != nullptr);
 
     //NOTE: -1 because ' ' does not get rendered!
     uint renderTextureSize = (uint) size * (NUM_GLYPHS - 1);
-    renderTexture.create(renderTextureSize, size, spriteShader);
-    renderTexture.clear();
+    renderTexture.create(renderTextureSize, size);
+    renderTexture.begin(*renderWindow);
+    renderWindow->clear();
     uint* pixels = (uint*) malloc(size * size * sizeof(uint));
 
     Vector2i xy = { 0, 0 };
@@ -71,12 +72,16 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         texture = Texture(pixels, face->glyph->bitmap.pitch, glyphRegion.size.y);
         sprite.setTexture(&texture, true);
         sprite.setPosition((Vector2f) xy);
-        renderTexture.draw(sprite);
+        renderWindow->draw(sprite);
+        //TODO: This flush is not nice! (But it needs to happen because the texture gets deleted
+        // every iteration)
+        renderWindow->flush();
 
         xy.x += texture.getWidth();
         assert((xy.x + size) <= renderTextureSize);
     }
 
+    renderTexture.end(*renderWindow);
     free(pixels);
     destructFace(face);
 
@@ -98,9 +103,10 @@ bool Font::reloadFromFile(const String& filename)
     return createGlyphRenderTextureAndMap(face);
 }
 
-void Font::drawText(const String& text, const Vector2f& pos, RenderWindow& renderWindow)
+void Font::drawText(const String& text, const Vector2f& pos)
 {
     Vector2f pen = { 0.0f, 0.0f };
+    Sprite sprite;
 
     for(int i = 0; i < text.size(); ++i)
     {
@@ -120,21 +126,22 @@ void Font::drawText(const String& text, const Vector2f& pos, RenderWindow& rende
         {
             assert(c >= '!' && c <= '~');
             const GlyphRegion& region = regions[c - ' '];
-            Sprite sprite(&renderTexture.getTexture(), IntRect(region.xy.x, region.xy.y, region.size.x,
-                    region.size.y));
+            sprite.setTexture(&renderTexture.getTexture());
+            sprite.setTextureRect(IntRect(region.xy.x, region.xy.y, region.size.x,
+                                          region.size.y));
 
             sprite.setPosition(pos + pen + region.bitmapTopLeft);
 
             pen.x += region.advanceX;
 
-            renderWindow.draw(sprite);
+            renderWindow->draw(sprite);
         }
     }
 }
 
 Font::Font(Font&& other) : size(std::exchange(other.size, 0)), faceHeight(std::exchange(other.faceHeight, 0)),
                            renderTexture(std::exchange(other.renderTexture, RenderTexture())),
-                           spriteShader(std::exchange(other.spriteShader, nullptr))
+                           renderWindow(std::exchange(other.renderWindow, nullptr))
 {
     for(int i = 0; i < NUM_GLYPHS; ++i)
     {
@@ -149,7 +156,7 @@ Font& Font::operator=(Font&& rhs)
     faceHeight = std::exchange(rhs.faceHeight, 0);
     size = std::exchange(rhs.size, 0);
     renderTexture = std::exchange(rhs.renderTexture, RenderTexture());
-    spriteShader = std::exchange(rhs.spriteShader, nullptr);
+    renderWindow = std::exchange(rhs.renderWindow, nullptr);
 
     for(int i = 0; i < NUM_GLYPHS; ++i)
     {

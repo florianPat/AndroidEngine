@@ -167,7 +167,7 @@ String TextureAtlas::getLineContentBetweeen(String & lineContent, char first, ch
 
 	lineContent.erase(0, ++kommaPos);
 
-	return result;
+	return std::move(result);
 }
 
 Vector2i TextureAtlas::getLineContentRegionValues(String & lineContent, char firstRealChar)

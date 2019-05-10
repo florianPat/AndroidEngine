@@ -2,16 +2,18 @@
 #include "Utils.h"
 #include "AssetManager.h"
 
-Ifstream::Ifstream(const String & filename) : aassetManager(AssetManager::aassetManager)
+AAssetManager* Ifstream::aassetManager = nullptr;
+
+Ifstream::Ifstream(const String & filename)
 {
 	open(filename);
 }
 
-Ifstream::Ifstream() : aassetManager(AssetManager::aassetManager)
+Ifstream::Ifstream()
 {
 }
 
-Ifstream::Ifstream(Ifstream && other) : asset(std::exchange(other.asset, nullptr)), aassetManager(std::exchange(other.aassetManager, nullptr)),
+Ifstream::Ifstream(Ifstream && other) : asset(std::exchange(other.asset, nullptr)),
 										good(std::exchange(other.good, false))
 {
 }
@@ -151,4 +153,9 @@ void Ifstream::seekg(uint off, SeekDir way)
 			break;
 		}
 	}
+}
+
+void Ifstream::setAassetManager(AAssetManager* aassetManagerIn)
+{
+	aassetManager = aassetManagerIn;
 }

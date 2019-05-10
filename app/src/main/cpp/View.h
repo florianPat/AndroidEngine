@@ -12,8 +12,7 @@ class View
 	//TODO: Implement
 	/*float rot = 0.0f;
 	float scl = 1.0f;*/
-private:
-	friend class RenderWindow;
+public:
 	View(float width, float height);
 	Mat4x4 getOrthoProj(const Vector2f scale = { 1.0f, 1.0f }) const;
 	bool updated();

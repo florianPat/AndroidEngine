@@ -7,9 +7,7 @@
 #ifdef DEBUG
 #define assert(exp) if(!((exp) && true)) __android_log_assert(nullptr, "ASSERT", #exp);
 #else
-//NOTE: I do this so that the expression in the assert gets executed, because sometimes I have "critical" code in there (which may
-// is a bad idea)
-#define assert(exp) if(!((exp) && true)) utils::log("assert would have fired now!");
+#define assert(exp)
 #endif
 
 #define InvalidCodePath static_assert("InvalidCodePath")
@@ -31,8 +29,21 @@ namespace utils
 	float lerp(float v0, float v1, float t);
 	float degreesToRadians(float degree);
 	float radiansToDegrees(float radians);
-	void logF(const char* string, ...);
-	void logFBreak(const char* string, ...);
+	template<typename... Args>
+	void logF(const char* string, Args&&... args)
+    {
+#ifdef DEBUG
+        __android_log_print(ANDROID_LOG_INFO, "utilsLog", string, args...);
+#endif
+    }
+    template<typename... Args>
+	void logFBreak(const char* string, Args&&... args)
+    {
+#ifdef DEBUG
+        __android_log_print(ANDROID_LOG_INFO, "utilsLog", string, args...);
+        InvalidCodePath;
+#endif
+    }
 	void log(const char* string);
 	void logBreak(const char* string);
 }

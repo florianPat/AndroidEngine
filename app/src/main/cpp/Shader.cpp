@@ -18,7 +18,7 @@ String loadShader(const String& filename)
 		result += line + '\n';
 	}
 
-	return result;
+	return std::move(result);
 }
 
 void checkShaderError(GLuint shader, GLuint flag, bool isProgram, const String& errorMessage)
@@ -129,12 +129,13 @@ Shader & Shader::operator=(Shader && rhs)
 
 Shader::operator bool() const
 {
-	return (program != 0);
+	return (program != -1);
 }
 
 Shader::~Shader()
 {
 	CallGL(glDeleteProgram(program));
+	program = -1;
 }
 
 void Shader::bind() const

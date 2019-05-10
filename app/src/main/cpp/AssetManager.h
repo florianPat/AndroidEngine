@@ -8,26 +8,21 @@
 
 class AssetManager
 {
-	friend class RenderWindow;
-	friend class Ifstream;
-
 	static constexpr long long maxSize = Gigabyte(1);
 	long long currentSize = 0;
 	std::unordered_map<String, std::unique_ptr<char[]>> ressourceCache;
 	Vector<String> timeOfInsertCache;
-	static AAssetManager* aassetManager;
 	std::unordered_map<String, AssetLoader> assetLoaderCache;
-private:
-	AssetManager(AAssetManager* aassetManager);
 public:
-	AssetManager() = delete;
+    AssetManager() = default;
+    //TODO: Move from argOptions to just passing and forwarding them (but template variadic function
+    // do not work, because there sits a function pointer in the AssetLoader)
 	template <typename T>
 	T* getOrAddRes(const String& filename, void* argOptions = nullptr);
 	bool unloadNotUsedRes(const String& filename);
 	void clear();
 	bool isLoaded(const String& filename);
 	void reloadAllRes();
-	void read(AAsset* asset, void * buffer, size_t size);
 	void registerAssetLoader(const String& fileExt, const AssetLoader& assetLoader);
 };
 

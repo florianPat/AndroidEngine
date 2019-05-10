@@ -12,6 +12,7 @@
 #include "RectangleShape.h"
 #include "Texture.h"
 #include "Sound.h"
+#include "Font.h"
 
 class Level
 {
@@ -37,6 +38,8 @@ protected:
 	//Sprite sprite;
 	Sound* sound[100 - NUM_TEXTURES];
 	Font* font;
+	Texture* spriteTexture;
+	Sprite sprite;
 protected:
 	std::function<void(EventData*)> eventLevelReloadFunction = std::bind(&Level::eventLevelReloadHandler, this, std::placeholders::_1);
 	DelegateFunction delegateLevelReload = utils::getDelegateFromFunction(eventLevelReloadFunction);

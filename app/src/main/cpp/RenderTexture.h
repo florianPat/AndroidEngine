@@ -7,6 +7,7 @@
 #include "Shader.h"
 #include "Vector.h"
 #include <memory>
+#include "RenderWindow.h"
 
 class RenderTexture
 {
@@ -15,9 +16,6 @@ class RenderTexture
 	GLuint screenTexture = 0;
 	Texture texture;
 	Mat4x4 orhtoProj;
-	Shader* shaderSprite = nullptr;
-	int windowWidth = 0;
-	int windowHeight = 0;
 public:
 	RenderTexture() = default;
 	RenderTexture(const RenderTexture& other) = delete;
@@ -25,9 +23,9 @@ public:
 	RenderTexture& operator=(const RenderTexture& rhs) = delete;
 	RenderTexture& operator=(RenderTexture&& rhs);
 	~RenderTexture();
-	bool create(uint width, uint height, Shader* shaderSprite);
-	void clear(const Color& color = Color(0, 0, 0, 0));
+	bool create(uint width, uint height);
 	const Texture& getTexture() const;
-	void draw(const Sprite& sprite);
+	void begin(RenderWindow& window);
+	void end(RenderWindow& window);
 	explicit operator bool() const;
 };

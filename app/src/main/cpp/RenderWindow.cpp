@@ -68,12 +68,29 @@ int RenderWindow::InputEventCallback(android_app * app, AInputEvent * event)
     return renderWindow.processInputEvent(event);
 }
 
-RenderWindow::RenderWindow(android_app * app, int width, int height, ViewportType viewportType) : app(app), clock(),
+RenderWindow::RenderWindow(android_app * app, int width, int height, ViewportType viewportType) : app(app),
+                                                                                                  clock(),
+                                                                                                  assetManager(),
                                                                                                   renderWidth(width), renderHeight(height),
-                                                                                                  assetManager(app->activity->assetManager),
-                                                                                                  view(renderWidth, renderHeight), orhtoProj(view.getOrthoProj()),
-                                                                                                  viewportType(viewportType)
+                                                                                                  viewportType(viewportType),
+                                                                                                  view(renderWidth, renderHeight),
+                                                                                                  orhtoProj(view.getOrthoProj()),
+                                                                                                  vertices(std::make_unique<Vertex[]>(NUM_VERTICES_TO_BATCH))
 {
+    Ifstream::setAassetManager(app->activity->assetManager);
+
+    Vector2f spriteVertices[] = { {0.0f, 0.0f},
+                                  {1.0f, 0.0f},
+                                  {1.0f, 1.0f},
+                                  {0.0f, 1.0f} };
+    for(int i = 0; i < NUM_VERTICES_TO_BATCH; i += 4)
+    {
+        vertices[i + 0].position = spriteVertices[0];
+        vertices[i + 1].position = spriteVertices[1];
+        vertices[i + 2].position = spriteVertices[2];
+        vertices[i + 3].position = spriteVertices[3];
+    }
+
     app->userData = this;
     app->onAppCmd = AppEventCallback;
     app->onInputEvent = InputEventCallback;
@@ -108,7 +125,7 @@ bool RenderWindow::processEvents()
 
 void RenderWindow::clear()
 {
-    CallGL(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+    CallGL(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
     CallGL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
@@ -120,70 +137,79 @@ void RenderWindow::close()
 
 void RenderWindow::draw(const Sprite & sprite)
 {
+    assert(vb);
+
     const Texture* texture = sprite.getTexture();
     assert(*texture);
 
-    texture->bind();
+    if(currentBoundTexture != texture->getTextureId())
+    {
+        flush();
+
+        texture->bind();
+        currentBoundTexture = texture->getTextureId();
+    }
+    else if(nSpritesBatched >= NUM_SPRITES_TO_BATCH)
+    {
+        flush();
+    }
 
     float texRectLeft = ((float)sprite.getTextureRect().left) / texture->getWidth();
     float texRectTop = ((float)sprite.getTextureRect().top) / texture->getHeight();
     float texRectRight = ((float)sprite.getTextureRect().getRight()) / texture->getWidth();
     float texRectBottom = ((float)sprite.getTextureRect().getBottom()) / texture->getHeight();
-
     Vector2f texCoord[4] = { { texRectLeft, texRectTop },
                              { texRectRight, texRectTop },
                              { texRectRight, texRectBottom },
                              { texRectLeft, texRectBottom } };
 
-    float vertices[] = {0.0f, 0.0f, texCoord[0].x, texCoord[0].y,
-                        1.0f, 0.0f, texCoord[1].x, texCoord[1].y,
-                        1.0f, 1.0f, texCoord[2].x, texCoord[2].y,
-                        0.0f, 1.0f, texCoord[3].x, texCoord[3].y };
+    float red = sprite.getColor().r / 255.0f;
+    float green = sprite.getColor().g / 255.0f;
+    float blue = sprite.getColor().b / 255.0f;
+    float alpha = sprite.getColor().a / 255.0f;
 
-    unsigned int indices[] = { 0, 2, 3, 0, 1, 2 };
+    Mat4x4 mv = sprite.getTransform();
 
-    VertexBuffer vb = VertexBuffer(vertices, sizeof(vertices));
-    IndexBuffer ib = IndexBuffer(indices, arrayCount(indices));
+    int plusI = nVerticesBatched();
 
-    vb.bind();
+    for(int i = 0; i < 4; ++i)
+    {
+        //TODO: I could also pass the pos, scl, angle in directly and compute the mv in the vertexShader
+        // (But I would pass in one more float; and it is not really that much faster (according to what I saw))
 
-    VertexLayouts va;
-    va.addAttribute(2, GL_FLOAT);
-    va.addAttribute(2, GL_FLOAT);
-    va.set();
+        //TODO: Can add the active texture unit this sprite belongs to and batch sprites with different
+        // textures!
+        vertices[i + plusI].tex = texCoord[i];
+        vertices[i + plusI].colorR = red;
+        vertices[i + plusI].colorG = green;
+        vertices[i + plusI].colorB = blue;
+        vertices[i + plusI].colorA = alpha;
+        vertices[i + plusI].mvMatrix[0] = mv.matrix[0];
+        vertices[i + plusI].mvMatrix[1] = mv.matrix[1];
+        vertices[i + plusI].mvMatrix[2] = mv.matrix[4];
+        vertices[i + plusI].mvMatrix[3] = mv.matrix[5];
+        vertices[i + plusI].mvMatrix[4] = mv.matrix[12];
+        vertices[i + plusI].mvMatrix[5] = mv.matrix[13];
+    }
 
-    ib.bind();
-
-    Mat4x4 mvp = orhtoProj * sprite.getTransform();
-
-    Color c = sprite.getColor();
-
-    shaderSprite.bind();
-    shaderSprite.setUniformMat4f("u_mvp", mvp);
-    shaderSprite.setUniform4f("u_color", c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
-
-    CallGL(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, 0));
+    ++nSpritesBatched;
 }
 
 void RenderWindow::draw(const RectangleShape & rect)
 {
-    float vertices[] = { 0.0f, 0.0f,
-                         1.0f, 0.0f,
-                         1.0f, 1.0f,
-                         0.0f, 1.0f };
+    assert(vb);
 
-    unsigned int indices[] = { 0, 2, 3, 0, 1, 2 };
+    flush();
 
-    VertexBuffer vb = VertexBuffer(vertices, sizeof(vertices));
-    IndexBuffer ib = IndexBuffer(indices, arrayCount(indices));
-
-    vb.bind();
+    float vertices[] = {0.0f, 0.0f,
+                        1.0f, 0.0f,
+                        1.0f, 1.0f,
+                        0.0f, 1.0f };
+    vb.subData(0, sizeof(vertices), vertices);
 
     VertexLayouts va;
     va.addAttribute(2, GL_FLOAT);
     va.set();
-
-    ib.bind();
 
     Mat4x4 mvp = orhtoProj * rect.getTransform();
 
@@ -194,44 +220,19 @@ void RenderWindow::draw(const RectangleShape & rect)
     shaderRectShape.setUniform4f("u_color", c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
 
     CallGL(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, 0));
+
+    setupSpriteRendering();
 }
 
-//TODO: FIX!
+//TODO: Implement!
 void RenderWindow::draw(const CircleShape & circle)
 {
-    //Code by: https://gist.github.com/linusthe3rd/803118
-    static constexpr int triangleAmount = 20;
-
-    float twicePi = 2.0f * PIf;
-
-    float radius = circle.getRadius();
-
-    float vertices[triangleAmount * 2];
-    for (int i = 0, vertCounter = 0; i < triangleAmount; i++)
-    {
-        vertices[vertCounter++] = radius * cosf(i * twicePi / triangleAmount);
-        vertices[vertCounter++] = radius * sinf(i * twicePi / triangleAmount);
-    }
-
-    VertexBuffer vb = VertexBuffer(vertices, sizeof(vertices));
-    vb.bind();
-    VertexLayouts va;
-    va.addAttribute(2, GL_FLOAT);
-    va.set();
-
-    Mat4x4 mvp = orhtoProj * circle.getTransform();
-
-    Color c = circle.getFillColor();
-
-    shaderRectShape.bind();
-    shaderRectShape.setUniformMat4f("u_mvp", mvp);
-    shaderRectShape.setUniform4f("u_color", c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
-
-    CallGL(glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(vertices)));
 }
 
 void RenderWindow::render()
 {
+    flush();
+
     EGLBoolean result = eglSwapBuffers(display, surface);
     assert(result);
 
@@ -329,9 +330,6 @@ void RenderWindow::play(const Sound* snd)
 
 void RenderWindow::deactivate()
 {
-    shaderSprite.~Shader();
-    shaderRectShape.~Shader();
-
     stopGfx();
     stopSnd();
     stopFont();
@@ -623,6 +621,11 @@ bool RenderWindow::initContext(EGLConfig& config)
 
 void RenderWindow::stopGfx()
 {
+    shaderSprite.~Shader();
+    shaderRectShape.~Shader();
+    ib.~IndexBuffer();
+    vb.~VertexBuffer();
+
     if (display != EGL_NO_DISPLAY)
     {
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -780,8 +783,29 @@ void RenderWindow::stopSnd()
 //NOTE: Init graphics things here!
 void RenderWindow::setupGfxGpu()
 {
-    new (&shaderSprite) Shader("SSprite", Vector<ShortString>{ "position", "texCoord" });
+    CallGL(glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &nTextureUnits));
+
+    new (&shaderSprite) Shader("SSprite", Vector<ShortString>{ "position", "texCoord", "color",
+                                                               "mvMatrixSclRot", "mvMatrixPos" });
     new (&shaderRectShape) Shader("SRectShape", Vector<ShortString>{ "position" });
+
+    unsigned int indices[6 * NUM_SPRITES_TO_BATCH];
+    for(uint i = 0, counter = 0; i < NUM_SPRITES_TO_BATCH; ++i, counter += 6)
+    {
+        indices[counter + 0] = 0 + i * 4;
+        indices[counter + 1] = 2 + i * 4;
+        indices[counter + 2] = 3 + i * 4;
+        indices[counter + 3] = 0 + i * 4;
+        indices[counter + 4] = 1 + i * 4;
+        indices[counter + 5] = 2 + i * 4;
+    }
+    new (&ib) IndexBuffer(indices, arrayCount(indices));
+    ib.bind();
+
+    new (&vb) VertexBuffer(nullptr, sizeof(Vertex) * NUM_VERTICES_TO_BATCH, GL_DYNAMIC_DRAW);
+    vb.bind();
+
+    setupSpriteRendering();
 
     assetManager.reloadAllRes();
 }
@@ -842,11 +866,6 @@ void RenderWindow::checkIfToRecoverFromContextLoss()
     }
 }
 
-Shader * RenderWindow::getSpriteShader()
-{
-    return &shaderSprite;
-}
-
 bool RenderWindow::startFont()
 {
     int error = FT_Init_FreeType(&fontLibrary);
@@ -865,4 +884,46 @@ void RenderWindow::stopFont()
 FT_Library RenderWindow::getFontLibrary()
 {
     return fontLibrary;
+}
+
+void RenderWindow::bindOtherOrthoProj(const Mat4x4& otherOrthoProjIn)
+{
+    assert(shaderSprite);
+    shaderSprite.setUniformMat4f("u_proj", otherOrthoProjIn);
+}
+
+void RenderWindow::unbindOtherOrthoProj()
+{
+    assert(shaderSprite);
+    shaderSprite.setUniformMat4f("u_proj", orhtoProj);
+}
+
+void RenderWindow::setupSpriteRendering()
+{
+    assert(shaderSprite);
+
+    shaderSprite.bind();
+    VertexLayouts va;
+    va.addAttribute(2, GL_FLOAT);
+    va.addAttribute(2, GL_FLOAT);
+    va.addAttribute(4, GL_FLOAT);
+    va.addAttribute(4, GL_FLOAT);
+    va.addAttribute(2, GL_FLOAT);
+    va.set();
+}
+
+void RenderWindow::flush()
+{
+    assert(ib);
+    assert(shaderSprite);
+
+    vb.subData(0, sizeof(Vertex) * nVerticesBatched(), vertices.get());
+
+    CallGL(glDrawElements(GL_TRIANGLES, 6 * nSpritesBatched, GL_UNSIGNED_INT, 0));
+    nSpritesBatched = 0;
+}
+
+int RenderWindow::nVerticesBatched() const
+{
+    return (nSpritesBatched * 4);
 }

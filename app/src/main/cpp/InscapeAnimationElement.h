@@ -10,6 +10,7 @@
 //NOTE: Class to get out rects with specific ids in specifig groups from Inkscape-files
 class InkscapeAnimationElement
 {
+	static constexpr int IMAGE_SIZE = 64;
 	std::unordered_map<ShortString, std::unordered_map<ShortString, IntRect>> elementMap;
 private:
 	bool FindGroupLayer(String& lineContent) const;

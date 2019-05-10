@@ -199,9 +199,10 @@ void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 
 void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectManager& gom, EventManager& em, RenderWindow& window)
 {
-	if (texture.create(mapWidth*tileWidth, mapHeight*tileHeight, window.getSpriteShader()))
+	if (texture.create(mapWidth*tileWidth, mapHeight*tileHeight))
 	{
-		texture.clear();
+		texture.begin(window);
+		window.clear();
 
 		for (auto it = layers.begin(); it != layers.end(); ++it)
 		{
@@ -218,7 +219,7 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 					sprite.setPosition((float)x * tileWidth, (float)posY * tileHeight);
 
 					if(toGameObjects.empty())
-						texture.draw(sprite);
+						window.draw(sprite);
 					else
 					{
 						bool toGO = false;
@@ -233,11 +234,12 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 							}
 						}
 						if(!toGO)
-							texture.draw(sprite);
+							window.draw(sprite);
 					}
 				}
 			}
 		}
+		texture.end(window);
 
 		textureSprite = Sprite(&texture.getTexture());
 	}

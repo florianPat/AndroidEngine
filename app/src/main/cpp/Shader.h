@@ -27,6 +27,7 @@ private:
 	int getUniformLoc(const ShortString& var);
 private:
 	static constexpr unsigned int NUM_SHADERS = 2;
-	GLuint program = 0;
+	//NOTE: Same as in Texture!
+	GLuint program = -1;
 	std::unordered_map<ShortString, GLint> uniformCache;
 };

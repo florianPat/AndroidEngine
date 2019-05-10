@@ -6,6 +6,7 @@
 #define CALL_STRING_ARRAY(exp) if(shortRep) return stringUnion.stringArrayShort.exp; else return stringUnion.stringArrayLong.exp
 //NOTE: For now, there is no possibiliy for a wide-character string. I could potentialy shoot myself in the foot here for localization purporses
 
+//TODO: Short/Long -Strings can NOT make use of copy ellision if a String gets returned (which really makes some sense...)
 class String
 {
 public:

@@ -25,28 +25,6 @@ float utils::radiansToDegrees(float radians)
 	return degrees;
 }
 
-void utils::logF(const char * string, ...)
-{
-#ifdef DEBUG
-	va_list argList = { 0 };
-	va_start(argList, string);
-	__android_log_vprint(ANDROID_LOG_INFO, "utilsLog", string, argList);
-	va_end(argList);
-#endif
-}
-
-void utils::logFBreak(const char * string, ...)
-{
-#ifdef DEBUG
-	va_list argList = { 0 };
-	va_start(argList, string);
-	__android_log_vprint(ANDROID_LOG_INFO, "utilsLog", string, argList);
-	va_end(argList);
-
-	assert(false);
-#endif
-}
-
 void utils::log(const char * string)
 {
 #ifdef DEBUG
@@ -57,6 +35,7 @@ void utils::log(const char * string)
 void utils::logBreak(const char * string)
 {
 #ifdef DEBUG
-	do { log((string)); assert(false); } while (false);
+	log((string));
+	InvalidCodePath;
 #endif
 }
