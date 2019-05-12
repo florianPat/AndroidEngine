@@ -14,8 +14,8 @@
 
 void Level::updateModelAndComposeFrame()
 {
-	float dt = clock.getTime().asSeconds();
-	utils::logF("%f", dt);
+    float dt = clock.getTime().asSeconds();
+    utils::logF("%f", dt);
 
 	gfx.clear();
 
@@ -23,30 +23,26 @@ void Level::updateModelAndComposeFrame()
 
 	gom.updateAndDrawActors(dt);
 
-	//NOTE: Place for level specific update and render
     font->drawText("Hello!\nThis is text rendering992.,;(%$$", {10.0f, gfx.getRenderHeight() - 400.0f});
     sprite.setRotation(sprite.getRotation() + 100.0f * dt);
     gfx.draw(sprite);
+
+    if(TouchInput::isTouched())
+    {
+        //This happens twice because the touchInput does not really update itself or there is a too
+        // small time interval
+        eventManager.TriggerEvent(std::make_unique<EventLevelReload>());
+    }
 
 	physics.debugRenderBodies(gfx);
 
     physics.update(dt);
 }
 
-Level::Level(Window & window, String tiledMapName) : window(window), gfx(window.getGfx()),
-                                                           physics(), gom(), clock(window.getClock()),
-eventManager(), map(tiledMapName, gom, window), levelName(tiledMapName)
+Level::Level(Window & window, String tiledMapName)
+	: window(window), gfx(window.getGfx()), physics(), gom(), clock(window.getClock()),
+	  eventManager(), map(tiledMapName, gom, window), levelName(tiledMapName)
 {
-	// -- test code
-	c.setFillColor(Colors::Yellow);
-	c.setRadius(50.0f);
-
-	r.setSize(30.0f, 10.0f);
-	r.setPosition({ gfx.getRenderWidth() - r.getSize().x, gfx.getRenderHeight() - r.getSize().y });
-
-	//window.play(sound);
-	// -- end test code
-
 	Benchmark benchmark = Benchmark::getBenchmark();
 	AssetManager* assetManager = window.getAssetManager();
 	std::srand(5);
@@ -93,30 +89,29 @@ eventManager(), map(tiledMapName, gom, window), levelName(tiledMapName)
 		Clear assets: has taken: 0.000063
 	*/
 
-	// -- init after clear of assetManager
-	Font::FontOptions options = { 32, &this->window };
-	font = window.getAssetManager()->getOrAddRes<Font>("fonts/framd.ttf", &options);
+    Font::FontOptions options = { 32, &this->window };
+    font = window.getAssetManager()->getOrAddRes<Font>("fonts/framd.ttf", &options);
 
-	spriteTexture = window.getAssetManager()->getOrAddRes<Texture>("Truhe.png");
-	new (&sprite) Sprite(spriteTexture);
+    spriteTexture = window.getAssetManager()->getOrAddRes<Texture>("Truhe.png");
+    new (&sprite) Sprite(spriteTexture);
     sprite.setScale(2.0f);
-	sprite.setOrigin(sprite.getSize() / 2.0f);
-	sprite.setPosition(300.0f, 400.0f);
-	// -- end of init
-
-	eventManager.addListener(EventLevelReload::eventId, delegateLevelReload);
-}
-
-bool Level::Go()
-{
-	updateModelAndComposeFrame();
-	//NOTE: Place for level specific drawing!
-	gfx.render();
-
-	return endLevel;
+    sprite.setOrigin(sprite.getSize() / 2.0f);
+    sprite.setPosition(300.0f, 400.0f);
 }
 
 std::unique_ptr<Level> Level::getNewLevel()
 {
+    endLevel = false;
 	return std::move(newLevel);
+}
+
+bool Level::shouldEndLevel() const
+{
+	return endLevel;
+}
+
+void Level::Go()
+{
+	updateModelAndComposeFrame();
+	gfx.render();
 }

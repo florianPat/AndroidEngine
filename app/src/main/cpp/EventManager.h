@@ -11,18 +11,16 @@ typedef std::pair<unsigned int, std::function<void(EventData*)>> DelegateFunctio
 
 class EventManager
 {
-	//TODO: I could really refactor this to use a Vector, or?
-	std::unordered_map<unsigned int, Vector<DelegateFunction>> eventListenerMap;
+	Vector<Vector<DelegateFunction>> eventListenerMap;
 	Vector<std::pair<unsigned int, DelegateFunction>> eventDeleterMap;
+private:
+	uint counter = 0;
+public:
+	DelegateFunction getDelegateFromFunction(std::function<void(EventData*)>& function);
 public:
 	EventManager();
 	bool addListener(unsigned int eventType, DelegateFunction& delegateFunction);
 	void removeListener(unsigned int eventType, DelegateFunction& delegateFunction);
-	bool TriggerEvent(std::unique_ptr<EventData> eventData);
+	void TriggerEvent(std::unique_ptr<EventData> eventData);
 	void removeListeners();
 };
-
-namespace utils
-{
-	DelegateFunction getDelegateFromFunction(std::function<void(EventData*)>& function);
-}

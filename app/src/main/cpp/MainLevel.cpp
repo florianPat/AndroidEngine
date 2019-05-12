@@ -1,4 +1,6 @@
 #include "MainLevel.h"
+#include "EventLevelReload.h"
+#include "TouchInput.h"
 
 void MainLevel::eventLevelReloadHandler(EventData * eventData)
 {
@@ -8,4 +10,5 @@ void MainLevel::eventLevelReloadHandler(EventData * eventData)
 
 MainLevel::MainLevel(Window & window, const String& tiledMapName) : Level(window, tiledMapName)
 {
+	eventManager.addListener(EventLevelReload::eventId, delegateLevelReload);
 }

@@ -17,16 +17,19 @@ protected:
 	Actor* owner;
 public:
 	Component(int id, Actor* owner, UpdateAndDrawFunc updateAndDrawFunc) : id(id),
-																						updateAndDrawFunc(updateAndDrawFunc),
-																						owner(owner) {};
+																			updateAndDrawFunc(updateAndDrawFunc),
+																			owner(owner)
+	{};
+
 	void updateAndDraw(float dt) { updateAndDrawFunc((char*)this, dt); };
 	virtual gomSort::SortKey sort() { return gomSort::SortKey{ 0, 0.0f }; };
 	int getId() { return id; };
 
+	//NOTE: The current working of this makes it necessary to only derive once from Component
 	template <typename T>
 	static UpdateAndDrawFunc instantiateFunc()
 	{
-		return [](char* thiz, float dt) {T* p = (T*)thiz; p->updateAndDraw(dt); };
+		return [](char* thiz, float dt) {T* p = (T*)thiz; p->updateAndRender(dt); };
 	}
 	virtual ~Component() = default;
 };

@@ -251,7 +251,7 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 
 String TiledMap::ParseTiles(Ifstream & file)
 {
-	LongString lineContent;
+	String lineContent = LongString();
 	file.getline(lineContent);
 
 	bool gridInFile = false;
@@ -303,5 +303,5 @@ String TiledMap::ParseTiles(Ifstream & file)
 		file.getline(lineContent); //Maybe new <tileset>...
 	}
 
-	return std::move(lineContent);
+	return lineContent;
 }

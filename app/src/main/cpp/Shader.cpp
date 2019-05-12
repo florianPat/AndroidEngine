@@ -9,7 +9,7 @@ String loadShader(const String& filename)
 	file.open(filename);
 	assert(file);
 
-	LongString result((size_t) file.getSize());
+	String result = LongString((size_t) file.getSize());
 	while (!file.eof())
 	{
 		LongString line;
@@ -18,7 +18,7 @@ String loadShader(const String& filename)
 		result += line + '\n';
 	}
 
-	return std::move(result);
+	return result;
 }
 
 void checkShaderError(GLuint shader, GLuint flag, bool isProgram, const String& errorMessage)

@@ -17,11 +17,11 @@ void android_main(android_app* app)
 
 	while (window.processEvents())
 	{
-		if (currentLevel->Go())
+		currentLevel->Go();
+		if (currentLevel->shouldEndLevel())
 		{
 			currentLevel = currentLevel->getNewLevel();
-			if (currentLevel == nullptr)
-				return;
+			assert(currentLevel != nullptr);
 		}
 	}
 }

@@ -155,7 +155,7 @@ void TextureAtlas::addRegion(const TextureRegion & adder)
 
 String TextureAtlas::getLineContentBetweeen(String & lineContent, char first, char secound)
 {
-	LongString result;
+	String result = LongString();
 
 	size_t spacePos = lineContent.find(first);
 	lineContent.erase(0, ++spacePos);
@@ -167,7 +167,7 @@ String TextureAtlas::getLineContentBetweeen(String & lineContent, char first, ch
 
 	lineContent.erase(0, ++kommaPos);
 
-	return std::move(result);
+	return result;
 }
 
 Vector2i TextureAtlas::getLineContentRegionValues(String & lineContent, char firstRealChar)

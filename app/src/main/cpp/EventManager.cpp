@@ -7,15 +7,18 @@ EventManager::EventManager() : eventListenerMap()
 
 bool EventManager::addListener(unsigned int eventType, DelegateFunction & delegateFunction)
 {
-	auto eventListenerList = eventListenerMap.find(eventType);
+    Vector<DelegateFunction>* eventListenerList = nullptr;
 
-	if (eventListenerList == eventListenerMap.end())
+	if (eventType >= eventListenerMap.size())
 	{
-		eventListenerMap.emplace(eventType, Vector<DelegateFunction>());
-		eventListenerList = eventListenerMap.find(eventType);
+		eventListenerMap.push_back(Vector<DelegateFunction>());
+		eventListenerList = &eventListenerMap.back();
 	}
+	else
+		eventListenerList = &eventListenerMap.at(eventType);
 
-	for (auto it = eventListenerList->second.begin(); it != eventListenerList->second.end();
+#ifdef DEBUG
+	for (auto it = eventListenerList->begin(); it != eventListenerList->end();
 		++it)
 	{
 		if (delegateFunction.first == it->first)
@@ -24,8 +27,9 @@ bool EventManager::addListener(unsigned int eventType, DelegateFunction & delega
 			return false;
 		}
 	}
+#endif
 
-	eventListenerList->second.push_back(delegateFunction);
+	eventListenerList->push_back(delegateFunction);
 	return true;
 }
 
@@ -34,19 +38,14 @@ void EventManager::removeListener(unsigned int eventType, DelegateFunction & del
 	eventDeleterMap.push_back(std::make_pair(eventType, delegateFunction));
 }
 
-bool EventManager::TriggerEvent(std::unique_ptr<EventData> eventData)
+void EventManager::TriggerEvent(std::unique_ptr<EventData> eventData)
 {
-	bool processed = false;
-	auto findIt = eventListenerMap.find(eventData->getEventId());
-	if (findIt != eventListenerMap.end())
+	assert(eventData->getEventId() < eventListenerMap.size());
+	auto findIt = eventListenerMap.at(eventData->getEventId());
+	for (auto it = findIt.begin(); it != findIt.end(); ++it)
 	{
-		for (auto it = findIt->second.begin(); it != findIt->second.end(); ++it)
-		{
-			it->second(eventData.get());
-			processed = true;
-		}
+		it->second(eventData.get());
 	}
-	return processed;
 }
 
 void EventManager::removeListeners()
@@ -58,26 +57,24 @@ void EventManager::removeListeners()
 			uint eventType = it->first;
 			DelegateFunction delegateFunction = it->second;
 
-			auto findIt = eventListenerMap.find(eventType);
-			if (findIt != eventListenerMap.end())
+			assert(eventType < eventListenerMap.size());
+			auto findIt = eventListenerMap.at(eventType);
+			for (auto it = findIt.begin(); it != findIt.end(); ++it)
 			{
-				for (auto it = findIt->second.begin(); it != findIt->second.end(); ++it)
+				if (delegateFunction.first == it->first)
 				{
-					if (delegateFunction.first == it->first)
-					{
-						findIt->second.erasePop_back(it);
-						break;
-					}
+					findIt.erasePop_back(it);
+					break;
 				}
-				if (findIt->second.empty())
-					eventListenerMap.erase(findIt);
 			}
+			if (findIt.empty())
+				eventListenerMap.erase(eventType);
 		}
 		eventDeleterMap.clear();
 	}
 }
 
-DelegateFunction utils::getDelegateFromFunction(std::function<void(EventData*)>& function)
+DelegateFunction EventManager::getDelegateFromFunction(std::function<void(EventData*)>& function)
 {
-	return DelegateFunction(std::pair<unsigned int, std::function<void(EventData*)>>(getGUID(), function));
+	return DelegateFunction(std::pair<unsigned int, std::function<void(EventData*)>>(counter++, function));
 }
