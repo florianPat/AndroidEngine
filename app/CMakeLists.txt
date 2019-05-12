@@ -54,6 +54,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/Font.cpp
              src/main/cpp/GameObjectManager.cpp
              src/main/cpp/GLUtils.cpp
+             src/main/cpp/GraphicsOGL2.cpp
+             src/main/cpp/GraphicsOGLIniter.cpp
              src/main/cpp/Ifstream.cpp
              src/main/cpp/IndexBuffer.cpp
              src/main/cpp/InkscapeAnimation.cpp
@@ -64,7 +66,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/Physics.cpp
              src/main/cpp/RectangleShape.cpp
              src/main/cpp/RenderTexture.cpp
-             src/main/cpp/RenderWindow.cpp
              src/main/cpp/Shader.cpp
              src/main/cpp/Sound.cpp
              src/main/cpp/Sprite.cpp
@@ -78,7 +79,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/VertexArray.cpp
              src/main/cpp/VertexBuffer.cpp
              src/main/cpp/VertexLayout.cpp
-             src/main/cpp/View.cpp )
+             src/main/cpp/View.cpp
+             src/main/cpp/Window.cpp )
              #src/main/cpp/TranslationUnit.cpp )
 
 # Specifies libraries CMake should link to your target library. You

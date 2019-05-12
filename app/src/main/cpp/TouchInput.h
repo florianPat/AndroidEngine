@@ -11,7 +11,7 @@ public:
 	static bool isTouched();
 	static const Vector2f& getPosition();
 private:
-	friend class RenderWindow;
+	friend class Window;
 	static void setPosition(float x, float y);
 	static void setTouched(bool touch);
 	static void setShouldUp(bool shouldUp);

@@ -39,10 +39,10 @@ class TiledMap
 	AssetManager* assetManager = nullptr;
 public:
 	//TODO: Refactor into an asset!
-	TiledMap(const String& filepath, GameObjectManager& gom, EventManager& em, RenderWindow& window, Vector<ShortString>&& toGameObjects = Vector<ShortString>{});
+	TiledMap(const String& filepath, GameObjectManager& gom, Window& window, Vector<ShortString>&& toGameObjects = Vector<ShortString>{});
 	const Vector<Physics::Collider>& getObjectGroup(const ShortString& objectGroupName);
 	const std::unordered_map<ShortString, ObjectGroup>& getObjectGroups();
-	void draw(RenderWindow& renderWindow);
+	void draw(Graphics& gfx);
 private:
 	size_t getEndOfWord(const String& word, const String& lineContent, bool* result);
 	String getLineContentBetween(String& lineContent, const String& endOfFirst, char secound);
@@ -50,5 +50,5 @@ private:
 	String ParseTiles(Ifstream& file);
 	void ParseLayer(Ifstream& file, String& lineContent);
 	void ParseObjectGroups(Ifstream& file, String& lineContent);
-	void MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectManager& gom, EventManager& em, RenderWindow& window);
+	void MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectManager& gom, Graphics& gfx);
 };

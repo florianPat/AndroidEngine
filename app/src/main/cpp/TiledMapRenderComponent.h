@@ -2,15 +2,18 @@
 
 #include "Component.h"
 #include "Sprite.h"
-#include "RenderWindow.h"
+#include "Window.h"
 #include "Utils.h"
 
 class TiledMapRenderComponent : public Component
 {
 	const Sprite sprite;
-	RenderWindow& renderTarget;
+	Graphics& gfx;
 public:
-	TiledMapRenderComponent(Sprite& sprite, RenderWindow& renderTarget, EventManager& em, Actor* owner) : Component(utils::getGUID(), &em, renderTarget.getAssetManager(), owner, Component::instantiateFunc<TiledMapRenderComponent>()), sprite(sprite), renderTarget(renderTarget) {};
-	void updateAndRender(float dt) { renderTarget.draw(sprite); };
+	TiledMapRenderComponent(Sprite& sprite, Graphics& gfx, Actor* owner)
+		: Component(utils::getGUID(), owner,
+		  Component::instantiateFunc<TiledMapRenderComponent>()), sprite(sprite),
+		  gfx(gfx) {};
+	void updateAndRender(float dt) { gfx.draw(sprite); };
 	gomSort::SortKey sort() override { return gomSort::SortKey{ 0, sprite.getPosition().y }; }
 };

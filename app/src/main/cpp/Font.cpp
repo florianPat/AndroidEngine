@@ -1,15 +1,15 @@
 #include "Font.h"
 #include "Ifstream.h"
-#include "RenderWindow.h"
+#include "Window.h"
 #include FT_IMAGE_H
 
 bool Font::loadFromFile(const String& filename, void* fontOpts)
 {
     FontOptions* opts = (FontOptions*) fontOpts;
-    library = opts->renderWindow->getFontLibrary();
+    library = opts->Window->getFontLibrary();
     size = opts->size;
-    renderWindow = opts->renderWindow;
-    assert(library != nullptr && opts->size != 0 && renderWindow != nullptr);
+    gfx = &opts->Window->getGfx();
+    assert(library != nullptr && opts->size != 0 && gfx != nullptr);
 
     FT_Face face = nullptr;
 
@@ -24,13 +24,13 @@ bool Font::loadFromFile(const String& filename, void* fontOpts)
 
 bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
 {
-    assert(renderWindow != nullptr);
+    assert(gfx != nullptr);
 
     //NOTE: -1 because ' ' does not get rendered!
     uint renderTextureSize = (uint) size * (NUM_GLYPHS - 1);
     renderTexture.create(renderTextureSize, size);
-    renderTexture.begin(*renderWindow);
-    renderWindow->clear();
+    renderTexture.begin(*gfx);
+    gfx->clear();
     uint* pixels = (uint*) malloc(size * size * sizeof(uint));
 
     Vector2i xy = { 0, 0 };
@@ -72,16 +72,16 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         texture = Texture(pixels, face->glyph->bitmap.pitch, glyphRegion.size.y);
         sprite.setTexture(&texture, true);
         sprite.setPosition((Vector2f) xy);
-        renderWindow->draw(sprite);
+        gfx->draw(sprite);
         //TODO: This flush is not nice! (But it needs to happen because the texture gets deleted
         // every iteration)
-        renderWindow->flush();
+        gfx->flush();
 
         xy.x += texture.getWidth();
         assert((xy.x + size) <= renderTextureSize);
     }
 
-    renderTexture.end(*renderWindow);
+    renderTexture.end(*gfx);
     free(pixels);
     destructFace(face);
 
@@ -134,14 +134,14 @@ void Font::drawText(const String& text, const Vector2f& pos)
 
             pen.x += region.advanceX;
 
-            renderWindow->draw(sprite);
+            gfx->draw(sprite);
         }
     }
 }
 
 Font::Font(Font&& other) : size(std::exchange(other.size, 0)), faceHeight(std::exchange(other.faceHeight, 0)),
                            renderTexture(std::exchange(other.renderTexture, RenderTexture())),
-                           renderWindow(std::exchange(other.renderWindow, nullptr))
+                           gfx(std::exchange(other.gfx, nullptr))
 {
     for(int i = 0; i < NUM_GLYPHS; ++i)
     {
@@ -156,7 +156,7 @@ Font& Font::operator=(Font&& rhs)
     faceHeight = std::exchange(rhs.faceHeight, 0);
     size = std::exchange(rhs.size, 0);
     renderTexture = std::exchange(rhs.renderTexture, RenderTexture());
-    renderWindow = std::exchange(rhs.renderWindow, nullptr);
+    gfx = std::exchange(rhs.gfx, nullptr);
 
     for(int i = 0; i < NUM_GLYPHS; ++i)
     {

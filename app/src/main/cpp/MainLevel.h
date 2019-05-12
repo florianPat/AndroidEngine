@@ -6,5 +6,5 @@ class MainLevel: public Level
 {
 	virtual void eventLevelReloadHandler(EventData* eventData) override;
 public:
-	MainLevel(RenderWindow& window, const String& tiledMapName);
+	MainLevel(Window& window, const String& tiledMapName);
 };

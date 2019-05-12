@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include "Vector.h"
 #include <memory>
-#include "RenderWindow.h"
+#include "Window.h"
 
 class RenderTexture
 {
@@ -25,7 +25,7 @@ public:
 	~RenderTexture();
 	bool create(uint width, uint height);
 	const Texture& getTexture() const;
-	void begin(RenderWindow& window);
-	void end(RenderWindow& window);
+	void begin(Graphics& gfx);
+	void end(Graphics& gfx);
 	explicit operator bool() const;
 };

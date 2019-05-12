@@ -4,7 +4,7 @@
 #include "Vector.h"
 #include <memory>
 #include "Rect.h"
-#include "RenderWindow.h"
+#include "Window.h"
 
 class Physics
 {
@@ -155,7 +155,7 @@ private:
 public:
 	Physics();
 	void update(float dt);
-	void debugRenderBodies(RenderWindow& window) const;
+	void debugRenderBodies(Graphics& gfx) const;
 	//Use if you need a reference to the body, to get back triggerInformation etc.
 	Body* addElementPointer(Body&& body);
 	//Use this otherwise

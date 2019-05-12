@@ -6,6 +6,6 @@ void MainLevel::eventLevelReloadHandler(EventData * eventData)
 	endLevel = true;
 }
 
-MainLevel::MainLevel(RenderWindow & window, const String& tiledMapName) : Level(window, tiledMapName)
+MainLevel::MainLevel(Window & window, const String& tiledMapName) : Level(window, tiledMapName)
 {
 }

@@ -4,7 +4,7 @@
 #include "TiledMapRenderComponent.h"
 #include <cstdlib>
 
-TiledMap::TiledMap(const String & filepath, GameObjectManager& gom, EventManager& em, RenderWindow& window, Vector<ShortString>&& toGameObjects)
+TiledMap::TiledMap(const String & filepath, GameObjectManager& gom, Window& window, Vector<ShortString>&& toGameObjects)
 	: tiles(), layers(), objectGroups(), texture(), textureSprite(), assetManager(window.getAssetManager())
 {
 	Ifstream file;
@@ -51,7 +51,7 @@ TiledMap::TiledMap(const String & filepath, GameObjectManager& gom, EventManager
 			utils::logBreak("We should be at the end of the file!");
 		}
 
-		MakeRenderTexture(toGameObjects, gom, em, window);
+		MakeRenderTexture(toGameObjects, gom, window.getGfx());
 	}
 }
 
@@ -72,9 +72,9 @@ const std::unordered_map<ShortString, TiledMap::ObjectGroup>& TiledMap::getObjec
 	return objectGroups;
 }
 
-void TiledMap::draw(RenderWindow& renderWindow)
+void TiledMap::draw(Graphics& gfx)
 {
-	renderWindow.draw(textureSprite);
+	gfx.draw(textureSprite);
 }
 
 size_t TiledMap::getEndOfWord(const String & word, const String & lineContent, bool* result)
@@ -197,12 +197,12 @@ void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 	}
 }
 
-void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectManager& gom, EventManager& em, RenderWindow& window)
+void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectManager& gom, Graphics& gfx)
 {
 	if (texture.create(mapWidth*tileWidth, mapHeight*tileHeight))
 	{
-		texture.begin(window);
-		window.clear();
+		texture.begin(gfx);
+		gfx.clear();
 
 		for (auto it = layers.begin(); it != layers.end(); ++it)
 		{
@@ -219,7 +219,7 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 					sprite.setPosition((float)x * tileWidth, (float)posY * tileHeight);
 
 					if(toGameObjects.empty())
-						window.draw(sprite);
+						gfx.draw(sprite);
 					else
 					{
 						bool toGO = false;
@@ -228,18 +228,18 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 							if ((*toGOIt) == it->name)
 							{
 								Actor* actorP = gom.addActor();
-								actorP->addComponent(std::make_unique<TiledMapRenderComponent>(sprite, window, em, actorP));
+								actorP->addComponent(std::make_unique<TiledMapRenderComponent>(sprite, gfx, actorP));
 								toGO = true;
 								break;
 							}
 						}
 						if(!toGO)
-							window.draw(sprite);
+							gfx.draw(sprite);
 					}
 				}
 			}
 		}
-		texture.end(window);
+		texture.end(gfx);
 
 		textureSprite = Sprite(&texture.getTexture());
 	}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderWindow.h"
+#include "Window.h"
 #include "TiledMap.h"
 #include "Physics.h"
 #include "GameObjectManager.h"
@@ -17,7 +17,8 @@
 class Level
 {
 protected:
-	RenderWindow& window;
+	Window& window;
+	Graphics& gfx;
 	Physics physics;
 	GameObjectManager gom;
 	Clock& clock;
@@ -49,7 +50,7 @@ protected:
 protected:
 	void updateModelAndComposeFrame();
 public:
-	Level(RenderWindow& window, String tiledMapName);
+	Level(Window& window, String tiledMapName);
 	virtual ~Level() = default;
 	bool Go();
 	std::unique_ptr<Level> getNewLevel();

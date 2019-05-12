@@ -213,7 +213,7 @@ void Physics::update(float dt)
 	}
 }
 
-void Physics::debugRenderBodies(RenderWindow & window) const
+void Physics::debugRenderBodies(Graphics& gfx) const
 {
 	for (auto it = bodies.begin(); it != bodies.end(); ++it)
 	{
@@ -233,7 +233,7 @@ void Physics::debugRenderBodies(RenderWindow & window) const
 					body.setPosition(Vector2f(colliderRect.left, colliderRect.top));
 					body.setFillColor(Colors::Yellow);
 
-					window.draw(body);
+					gfx.draw(body);
 
 					break;
 				}
@@ -270,7 +270,7 @@ void Physics::debugRenderBodies(RenderWindow & window) const
 					}
 #endif
 
-					window.draw(body);
+					gfx.draw(body);
 
 					break;
 				}
@@ -284,7 +284,7 @@ void Physics::debugRenderBodies(RenderWindow & window) const
 					body.setRadius(circle.radius);
 					body.setFillColor(Colors::Yellow);
 
-					window.draw(body);
+					gfx.draw(body);
 
 					break;
 				}

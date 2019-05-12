@@ -17,32 +17,32 @@ void Level::updateModelAndComposeFrame()
 	float dt = clock.getTime().asSeconds();
 	utils::logF("%f", dt);
 
-	window.clear();
+	gfx.clear();
 
-	map.draw(window);
+	map.draw(gfx);
 
 	gom.updateAndDrawActors(dt);
 
 	//NOTE: Place for level specific update and render
-    font->drawText("Hello!\nThis is text rendering992.,;(%$$", {10.0f, window.getRenderHeight() - 400.0f});
+    font->drawText("Hello!\nThis is text rendering992.,;(%$$", {10.0f, gfx.getRenderHeight() - 400.0f});
     sprite.setRotation(sprite.getRotation() + 100.0f * dt);
-    window.draw(sprite);
+    gfx.draw(sprite);
 
-	physics.debugRenderBodies(window);
+	physics.debugRenderBodies(gfx);
 
     physics.update(dt);
 }
 
-Level::Level(RenderWindow & window, String tiledMapName) : window(window), physics(),
-gom(), clock(window.getClock()), eventManager(), map(tiledMapName, gom, eventManager, window), levelName(tiledMapName),
-r()
+Level::Level(Window & window, String tiledMapName) : window(window), gfx(window.getGfx()),
+                                                           physics(), gom(), clock(window.getClock()),
+eventManager(), map(tiledMapName, gom, window), levelName(tiledMapName)
 {
 	// -- test code
 	c.setFillColor(Colors::Yellow);
 	c.setRadius(50.0f);
 
 	r.setSize(30.0f, 10.0f);
-	r.setPosition({ window.getRenderWidth() - r.getSize().x, window.getRenderHeight() - r.getSize().y });
+	r.setPosition({ gfx.getRenderWidth() - r.getSize().x, gfx.getRenderHeight() - r.getSize().y });
 
 	//window.play(sound);
 	// -- end test code
@@ -111,7 +111,7 @@ bool Level::Go()
 {
 	updateModelAndComposeFrame();
 	//NOTE: Place for level specific drawing!
-	window.render();
+	gfx.render();
 
 	return endLevel;
 }

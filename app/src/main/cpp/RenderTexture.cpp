@@ -63,22 +63,24 @@ RenderTexture::operator bool() const
 	return (screenTexture != 0);
 }
 
-void RenderTexture::begin(RenderWindow& window)
+void RenderTexture::begin(Graphics& gfx)
 {
+	gfx.flush();
+
     CallGL(glBindFramebuffer(GL_FRAMEBUFFER, renderTexture));
 
     CallGL(glViewport(0, 0, texture.getWidth(), texture.getHeight()));
 
-    window.bindOtherOrthoProj(orhtoProj);
+    gfx.bindOtherOrthoProj(orhtoProj);
 }
 
-void RenderTexture::end(RenderWindow& window)
+void RenderTexture::end(Graphics& gfx)
 {
-	window.flush();
+	gfx.flush();
 
-    window.unbindOtherOrthoProj();
+    gfx.unbindOtherOrthoProj();
 
     CallGL(glBindFramebuffer(GL_FRAMEBUFFER, screenTexture));
 
-    CallGL(glViewport(0, 0, window.getViewportWidth(), window.getViewportHeight()));
+    CallGL(glViewport(0, 0, gfx.getViewportWidth(), gfx.getViewportHeight()));
 }

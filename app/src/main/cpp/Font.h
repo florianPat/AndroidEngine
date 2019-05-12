@@ -6,7 +6,7 @@
 #include "RenderTexture.h"
 #include <unordered_map>
 #include "Vector2.h"
-#include "RenderWindow.h"
+#include "Window.h"
 
 class Font
 {
@@ -25,12 +25,12 @@ private:
     //NOTE: Stack overflow danger?
     GlyphRegion regions[NUM_GLYPHS];
     FT_Library library = nullptr;
-    RenderWindow* renderWindow = nullptr;
+    Graphics* gfx = nullptr;
 public:
     struct FontOptions
     {
         int size = 0;
-        RenderWindow* renderWindow;
+        Window* Window;
     };
 private:
     bool createGlyphRenderTextureAndMap(FT_Face& face);

@@ -13,14 +13,12 @@ class Component
 {
 protected:
 	const int id;
-	EventManager* eventManager;
 	void(*updateAndDrawFunc)(char* thiz, float dt);
-	AssetManager* assetManager;
 	Actor* owner;
 public:
-	Component(int id, EventManager* eventManager, AssetManager* assetManager, Actor* owner, UpdateAndDrawFunc updateAndDrawFunc) : id(id),
-																						eventManager(eventManager), updateAndDrawFunc(updateAndDrawFunc),
-																						assetManager(assetManager), owner(owner) {};
+	Component(int id, Actor* owner, UpdateAndDrawFunc updateAndDrawFunc) : id(id),
+																						updateAndDrawFunc(updateAndDrawFunc),
+																						owner(owner) {};
 	void updateAndDraw(float dt) { updateAndDrawFunc((char*)this, dt); };
 	virtual gomSort::SortKey sort() { return gomSort::SortKey{ 0, 0.0f }; };
 	int getId() { return id; };

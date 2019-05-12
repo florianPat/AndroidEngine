@@ -10,7 +10,7 @@ static void registerAssetLoaders(AssetManager* assetManager)
 
 void android_main(android_app* app)
 {
-	RenderWindow window(app, 900, 600, RenderWindow::ViewportType::EXTEND);
+	Window window(app, 900, 600, IGraphics::ViewportType::EXTEND);
 	registerAssetLoaders(window.getAssetManager());
 
 	std::unique_ptr<Level> currentLevel = std::make_unique<MainLevel>(window, "testLevel.tmx");
