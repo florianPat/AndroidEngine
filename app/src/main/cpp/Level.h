@@ -23,12 +23,11 @@ protected:
 	GameObjectManager gom;
 	Clock& clock;
 	EventManager eventManager;
-	TiledMap map;
+	TiledMap* map;
 
 	String levelName;
 
 	std::unique_ptr<Level> newLevel = nullptr;
-	//TODO: Can I refactor it so that I do not need to test this flag every frame?
 	bool endLevel = false;
 	//Test
 	static constexpr int NUM_TEXTURES = 75;

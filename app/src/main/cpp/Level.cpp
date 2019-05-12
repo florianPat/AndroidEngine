@@ -19,7 +19,7 @@ void Level::updateModelAndComposeFrame()
 
 	gfx.clear();
 
-	map.draw(gfx);
+	map->draw();
 
 	gom.updateAndDrawActors(dt);
 
@@ -41,7 +41,7 @@ void Level::updateModelAndComposeFrame()
 
 Level::Level(Window & window, String tiledMapName)
 	: window(window), gfx(window.getGfx()), physics(), gom(), clock(window.getClock()),
-	  eventManager(), map(tiledMapName, gom, window), levelName(tiledMapName)
+	  eventManager(), levelName(tiledMapName)
 {
 	Benchmark benchmark = Benchmark::getBenchmark();
 	AssetManager* assetManager = window.getAssetManager();
@@ -82,12 +82,23 @@ Level::Level(Window & window, String tiledMapName)
 	benchmark.stop();
 
 	/*Results:
-		Asset loading: has taken: 0.046008
-		One asset loading: has taken: 0.000069
-		Is asset loaded: has taken: 0.000077
-		Reload all assets: has taken: 0.125085
-		Clear assets: has taken: 0.000063
+	   Old:
+		Asset loading: has taken: 0.131312
+		One asset load: has taken: 0.000090
+		Is asset loaded: has taken: 0.000126
+		Reload assets: has taken: 0.040678
+		Clear assets: has taken: 0.003015
+
+	  New: (not really faster :/)
+	 	Asset loading: has taken: 0.125643
+		One asset load: has taken: 0.000088
+		Is asset loaded: has taken: 0.000124
+		Reload assets: has taken: 0.042984
+		Clear assets: has taken: 0.005970
 	*/
+
+	TiledMap::TiledMapOptions tiledMapOptions = { window };
+	map = window.getAssetManager()->getOrAddRes<TiledMap>(tiledMapName, &tiledMapOptions);
 
     Font::FontOptions options = { 32, &this->window };
     font = window.getAssetManager()->getOrAddRes<Font>("fonts/framd.ttf", &options);

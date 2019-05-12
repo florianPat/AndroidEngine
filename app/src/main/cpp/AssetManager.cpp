@@ -3,13 +3,16 @@
 
 bool AssetManager::unloadNotUsedRes(const String & filename)
 {
-	auto res = ressourceCache.find(filename);
-	if (res != ressourceCache.end())
+	auto res = filenameCache.find(filename);
+	if (res != filenameCache.end())
 	{
-		AssetLoader assetLoader = assetLoaderCache.at(res->first.substr(res->first.length() - 3));
+	    int assetLoaderIndex = assetLoaderCache.at(res->first.substr(res->first.length() - 3));
+		auto& ressourceCachePair = ressourceCache.at(assetLoaderIndex);
+		AssetLoader& assetLoader = ressourceCachePair.first;
 
-		assetLoader.destruct(res->second.get());
-		ressourceCache.erase(res);
+		assetLoader.destruct(res->second.asset.get());
+		ressourceCachePair.second.erasePop_back(res->second.ressourceCacheAssetId);
+        filenameCache.erase(res);
 		return true;
 	}
 	else
@@ -20,31 +23,39 @@ void AssetManager::clear()
 {
 	for (auto it = ressourceCache.begin(); it != ressourceCache.end(); ++it)
 	{
-		AssetLoader assetLoader = assetLoaderCache.at(it->first.substr(it->first.length() - 3));
+		AssetLoader& assetLoader = it->first;
 
-		assetLoader.destruct(it->second.get());
+		for(auto assetIt = it->second.begin(); assetIt != it->second.end(); ++assetIt)
+        {
+            assetLoader.destruct(assetIt->assetP);
+            filenameCache.erase(assetIt->filename);
+        }
+
+		it->second.clear();
 	}
-	ressourceCache.clear();
 }
 
 bool AssetManager::isLoaded(const String & filename)
 {
-	auto i = ressourceCache.find(filename);
-	return i != ressourceCache.end();
+	auto i = filenameCache.find(filename);
+	return i != filenameCache.end();
 }
 
 void AssetManager::reloadAllRes()
 {
 	for (auto it = ressourceCache.begin(); it != ressourceCache.end(); ++it)
 	{
-		AssetLoader assetLoader = assetLoaderCache.at(it->first.substr(it->first.length() - 3));
+		AssetLoader& assetLoader = it->first;
 
 		if(assetLoader.isGpu)
 		{
-			if(!assetLoader.reloadFromFile(it->second.get(), it->first))
-			{
-				utils::logBreak("Could not reload asset!");
-			}
+		    for(auto assetIt = it->second.begin(); assetIt != it->second.end(); ++assetIt)
+            {
+                if(!assetLoader.reloadFromFile(assetIt->assetP, assetIt->filename))
+                {
+                    utils::logBreak("Could not reload asset!");
+                }
+            }
 		}
 	}
 }
@@ -53,5 +64,6 @@ void AssetManager::registerAssetLoader(const String & fileExt, const AssetLoader
 {
 	assert(assetLoaderCache.find(fileExt) == assetLoaderCache.end());
 
-	assetLoaderCache.emplace(std::make_pair(fileExt, assetLoader));
+    assetLoaderCache.emplace(std::make_pair(fileExt, ressourceCache.size()));
+	ressourceCache.push_back(std::make_pair(assetLoader, Vector<RessourceCacheAssetVector>()));
 }

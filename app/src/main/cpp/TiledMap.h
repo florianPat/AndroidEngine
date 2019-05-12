@@ -36,19 +36,29 @@ class TiledMap
 
 	RenderTexture texture;
 	Sprite textureSprite;
-	AssetManager* assetManager = nullptr;
+	Graphics* gfx;
 public:
-	//TODO: Refactor into an asset!
-	TiledMap(const String& filepath, GameObjectManager& gom, Window& window, Vector<ShortString>&& toGameObjects = Vector<ShortString>{});
+	struct TiledMapOptions
+	{
+		Window& window;
+		Vector<ShortString>&& toGameObjects = Vector<ShortString>{};
+		GameObjectManager* gom = nullptr;
+	};
+public:
+	bool loadFromFile(const String& filename, void* options);
+	bool reloadFromFile(const String& filename);
+public:
+	TiledMap() = default;
 	const Vector<Physics::Collider>& getObjectGroup(const ShortString& objectGroupName);
 	const std::unordered_map<ShortString, ObjectGroup>& getObjectGroups();
-	void draw(Graphics& gfx);
+	void draw();
+	long long getSize() const { return sizeof(TiledMap); }
 private:
 	size_t getEndOfWord(const String& word, const String& lineContent, bool* result);
 	String getLineContentBetween(String& lineContent, const String& endOfFirst, char secound);
 
-	String ParseTiles(Ifstream& file);
+	String ParseTiles(Ifstream& file, AssetManager* assetManager);
 	void ParseLayer(Ifstream& file, String& lineContent);
 	void ParseObjectGroups(Ifstream& file, String& lineContent);
-	void MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectManager& gom, Graphics& gfx);
+	void MakeRenderTexture(Vector<ShortString>&& toGameObjects, GameObjectManager* gom);
 };

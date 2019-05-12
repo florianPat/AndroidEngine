@@ -4,7 +4,6 @@
 #include FT_FREETYPE_H
 #include "String.h"
 #include "RenderTexture.h"
-#include <unordered_map>
 #include "Vector2.h"
 #include "Window.h"
 

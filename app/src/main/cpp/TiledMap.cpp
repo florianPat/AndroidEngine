@@ -4,57 +4,6 @@
 #include "TiledMapRenderComponent.h"
 #include <cstdlib>
 
-TiledMap::TiledMap(const String & filepath, GameObjectManager& gom, Window& window, Vector<ShortString>&& toGameObjects)
-	: tiles(), layers(), objectGroups(), texture(), textureSprite(), assetManager(window.getAssetManager())
-{
-	Ifstream file;
-	file.open(filepath);
-
-	if (!file)
-	{
-		utils::logBreak("Cant open file!");
-	}
-
-	file.readTempLine();
-
-	if (!file.eof())
-	{
-		LongString lineContent;
-		file.getline(lineContent);
-		assert(utils::isWordInLine("<map", lineContent));
-
-		if (!utils::isWordInLine("orthogonal", lineContent))
-		{
-			utils::logBreak("Map has to be orthogonal!");
-		}
-
-		if (!utils::isWordInLine("right-down", lineContent))
-		{
-			utils::logBreak("Maps render-order has to be right-down!");
-		}
-
-
-		mapWidth = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
-		mapHeight = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
-
-		tileWidth = atoi(getLineContentBetween(lineContent, "tilewidth", '"').c_str());
-		tileHeight = atoi(getLineContentBetween(lineContent, "tileheight", '"').c_str());
-
-		lineContent = ParseTiles(file);
-
-		ParseLayer(file, lineContent);
-
-		ParseObjectGroups(file, lineContent);
-
-		if (!utils::isWordInLine("</map>", lineContent))
-		{
-			utils::logBreak("We should be at the end of the file!");
-		}
-
-		MakeRenderTexture(toGameObjects, gom, window.getGfx());
-	}
-}
-
 const Vector<Physics::Collider>& TiledMap::getObjectGroup(const ShortString& objectGroupName)
 {
 	auto result = objectGroups.find(objectGroupName);
@@ -72,9 +21,11 @@ const std::unordered_map<ShortString, TiledMap::ObjectGroup>& TiledMap::getObjec
 	return objectGroups;
 }
 
-void TiledMap::draw(Graphics& gfx)
+void TiledMap::draw()
 {
-	gfx.draw(textureSprite);
+	assert(gfx != nullptr);
+
+	gfx->draw(textureSprite);
 }
 
 size_t TiledMap::getEndOfWord(const String & word, const String & lineContent, bool* result)
@@ -197,12 +148,14 @@ void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 	}
 }
 
-void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectManager& gom, Graphics& gfx)
+void TiledMap::MakeRenderTexture(Vector<ShortString>&& toGameObjects, GameObjectManager* gom)
 {
 	if (texture.create(mapWidth*tileWidth, mapHeight*tileHeight))
 	{
-		texture.begin(gfx);
-		gfx.clear();
+		assert(gfx != nullptr);
+
+		texture.begin(*gfx);
+		gfx->clear();
 
 		for (auto it = layers.begin(); it != layers.end(); ++it)
 		{
@@ -219,7 +172,7 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 					sprite.setPosition((float)x * tileWidth, (float)posY * tileHeight);
 
 					if(toGameObjects.empty())
-						gfx.draw(sprite);
+						gfx->draw(sprite);
 					else
 					{
 						bool toGO = false;
@@ -227,19 +180,20 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 						{
 							if ((*toGOIt) == it->name)
 							{
-								Actor* actorP = gom.addActor();
-								actorP->addComponent(std::make_unique<TiledMapRenderComponent>(sprite, gfx, actorP));
+                                assert(gom != nullptr);
+								Actor* actorP = gom->addActor();
+								actorP->addComponent(std::make_unique<TiledMapRenderComponent>(sprite, *gfx, actorP));
 								toGO = true;
 								break;
 							}
 						}
 						if(!toGO)
-							gfx.draw(sprite);
+							gfx->draw(sprite);
 					}
 				}
 			}
 		}
-		texture.end(gfx);
+		texture.end(*gfx);
 
 		textureSprite = Sprite(&texture.getTexture());
 	}
@@ -249,7 +203,7 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>& toGameObjects, GameObjectM
 	}
 }
 
-String TiledMap::ParseTiles(Ifstream & file)
+String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager)
 {
 	String lineContent = LongString();
 	file.getline(lineContent);
@@ -304,4 +258,75 @@ String TiledMap::ParseTiles(Ifstream & file)
 	}
 
 	return lineContent;
+}
+
+bool TiledMap::loadFromFile(const String& filename, void* options)
+{
+	TiledMapOptions* tiledMapOptions = (TiledMapOptions*) options;
+
+	gfx = &tiledMapOptions->window.getGfx();
+
+	Ifstream file;
+	file.open(filename);
+
+	if (!file)
+	{
+		utils::logBreak("Cant open file!");
+		return false;
+	}
+
+	file.readTempLine();
+
+	if (!file.eof())
+	{
+		LongString lineContent;
+		file.getline(lineContent);
+		assert(utils::isWordInLine("<map", lineContent));
+
+		if (!utils::isWordInLine("orthogonal", lineContent))
+		{
+			utils::logBreak("Map has to be orthogonal!");
+			return false;
+		}
+
+		if (!utils::isWordInLine("right-down", lineContent))
+		{
+			utils::logBreak("Maps render-order has to be right-down!");
+			return false;
+		}
+
+
+		mapWidth = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
+		mapHeight = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
+
+		tileWidth = atoi(getLineContentBetween(lineContent, "tilewidth", '"').c_str());
+		tileHeight = atoi(getLineContentBetween(lineContent, "tileheight", '"').c_str());
+
+		lineContent = ParseTiles(file, tiledMapOptions->window.getAssetManager());
+
+		ParseLayer(file, lineContent);
+
+		ParseObjectGroups(file, lineContent);
+
+		if (!utils::isWordInLine("</map>", lineContent))
+		{
+			utils::logBreak("We should be at the end of the file!");
+			return false;
+		}
+
+		MakeRenderTexture(std::move(tiledMapOptions->toGameObjects), tiledMapOptions->gom);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool TiledMap::reloadFromFile(const String& filename)
+{
+    texture = RenderTexture();
+
+	MakeRenderTexture(Vector<ShortString>{}, nullptr);
+
+	return true;
 }

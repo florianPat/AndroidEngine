@@ -8,11 +8,23 @@
 
 class AssetManager
 {
+    struct FilenameCacheValue
+    {
+        size_t ressourceCacheAssetId;
+        std::unique_ptr<char[]> asset;
+    };
+
+    struct RessourceCacheAssetVector
+    {
+        const String& filename;
+        char* assetP;
+    };
+private:
 	static constexpr long long maxSize = Gigabyte(1);
 	long long currentSize = 0;
-	std::unordered_map<String, std::unique_ptr<char[]>> ressourceCache;
-	Vector<String> timeOfInsertCache;
-	std::unordered_map<String, AssetLoader> assetLoaderCache;
+	std::unordered_map<String, FilenameCacheValue> filenameCache;
+	std::unordered_map<String, int> assetLoaderCache;
+	Vector<std::pair<AssetLoader, Vector<RessourceCacheAssetVector>>> ressourceCache;
 public:
     AssetManager() = default;
     //TODO: Move from argOptions to just passing and forwarding them (but template variadic function
@@ -29,10 +41,10 @@ public:
 template<typename T>
 T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 {
-	auto res = ressourceCache.find(filename);
-	if (res != ressourceCache.end())
+	auto res = filenameCache.find(filename);
+	if (res != filenameCache.end())
 	{
-		T* asset = (T*) res->second.get();
+		T* asset = (T*) res->second.asset.get();
 		return asset;
 	}
 	else
@@ -42,7 +54,11 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 		new (tP) T();
 		String ext = filename.substr(filename.length() - 3);
 		assert(assetLoaderCache.find(ext) != assetLoaderCache.end());
-		AssetLoader assetLoader = assetLoaderCache.at(ext);
+		int assetLoaderIndex = assetLoaderCache.at(ext);
+
+		auto& ressourceCachePair = ressourceCache.at(assetLoaderIndex);
+
+		AssetLoader& assetLoader = ressourceCachePair.first;
 
 		//(TODO: Think about how to let the user also construct a asset from a stream)
 		if (!assetLoader.loadFromFile(asset.get(), filename, argOptions))
@@ -52,25 +68,32 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 		}
 
 		currentSize += assetLoader.getSize(asset.get());
+		//TODO: Do something if the assetCache is full!
 		if (currentSize > maxSize)
 		{
-			do
-			{
-				auto id = timeOfInsertCache.begin();
-				auto it = ressourceCache.find(*id);
-				assert(it != ressourceCache.end());
-				AssetLoader aL = assetLoaderCache.at(it->first.substr(it->first.length() - 3));
-				currentSize -= aL.getSize(it->second.get());
-				it->second.release();
-				ressourceCache.erase(it);
-				timeOfInsertCache.erase(id);
-			} while (currentSize > maxSize);
+			InvalidCodePath;
+//			do
+//			{
+//				auto id = timeOfInsertCache.begin();
+//				auto it = ressourceCache.find(*id);
+//				assert(it != ressourceCache.end());
+//				AssetLoader aL = assetLoaderCache.at(it->first.substr(it->first.length() - 3));
+//				currentSize -= aL.getSize(it->second.get());
+//				it->second.release();
+//				ressourceCache.erase(it);
+//				timeOfInsertCache.erase(id);
+//			} while (currentSize > maxSize);
 		}
 
-		auto result = ressourceCache.emplace(std::make_pair(filename, std::move(asset)));
-		timeOfInsertCache.push_back(filename);
-		assert(result.second);
-		T* returnAsset = (T*) result.first->second.get();
+        auto result = filenameCache.emplace(std::make_pair(filename,
+                FilenameCacheValue{ ressourceCachePair.second.size(), std::move(asset)} ));
+        assert(result.second);
+
+        char* assetP = result.first->second.asset.get();
+
+		ressourceCachePair.second.push_back(RessourceCacheAssetVector{ result.first->first, assetP });
+
+		T* returnAsset = (T*) assetP;
 		return returnAsset;
 	}
 }
