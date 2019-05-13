@@ -30,6 +30,11 @@ include_directories( libs/libpng )
 set(CMAKE_SHARED_LINKER_FLAGS
         "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
+#NOTE: For building the static lib
+#add_library(androidEngine
+#            STATIC
+#            src/main/cpp/TranslationUnit.cpp )
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -97,3 +102,5 @@ target_link_libraries( # Specifies the target library.
                        OpenSLES
                        libpng
                        freetype2 )
+                       #NOTE: For building the static lib
+                       #androidEngine )
