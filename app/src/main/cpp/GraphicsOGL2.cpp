@@ -1,10 +1,9 @@
 #include "GraphicsOGL2.h"
 #include "GLUtils.h"
 
-GraphicsOGL2::GraphicsOGL2(int renderWidth, int renderHeight, IGraphics::ViewportType viewportType)
+GraphicsOGL2::GraphicsOGL2(int renderWidth, int renderHeight, View::ViewportType viewportType)
         : GraphicsOGLIniter(renderWidth, renderHeight, viewportType, DISPLAY_ATTRIBS),
-          view(renderWidth, renderHeight), orhtoProj(view.getOrthoProj()),
-          vertices(std::make_unique<Vertex[]>(NUM_VERTICES_TO_BATCH))
+          orhtoProj(), vertices(std::make_unique<Vertex[]>(NUM_VERTICES_TO_BATCH))
 {
     Vector2f spriteVertices[] = { {0.0f, 0.0f},
                                   {1.0f, 0.0f},
@@ -128,7 +127,6 @@ void GraphicsOGL2::render()
 
 void GraphicsOGL2::setupGfxGpu()
 {
-    view = View(renderWidth, renderHeight);
     orhtoProj = view.getOrthoProj();
 
     CallGL(glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &nTextureUnits));

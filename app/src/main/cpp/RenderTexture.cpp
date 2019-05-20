@@ -82,5 +82,5 @@ void RenderTexture::end(Graphics& gfx)
 
     CallGL(glBindFramebuffer(GL_FRAMEBUFFER, screenTexture));
 
-    CallGL(glViewport(0, 0, gfx.getViewportWidth(), gfx.getViewportHeight()));
+    CallGL(glViewport(0, 0, gfx.getDefaultView().getViewportSize().x, gfx.getDefaultView().getViewportSize().y));
 }

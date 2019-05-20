@@ -2,43 +2,20 @@
 
 #include "View.h"
 
-struct IGraphics
+class IGraphics
 {
-    enum class ViewportType
-    {
-        FIT,
-        EXTEND
-    };
 protected:
-    int renderWidth = 0, renderHeight = 0;
     int screenWidth = 0, screenHeight = 0;
-    int viewportWidth = 0, viewportHeight = 0;
-    ViewportType viewportType;
 public:
-    IGraphics(int renderWidth, int renderHeight, ViewportType viewportType)
-        : renderWidth(renderWidth), renderHeight(renderHeight), viewportType(viewportType)
+    //NOTE: These a really just meant to be use by the TouchInput.
+    const int renderWidth = 0, renderHeight = 0;
+public:
+    IGraphics(int renderWidth, int renderHeight) : renderWidth(renderWidth), renderHeight(renderHeight)
     {}
     IGraphics(const IGraphics& other) = delete;
     IGraphics& operator=(const IGraphics& rhs) = delete;
     IGraphics(IGraphics&& other) = default;
     IGraphics& operator=(IGraphics&& rhs) = default;
-
-    int getViewportWidth() const
-    {
-        return viewportWidth;
-    }
-    int getViewportHeight() const
-    {
-        return viewportHeight;
-    }
-    int getRenderWidth() const
-    {
-        return renderWidth;
-    }
-    int getRenderHeight() const
-    {
-        return renderHeight;
-    }
 
     //NOTE: This is a blueprint to implement.
     // But not through virtual function calls, just by deriving and making the methods
@@ -58,5 +35,8 @@ public:
     void draw(const CircleShape& circle);
     void flush();
     void render();
+    View& getDefaultView();
+    int getWidth();
+    int getHeight();
      */
 };

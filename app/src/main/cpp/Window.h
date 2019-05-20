@@ -36,7 +36,7 @@ class Window
 	SLPlayItf player = 0;
 	SLAndroidSimpleBufferQueueItf playerBuffer = 0;
 public:
-	Window(android_app* app, int width, int height, IGraphics::ViewportType viewportType);
+	Window(android_app* app, int width, int height, View::ViewportType viewportType);
 	Window(const Window& other) = delete;
 	Window(Window&& other) = delete;
 	Window& operator=(const Window& rhs) = delete;

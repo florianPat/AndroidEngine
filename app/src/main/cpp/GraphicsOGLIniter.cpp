@@ -219,39 +219,9 @@ bool GraphicsOGLIniter::startGfx(ANativeWindow* nativeWindow)
         return false;
     }
 
-    //NOTE: For ViewportType::FIT, but also needed for extend!
-    float ratioScreen = (float)screenWidth / (float)screenHeight;
-    float ratioGame = (float)renderWidth / (float)renderHeight;
-    if (ratioScreen > ratioGame)
-    {
-        viewportWidth = (int)((float)screenHeight * ratioGame);
-        viewportHeight = screenHeight;
-    }
-    else
-    {
-        viewportWidth = screenWidth;
-        viewportHeight = (int)((float)screenWidth / ratioGame);
-    }
+    view = View(renderWidth, renderHeight, screenWidth, screenHeight, viewportType);
 
-    if (viewportType == ViewportType::EXTEND)
-    {
-        if (viewportWidth == screenWidth)
-        {
-            float remainingSpace = screenHeight - viewportHeight;
-            renderHeight += (int) (remainingSpace * ((float)renderHeight / (float)viewportHeight));
-            viewportHeight = screenHeight;
-        }
-        else if (viewportHeight == screenHeight)
-        {
-            float remainingSpace = screenWidth - viewportWidth;
-            renderWidth += (int) (remainingSpace * ((float)renderWidth / (float)viewportWidth));
-            viewportWidth = screenWidth;
-        }
-        else
-            InvalidCodePath;
-    }
-
-    CallGL(glViewport(0, 0, viewportWidth, viewportHeight));
+    CallGL(glViewport(0, 0, view.getViewportSize().x, view.getViewportSize().y));
 
     CallGL(glDisable(GL_DEPTH_TEST));
     CallGL(glEnable(GL_BLEND));
@@ -261,10 +231,10 @@ bool GraphicsOGLIniter::startGfx(ANativeWindow* nativeWindow)
 }
 
 GraphicsOGLIniter::GraphicsOGLIniter(int renderWidth, int renderHeight,
-                                     IGraphics::ViewportType viewportType,
-                                     const EGLint* displayAttribs) : IGraphics(renderWidth,
-                                                                     renderHeight,
-                                                                     viewportType),
-                                                                     displayAttribs(displayAttribs)
+                                     View::ViewportType viewportType,
+                                     const EGLint* displayAttribs) : IGraphics(renderWidth, renderHeight),
+                                                                     displayAttribs(displayAttribs),
+                                                                     viewportType(viewportType),
+                                                                     view()
 {
 }

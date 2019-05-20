@@ -11,7 +11,6 @@
 #include "RectangleShape.h"
 #include "CircleShape.h"
 #include <memory>
-#include "View.h"
 #include "GraphicsOGLIniter.h"
 
 class GraphicsOGL2 : public GraphicsOGLIniter
@@ -24,7 +23,6 @@ class GraphicsOGL2 : public GraphicsOGLIniter
         float mvMatrix[6];
     };
 private:
-    View view;
     Shader shaderSprite;
     Shader shaderRectShape;
     Mat4x4 orhtoProj;
@@ -50,7 +48,7 @@ private:
     void setupSpriteRendering();
     int nVerticesBatched() const;
 public:
-    GraphicsOGL2(int renderWidth, int renderHeight, ViewportType viewportType);
+    GraphicsOGL2(int renderWidth, int renderHeight, View::ViewportType viewportType);
 
     void setupGfxGpu();
 
@@ -62,9 +60,4 @@ public:
     void draw(const CircleShape& circle);
     void flush();
     void render();
-
-    View& getDefaultView()
-    {
-        return view;
-    }
 };

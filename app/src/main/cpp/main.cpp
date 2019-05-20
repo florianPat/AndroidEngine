@@ -1,6 +1,7 @@
 #include "MainLevel.h"
 #include "TiledMap.h"
 #include "Font.h"
+#include "View.h"
 
 static void registerAssetLoaders(AssetManager* assetManager)
 {
@@ -12,7 +13,7 @@ static void registerAssetLoaders(AssetManager* assetManager)
 
 void android_main(android_app* app)
 {
-	Window window(app, 900, 600, IGraphics::ViewportType::EXTEND);
+	Window window(app, 900, 600, View::ViewportType::EXTEND);
 	registerAssetLoaders(window.getAssetManager());
 
 	std::unique_ptr<Level> currentLevel = std::make_unique<MainLevel>(window, "testLevel.tmx");

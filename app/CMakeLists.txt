@@ -100,6 +100,6 @@ target_link_libraries( # Specifies the target library.
                        GLESv2
                        OpenSLES
                        libpng
-                       freetype2
+                       freetype2 )
                        #NOTE: For building the static lib
-                       androidEngine )
+                       #androidEngine )

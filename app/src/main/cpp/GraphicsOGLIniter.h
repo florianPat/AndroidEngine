@@ -11,12 +11,14 @@ protected:
     EGLContext context = EGL_NO_CONTEXT;
     bool glContextLost = false;
     const EGLint* displayAttribs;
+    View::ViewportType viewportType;
+    View view;
 private:
     bool initDisplay(EGLConfig& config, ANativeWindow* nativeWindow);
     bool initSurface(EGLConfig& config, ANativeWindow* nativeWindow);
     bool initContext(EGLConfig& config);
 public:
-    GraphicsOGLIniter(int renderWidth, int renderHeight, ViewportType viewportType, const EGLint* displayAttribs);
+    GraphicsOGLIniter(int renderWidth, int renderHeight, View::ViewportType viewportType, const EGLint* displayAttribs);
 
     bool startGfx(ANativeWindow* nativeWindow);
     void stopGfx();
@@ -24,4 +26,6 @@ public:
     void recover(ANativeWindow* nativeWindow);
 
     bool isRecovered() const;
+
+    View& getDefaultView() { return view; }
 };

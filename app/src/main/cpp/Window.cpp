@@ -67,7 +67,7 @@ int Window::InputEventCallback(android_app * app, AInputEvent * event)
     return window.processInputEvent(event);
 }
 
-Window::Window(android_app * app, int width, int height, IGraphics::ViewportType viewportType) : app(app),
+Window::Window(android_app * app, int width, int height, View::ViewportType viewportType) : app(app),
                                                                                                   clock(),
                                                                                                   assetManager(),
                                                                                                   gfx(width, height, viewportType)
@@ -287,10 +287,10 @@ void Window::getAndSetTouchInputPos(AInputEvent * event)
 {
     //Needs conversion because coord system is from topLeft, but game uses bottomLeft and other window dimensions
     float x = AMotionEvent_getX(event, 0);
-    float y = (AMotionEvent_getY(event, 0) - gfx.getViewportHeight()) * -1.0f;
+    float y = (AMotionEvent_getY(event, 0) - gfx.getDefaultView().getSize().y) * -1.0f;
 
-    x = x / gfx.getViewportWidth() * gfx.getRenderWidth();
-    y = y / gfx.getViewportHeight() * gfx.getRenderHeight();
+    x = x / gfx.getDefaultView().getSize().x * gfx.renderWidth;
+    y = y / gfx.getDefaultView().getSize().y * gfx.renderHeight;
 
     TouchInput::setPosition(x, y);
 }
