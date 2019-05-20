@@ -31,9 +31,9 @@ set(CMAKE_SHARED_LINKER_FLAGS
         "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 #NOTE: For building the static lib
-#add_library(androidEngine
-#            STATIC
-#            src/main/cpp/TranslationUnit.cpp )
+add_library( androidEngine
+             STATIC
+             src/main/cpp/TranslationUnit.cpp )
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -86,7 +86,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/VertexLayout.cpp
              src/main/cpp/View.cpp
              src/main/cpp/Window.cpp )
-             #src/main/cpp/TranslationUnit.cpp )
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -101,6 +100,6 @@ target_link_libraries( # Specifies the target library.
                        GLESv2
                        OpenSLES
                        libpng
-                       freetype2 )
+                       freetype2
                        #NOTE: For building the static lib
-                       #androidEngine )
+                       androidEngine )
