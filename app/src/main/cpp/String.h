@@ -27,6 +27,8 @@ protected:
 	String(size_t count, char c, bool shortRepIn);
 	//String(const String& other, size_t pos, size_t count);
 	//String(const char* s, size_t count);
+private:
+	size_t find(const char* str, size_t pos, size_t strSize) const;
 public:
 	String(size_t count);
 	String(size_t count, char c);
@@ -91,8 +93,8 @@ public:
 	String substr(size_t pos = 0, size_t count = npos) const;
 
 	size_t find(char c, size_t pos = 0) const;
-	//TODO: IMPLEMENT!!!!! (Used in /*Physics::getAllCollisionIdsWhichContain (which is #ifed out now*/ and InkscapeAnimation)
-	size_t find(const char* str, size_t pos = 0) const;
+	template <size_t N>
+	size_t find(const char(&str)[N], size_t pos = 0) const;
 	size_t find(const String& str, size_t pos = 0) const;
 	//NOTE: isn't it unnecessary?
 	size_t find_first_of(char c, size_t pos = 0) const;
@@ -143,6 +145,12 @@ inline String & String::operator=(const char(&s)[N])
 	new (this) String(s);
 
 	return *this;
+}
+
+template<size_t N>
+inline size_t String::find(const char (&str)[N], size_t pos) const
+{
+	return find(str, pos, N);
 }
 
 struct ShortString : public String

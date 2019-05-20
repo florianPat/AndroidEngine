@@ -142,7 +142,6 @@ public:
 		const ShortString& getId() const;
 		int getIndex() const;
 		bool getIsActive() const;
-		//TODO: TEST!!
 		void flipActive(Physics& physics);
 	};
 private:
@@ -161,4 +160,5 @@ public:
 	//Use this otherwise
 	void addElementValue(Body&& body);
 	void removeElementByIndex(int index);
+	Vector<ShortString> getAllCollisionIdsWhichContain(const ShortString & string);
 };

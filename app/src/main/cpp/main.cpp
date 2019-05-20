@@ -1,4 +1,5 @@
 #include "MainLevel.h"
+#include "TiledMap.h"
 #include "Font.h"
 
 static void registerAssetLoaders(AssetManager* assetManager)

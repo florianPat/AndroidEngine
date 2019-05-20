@@ -384,6 +384,7 @@ void Physics::applySpriteToBoundingBox(const Sprite & sprite, Collider & boundin
 	boundingBox.collider.rect.width = (float)sprite.getGlobalBounds().width;
 	boundingBox.collider.rect.height = (float)sprite.getGlobalBounds().height;
 }
+#endif
 
 Vector<ShortString> Physics::getAllCollisionIdsWhichContain(const ShortString & string)
 {
@@ -391,11 +392,11 @@ Vector<ShortString> Physics::getAllCollisionIdsWhichContain(const ShortString & 
 
 	for (auto it = bodies.begin(); it != bodies.end(); ++it)
 	{
-		size_t match = it->first.find(string, 0);
+		size_t match = it->id.find(string, 0);
 		if (match != String::npos)
 		{
 			bool onlyNumbers = true;
-			ShortString substr = it->first;
+			ShortString substr = it->id;
 			substr.erase(match, string.length());
 			for (auto it = substr.begin(); it != substr.end(); ++it)
 			{
@@ -410,13 +411,12 @@ Vector<ShortString> Physics::getAllCollisionIdsWhichContain(const ShortString & 
 				}
 			}
 			if (onlyNumbers)
-				result.push_back(it->first);
+				result.push_back(it->id);
 		}
 	}
 
 	return result;
 }
-#endif
 
 Physics::Body::Body(Vector2f&& pos, const ShortString& name, Collider* collider, bool isTrigger, bool isStatic)
 	: isStatic(isStatic), isTrigger(isTrigger), pos(pos), id(name), physicsElements{}, index(-1)

@@ -41,8 +41,6 @@ public:
 	struct TiledMapOptions
 	{
 		Window& window;
-		Vector<ShortString>&& toGameObjects = Vector<ShortString>{};
-		GameObjectManager* gom = nullptr;
 	};
 public:
 	bool loadFromFile(const String& filename, void* options);
@@ -60,5 +58,5 @@ private:
 	String ParseTiles(Ifstream& file, AssetManager* assetManager);
 	void ParseLayer(Ifstream& file, String& lineContent);
 	void ParseObjectGroups(Ifstream& file, String& lineContent);
-	void MakeRenderTexture(Vector<ShortString>&& toGameObjects, GameObjectManager* gom);
+	void MakeRenderTexture();
 };

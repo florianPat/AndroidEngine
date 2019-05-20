@@ -7,19 +7,18 @@ Actor::Actor(unsigned int id) : id(id), components()
 
 void Actor::addComponent(std::unique_ptr<Component> component)
 {
-	if (components.find(component->getId()) == components.end())
-	{
-		components.emplace(component->getId(), std::move(component));
-	}
+	components.push_back(std::move(component));
 }
 
 void Actor::removeComponent(unsigned int componentId)
 {
-	auto it = components.find(componentId);
-
-	if (it != components.end())
+	for(auto it = components.begin(); it != components.end(); ++it)
 	{
-		components.erase(it);
+		if((*it)->getId() == componentId)
+		{
+			components.erasePop_back(it.getIndex());
+			return;
+		}
 	}
 }
 
@@ -31,17 +30,7 @@ void Actor::clearComponents()
 void Actor::updateAndDraw(float dt)
 {
 	for (auto it = components.begin(); it != components.end(); ++it)
-		it->second->updateAndDraw(dt);
-}
-
-void Actor::sort(std::multimap<gomSort::SortKey, unsigned long long, gomSort::SortCompare>& sortedActors)
-{
-	for (auto it = components.begin(); it != components.end(); ++it)
-	{
-		gomSort::SortKey sortKey = it->second->sort();
-		unsigned long long actorComponentId = GetActorComponentId(it->second->getId());
-		sortedActors.emplace(sortKey, actorComponentId);
-	}
+		(*it)->updateAndDraw(dt);
 }
 
 unsigned long long Actor::GetActorComponentId(unsigned int componentId)

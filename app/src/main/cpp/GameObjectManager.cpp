@@ -1,7 +1,7 @@
 #include "GameObjectManager.h"
 #include "Utils.h"
 
-GameObjectManager::GameObjectManager() : actors(), sortedActors(), destroyActorQueue()
+GameObjectManager::GameObjectManager() : actors(), destroyActorQueue()
 {
 }
 
@@ -22,14 +22,6 @@ void GameObjectManager::updateAndDrawActors(float dt)
 		it->updateAndDraw(dt);
 
 	destroyActors();
-}
-
-void GameObjectManager::sortActors()
-{
-	for (auto it = actors.begin(); it != actors.end(); ++it)
-	{
-		it->sort(sortedActors);
-	}
 }
 
 void GameObjectManager::destroyActors()

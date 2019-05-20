@@ -148,7 +148,7 @@ void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 	}
 }
 
-void TiledMap::MakeRenderTexture(Vector<ShortString>&& toGameObjects, GameObjectManager* gom)
+void TiledMap::MakeRenderTexture()
 {
 	if (texture.create(mapWidth*tileWidth, mapHeight*tileHeight))
 	{
@@ -171,25 +171,7 @@ void TiledMap::MakeRenderTexture(Vector<ShortString>&& toGameObjects, GameObject
 					Sprite sprite(source);
 					sprite.setPosition((float)x * tileWidth, (float)posY * tileHeight);
 
-					if(toGameObjects.empty())
-						gfx->draw(sprite);
-					else
-					{
-						bool toGO = false;
-						for (auto toGOIt = toGameObjects.begin(); toGOIt != toGameObjects.end(); ++toGOIt)
-						{
-							if ((*toGOIt) == it->name)
-							{
-                                assert(gom != nullptr);
-								Actor* actorP = gom->addActor();
-								actorP->addComponent(std::make_unique<TiledMapRenderComponent>(sprite, *gfx, actorP));
-								toGO = true;
-								break;
-							}
-						}
-						if(!toGO)
-							gfx->draw(sprite);
-					}
+					gfx->draw(sprite);
 				}
 			}
 		}
@@ -314,7 +296,7 @@ bool TiledMap::loadFromFile(const String& filename, void* options)
 			return false;
 		}
 
-		MakeRenderTexture(std::move(tiledMapOptions->toGameObjects), tiledMapOptions->gom);
+		MakeRenderTexture();
 
 		return true;
 	}
@@ -326,7 +308,7 @@ bool TiledMap::reloadFromFile(const String& filename)
 {
     texture = RenderTexture();
 
-	MakeRenderTexture(Vector<ShortString>{}, nullptr);
+	MakeRenderTexture();
 
 	return true;
 }
