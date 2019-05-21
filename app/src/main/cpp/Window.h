@@ -10,6 +10,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "GraphicsOGL2.h"
+#include "TouchInput.h"
 
 #define Graphics GraphicsOGL2
 
@@ -25,6 +26,7 @@ class Window
 
     Clock clock;
     AssetManager assetManager;
+    TouchInput touchInput;
     FT_Library fontLibrary = nullptr;
 
     Graphics gfx;
@@ -49,13 +51,14 @@ public:
 	void play(const Sound* snd);
 	FT_Library getFontLibrary();
     Graphics& getGfx();
+    const TouchInput& getTouchInput() const;
 private:
 	void deactivate();
 	void processAppEvent(int32_t command);
 	static void AppEventCallback(android_app* app, int32_t command);
 	int processInputEvent(AInputEvent* event);
 	static int InputEventCallback(android_app* app, AInputEvent* event);
-	void getAndSetTouchInputPos(AInputEvent* event);
+	void getAndSetTouchInputPos(AInputEvent* event, int pointerId);
 	bool startSnd();
 	void stopSnd();
 	bool startFont();

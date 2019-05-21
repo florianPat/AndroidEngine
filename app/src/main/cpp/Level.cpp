@@ -24,7 +24,6 @@ Level::Level(Window & window)
 	: window(window), gfx(window.getGfx()), physics(), gom(), clock(window.getClock()),
 	  eventManager()
 {
-	clock.restart();
 }
 
 std::unique_ptr<Level> Level::getNewLevel()

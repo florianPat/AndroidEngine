@@ -2,11 +2,12 @@
 #include "Utils.h"
 #include "Mat4x4.h"
 
-Sprite::Sprite(const Texture* texture) : texture(texture), rect(0, 0, texture->getWidth(), texture->getHeight())
+Sprite::Sprite(const Texture* texture) : texture(texture), rect(0, 0, texture->getWidth(), texture->getHeight()),
+	size(texture->getWidth(), texture->getHeight())
 {
 }
 
-Sprite::Sprite(const Texture* texture, const IntRect & rect) : texture(texture), rect(rect)
+Sprite::Sprite(const Texture* texture, const IntRect & rect) : texture(texture), rect(rect), size(rect.width, rect.height)
 {
 }
 
@@ -19,6 +20,7 @@ void Sprite::setTexture(const Texture* textureIn, bool resetRect)
 	{
 		rect = { 0, 0, texture->getWidth(), texture->getHeight() };
 	}
+	size = { texture->getWidth(), texture->getHeight() };
 }
 
 void Sprite::setTextureRect(const IntRect & rectIn)
@@ -62,12 +64,12 @@ Vector2f Sprite::getSize() const
 
 float Sprite::getWidth() const
 {
-	return (rect.getRight() - rect.left) * scl.x;
+	return size.x * scl.x;
 }
 
 float Sprite::getHeight() const
 {
-	return (rect.getBottom() - rect.top) * scl.y;
+	return size.y * scl.y;
 }
 
 void Sprite::setPosition(float x, float y)
@@ -153,4 +155,14 @@ void Sprite::setColor(const Color & c)
 const Color & Sprite::getColor() const
 {
 	return color;
+}
+
+void Sprite::setSize(int sx, int sy)
+{
+	size = { sx, sy };
+}
+
+void Sprite::setSize(const Vector2i& sizeIn)
+{
+	size = sizeIn;
 }

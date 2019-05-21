@@ -30,7 +30,6 @@
 #include "Texture.cpp"
 #include "TextureAtlas.cpp"
 #include "TiledMap.cpp"
-#include "TouchInput.cpp"
 #include "Utils.cpp"
 #include "Vector.cpp"
 #include "VertexArray.cpp"

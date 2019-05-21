@@ -78,7 +78,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/Texture.cpp
              src/main/cpp/TextureAtlas.cpp
              src/main/cpp/TiledMap.cpp
-             src/main/cpp/TouchInput.cpp
              src/main/cpp/Utils.cpp
              src/main/cpp/Vector.cpp
              src/main/cpp/VertexArray.cpp

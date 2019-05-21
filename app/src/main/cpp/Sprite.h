@@ -12,6 +12,7 @@ class Sprite
 	IntRect rect;
 	Vector2f pos = { 0.0f, 0.0f }, org = { 0.0f, 0.0f };
 	Vector2f scl = { 1.0f, 1.0f };
+	Vector2i size = { 0, 0 };
 	float rot = 0.0f;
 	Color color = Colors::White;
 public:
@@ -28,6 +29,8 @@ public:
 	Vector2f getSize() const;
 	float getWidth() const;
 	float getHeight() const;
+	void setSize(int sx, int sy);
+	void setSize(const Vector2i& size);
 	void setPosition(float x, float y);
 	void setPosition(const Vector2f &position);
 	void setRotation(float angle);

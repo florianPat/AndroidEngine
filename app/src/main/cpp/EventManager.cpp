@@ -74,7 +74,7 @@ void EventManager::removeListeners()
 	}
 }
 
-DelegateFunction EventManager::getDelegateFromFunction(std::function<void(EventData*)>& function)
+DelegateFunction EventManager::getDelegateFromFunction(const std::function<void(EventData*)>& function)
 {
 	return DelegateFunction(std::pair<unsigned int, std::function<void(EventData*)>>(counter++, function));
 }

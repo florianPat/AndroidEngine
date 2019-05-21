@@ -15,7 +15,7 @@ class EventManager
 private:
 	uint counter = 0;
 public:
-	DelegateFunction getDelegateFromFunction(std::function<void(EventData*)>& function);
+	DelegateFunction getDelegateFromFunction(const std::function<void(EventData*)>& function);
 public:
 	EventManager();
 	bool addListener(unsigned int eventType, DelegateFunction& delegateFunction);

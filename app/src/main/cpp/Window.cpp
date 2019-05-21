@@ -18,7 +18,6 @@ int Window::processInputEvent(AInputEvent * event)
         return 0;
 
     int eventType = AInputEvent_getType(event);
-
     switch (eventType)
     {
         case AINPUT_EVENT_TYPE_MOTION:
@@ -28,32 +27,37 @@ int Window::processInputEvent(AInputEvent * event)
             {
                 case AINPUT_SOURCE_TOUCHSCREEN:
                 {
-                    int action = AMotionEvent_getAction(event);
-                    if (action == AMOTION_EVENT_ACTION_MOVE || action == AMOTION_EVENT_ACTION_DOWN)
+                    int combined = AMotionEvent_getAction(event);
+                    uint action = ((uint)combined & AMOTION_EVENT_ACTION_MASK);
+                    uint pointerIndex = ((uint)combined & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK);
+
+                    int pointerId = AMotionEvent_getPointerId(event, pointerIndex);
+                    getAndSetTouchInputPos(event, pointerId);
+
+                    touchInput.inputs[pointerId].move = false;
+                    touchInput.inputs[pointerId].down = false;
+                    touchInput.inputs[pointerId].up = false;
+
+                    switch(action)
                     {
-                        getAndSetTouchInputPos(event);
-                        TouchInput::setTouched(true);
+                        case AMOTION_EVENT_ACTION_MOVE:
+                        {
+                            touchInput.inputs[pointerId].move = true;
+                            break;
+                        }
+                        case AMOTION_EVENT_ACTION_DOWN:
+                        {
+                            touchInput.inputs[pointerId].down = true;
+                            break;
+                        }
+                        case AMOTION_EVENT_ACTION_UP:
+                        {
+                            touchInput.inputs[pointerId].up = true;
+                            break;
+                        }
                     }
-                    else if (action == AMOTION_EVENT_ACTION_UP)
-                    {
-                        getAndSetTouchInputPos(event);
-                        TouchInput::setTouched(true);
-                        TouchInput::setShouldUp(true);
-                    }
-                    else if (action == AMOTION_EVENT_ACTION_CANCEL)
-                    {
-                        TouchInput::setTouched(false);
-                    }
-                }
-                default:
-                {
-                    break;
                 }
             }
-            break;
-        }
-        default:
-        {
             break;
         }
     }
@@ -83,10 +87,9 @@ Window::Window(android_app * app, int width, int height, View::ViewportType view
 
 bool Window::processEvents()
 {
-    if (TouchInput::getShouldUp())
+    for(int i = 0; i < arrayCount(touchInput.inputs); ++i)
     {
-        TouchInput::setShouldUp(false);
-        TouchInput::setTouched(false);
+        touchInput.inputs[i].up = false;
     }
 
     int32_t event;
@@ -283,7 +286,7 @@ void Window::processAppEvent(int32_t command)
     }
 }
 
-void Window::getAndSetTouchInputPos(AInputEvent * event)
+void Window::getAndSetTouchInputPos(AInputEvent* event, int pointerId)
 {
     //Needs conversion because coord system is from topLeft, but game uses bottomLeft and other window dimensions
     float x = AMotionEvent_getX(event, 0);
@@ -292,7 +295,7 @@ void Window::getAndSetTouchInputPos(AInputEvent * event)
     x = x / gfx.getDefaultView().getSize().x * gfx.renderWidth;
     y = y / gfx.getDefaultView().getSize().y * gfx.renderHeight;
 
-    TouchInput::setPosition(x, y);
+    touchInput.inputs[pointerId].touchPos = { x, y };
 }
 
 bool Window::startSnd()
@@ -458,4 +461,9 @@ void Window::checkAndRecoverFromContextLoss()
         gfx.setupGfxGpu();
         assetManager.reloadAllRes();
     }
+}
+
+const TouchInput& Window::getTouchInput() const
+{
+    return touchInput;
 }
