@@ -20,6 +20,11 @@ struct HeapArray : public Array<T, 0>
 template <typename T>
 inline HeapArray<T>::HeapArray(size_t size) : Array<T, 0>{ { .heapArray.p = (T*)malloc(sizeof(T) * size), .heapArray.capacity = size } }
 {
+    uchar* charPtr = (uchar*)this->arrayUnion.heapArray.p;
+	for(int i = 0; i < sizeof(T) * size; ++i)
+    {
+		charPtr[i] = 0;
+    }
 }
 
 template <typename T>

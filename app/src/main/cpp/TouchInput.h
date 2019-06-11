@@ -6,9 +6,9 @@ struct TouchInput
 {
 	struct TouchInputStruct
 	{
-		Vector2f touchPos;
-		bool down;
-		bool up;
-		bool move;
+		Vector2f touchPos = { 0.0f, 0.0f };
+		bool down = false;
+		bool up = false;
+		bool move = false;
 	} inputs[2];
 };

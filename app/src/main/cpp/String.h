@@ -25,6 +25,7 @@ private:
 protected:
 	String(size_t count, bool shortRepIn);
 	String(size_t count, char c, bool shortRepIn);
+	String(const String& other, bool shortRepIn);
 	//String(const String& other, size_t pos, size_t count);
 	//String(const char* s, size_t count);
 private:
@@ -150,7 +151,8 @@ inline String & String::operator=(const char(&s)[N])
 template<size_t N>
 inline size_t String::find(const char (&str)[N], size_t pos) const
 {
-	return find(str, pos, N);
+	//NOTE: N - 1 because size() of the String class returns the size minus the 0 terminator!
+	return find(str, pos, N - 1);
 }
 
 struct ShortString : public String
@@ -213,6 +215,7 @@ namespace utils
 {
 	bool isWordInLine(const String & word, const String & lineContent);
 	String getWordBetweenChars(const String& lineContent, char first, char last);
+	LongString getDirPathToFile(const String& str);
 }
 
 namespace StringUnitTest

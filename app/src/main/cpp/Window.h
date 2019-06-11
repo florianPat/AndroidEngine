@@ -58,7 +58,7 @@ private:
 	static void AppEventCallback(android_app* app, int32_t command);
 	int processInputEvent(AInputEvent* event);
 	static int InputEventCallback(android_app* app, AInputEvent* event);
-	void getAndSetTouchInputPos(AInputEvent* event, int pointerId);
+	void getAndSetTouchInputPos(AInputEvent* event, int pointerId, uint pointerIndex);
 	bool startSnd();
 	void stopSnd();
 	bool startFont();

@@ -10,22 +10,17 @@
 class Level
 {
 protected:
-	Window& window;
-	Graphics& gfx;
-	Physics physics;
-	GameObjectManager gom;
+    Window& window;
 	Clock& clock;
+	Physics physics;
 	EventManager eventManager;
+    GameObjectManager gom;
+    Graphics& gfx;
 
 	std::unique_ptr<Level> newLevel = nullptr;
 	bool endLevel = false;
-
-	//std::function<void(EventData*)> eventLevelReloadFunction = std::bind(&Level::eventLevelReloadHandler, this, std::placeholders::_1);
-	//DelegateFunction delegateLevelReload = eventManager.getDelegateFromFunction(eventLevelReloadFunction);
-protected:
-	void updateModelAndComposeFrame();
 public:
-	Level(Window& window);
+	Level();
 	virtual ~Level() = default;
     std::unique_ptr<Level> getNewLevel();
     bool shouldEndLevel() const;

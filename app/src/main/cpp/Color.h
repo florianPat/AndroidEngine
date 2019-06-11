@@ -2,33 +2,25 @@
 
 #include "Types.h"
 
+//NOTE: The color is saved in premultiplied alpha "color space"
 class Color
 {
 public:
-	uchar r = 0;
-	uchar g = 0;
-	uchar b = 0;
-	uchar a = 255;
+	float r = 0.0f;
+	float g = 0.0f;
+	float b = 0.0f;
+	float a = 1.0f;
 public:
 	Color() = default;
-	Color(uchar r, uchar g, uchar b, uchar a = 255) : r(r), g(g), b(b), a(a) {}
-	Color(uint c) : r(c & 0xFF), g((c >> 8) & 0xFF), b((c >> 16) & 0xFF), a((c >> 24) & 0xFF) {}
-	uint toInteger() const
-	{
-		uint result = 0;
-
-		result = (((uint)r) | (((uint)g) << 8) | (((uint)b) << 16) | (((uint)a) << 24));
-
-		return result;
-	}
+	Color(float r, float g, float b, float a = 1.0f) : r(r * a), g(g * a), b(b * a), a(a) {}
 
 	bool operator==(const Color& rhs)
 	{
-		return toInteger() == rhs.toInteger();
+		return ((r == rhs.r) && (g == rhs.g) && (b == rhs.b) && (a == rhs.a));
 	}
 	bool operator!=(const Color& rhs)
 	{
-		return toInteger() != rhs.toInteger();
+		return ((r != rhs.r) && (g != rhs.g) && (b != rhs.b) && (a != rhs.a));
 	}
 	
 	//Clamp!
@@ -66,12 +58,12 @@ public:
 namespace Colors
 {
 	static const Color Black = Color();
-	static const Color White = Color(255, 255, 255);
-	static const Color Red = Color(255, 0, 0);
-	static const Color Green = Color(0, 255, 0);
-	static const Color Blue = Color(0, 0, 255);
-	static const Color Yellow = Color(255, 255, 0);
-	static const Color Magenta = Color(255, 0, 255);
-	static const Color Cyan = Color(0, 255, 255);
+	static const Color White = Color(1.0f, 1.0f, 1.0f);
+	static const Color Red = Color(1.0f, 0.0f, 0.0f);
+	static const Color Green = Color(0.0f, 1.0f, 0.0f);
+	static const Color Blue = Color(0.0f, 0.0f, 1.0f);
+	static const Color Yellow = Color(1.0f, 1.0f, 0.0f);
+	static const Color Magenta = Color(1.0f, 0.0f, 1.0f);
+	static const Color Cyan = Color(0.0f, 1.0f, 1.0f);
 	static const Color Transparent = Color(0, 0, 0, 0);
 }

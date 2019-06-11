@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "Ifstream.h"
 #include "Font.h"
+#include "Globals.h"
 
 void Window::AppEventCallback(android_app * app, int32_t command)
 {
@@ -32,11 +33,12 @@ int Window::processInputEvent(AInputEvent * event)
                     uint pointerIndex = ((uint)combined & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK);
 
                     int pointerId = AMotionEvent_getPointerId(event, pointerIndex);
-                    getAndSetTouchInputPos(event, pointerId);
 
                     touchInput.inputs[pointerId].move = false;
                     touchInput.inputs[pointerId].down = false;
                     touchInput.inputs[pointerId].up = false;
+
+                    getAndSetTouchInputPos(event, pointerId, pointerIndex);
 
                     switch(action)
                     {
@@ -76,6 +78,8 @@ Window::Window(android_app * app, int width, int height, View::ViewportType view
                                                                                                   assetManager(),
                                                                                                   gfx(width, height, viewportType)
 {
+    Globals::window = this;
+
     Ifstream::setAassetManager(app->activity->assetManager);
 
     app->userData = this;
@@ -167,11 +171,10 @@ void Window::processAppEvent(int32_t command)
         }
         case APP_CMD_INPUT_CHANGED:
         {
-            utils::log("Input changed!!");
+            break;
         }
         case APP_CMD_LOW_MEMORY:
         {
-            utils::log("Low memory!");
             break;
         }
         case APP_CMD_INIT_WINDOW:
@@ -196,15 +199,11 @@ void Window::processAppEvent(int32_t command)
                 initFinished = true;
                 clock.restart();
             }
-
-            utils::log("initWindow");
-
             break;
         }
         case APP_CMD_DESTROY:
         {
             running = false;
-            utils::log("destroy");
             break;
         }
         case APP_CMD_GAINED_FOCUS:
@@ -217,23 +216,18 @@ void Window::processAppEvent(int32_t command)
                 initFinished = true;
                 clock.restart();
             }
-
-            utils::log("gained Focus");
-
             break;
         }
         case APP_CMD_LOST_FOCUS:
         {
             gainedFocus = false;
             initFinished = false;
-            utils::log("lost focus");
             break;
         }
         case APP_CMD_PAUSE:
         {
             resumed = false;
             initFinished = false;
-            utils::log("pause");
             break;
         }
         case APP_CMD_RESUME:
@@ -246,9 +240,6 @@ void Window::processAppEvent(int32_t command)
                 initFinished = true;
                 clock.restart();
             }
-
-            utils::log("resume");
-
             break;
         }
         case APP_CMD_SAVE_STATE:
@@ -258,16 +249,12 @@ void Window::processAppEvent(int32_t command)
         case APP_CMD_START:
         {
             //first create or recreate if there is something in the save state
-            utils::log("start");
-
             recreating = (bool) app->stateSaved;
-
             break;
         }
         case APP_CMD_STOP:
         {
             //Now the app really is not visible!
-            utils::log("stop");
             break;
         }
         case APP_CMD_TERM_WINDOW:
@@ -275,8 +262,6 @@ void Window::processAppEvent(int32_t command)
             deactivate();
             validNativeWindow = false;
             initFinished = false;
-            utils::log("term window");
-
             break;
         }
         default:
@@ -286,14 +271,16 @@ void Window::processAppEvent(int32_t command)
     }
 }
 
-void Window::getAndSetTouchInputPos(AInputEvent* event, int pointerId)
+void Window::getAndSetTouchInputPos(AInputEvent* event, int pointerId, uint pointerIndex)
 {
     //Needs conversion because coord system is from topLeft, but game uses bottomLeft and other window dimensions
-    float x = AMotionEvent_getX(event, 0);
-    float y = (AMotionEvent_getY(event, 0) - gfx.getDefaultView().getSize().y) * -1.0f;
+    float x = AMotionEvent_getX(event, pointerIndex);
+    float y = gfx.screenHeight - AMotionEvent_getY(event, pointerIndex);
 
-    x = x / gfx.getDefaultView().getSize().x * gfx.renderWidth;
-    y = y / gfx.getDefaultView().getSize().y * gfx.renderHeight;
+    const Vector2i& viewportSize = gfx.getDefaultView().getSize();
+
+    x = x / gfx.screenWidth * viewportSize.x;
+    y = y / gfx.screenHeight * viewportSize.y;
 
     touchInput.inputs[pointerId].touchPos = { x, y };
 }

@@ -420,7 +420,7 @@ size_t String::find_last_of(char c, size_t pos) const
 	if (pos == npos)
 		pos = size() - 1;
 
-	for (size_t i = pos; i >= 0; --i)
+	for (int i = pos; i >= 0; --i)
 	{
 		if (at(i) == c)
 			return i;
@@ -526,7 +526,8 @@ size_t String::find(const char* str, size_t pos, size_t strSize) const
         return npos;
 
     const size_t thisSize = size();
-    assert(pos < thisSize);
+    if(pos >= thisSize)
+    	return npos;
 
     size_t result = npos;
     for(size_t i = pos; (result == npos) && ((thisSize - i) >= strSize) && (i < size()); ++i)
@@ -545,6 +546,37 @@ size_t String::find(const char* str, size_t pos, size_t strSize) const
     }
 
     return result;
+}
+
+String::String(const String& other, bool shortRepIn) : shortRep(shortRepIn), stringUnion{{ { {0} } }}
+{
+	if(shortRep)
+	{
+		assert(other.size() < SHORT_STRING_SIZE);
+		if(other.shortRep)
+			new (&stringUnion.stringArrayShort) Array<char, SHORT_STRING_SIZE>(other.stringUnion.stringArrayShort);
+		else
+		{
+			for (size_t i = 0; i < other.size(); ++i)
+				stringUnion.stringArrayShort.push_back(other[i]);
+
+			stringUnion.stringArrayShort.push_back('\0');
+		}
+	}
+	else
+	{
+		if(other.shortRep)
+		{
+			new (&stringUnion.stringArrayLong) Vector<char>();
+
+			for (size_t i = 0; i < other.size(); ++i)
+				stringUnion.stringArrayLong.push_back(other[i]);
+
+			stringUnion.stringArrayLong.push_back('\0');
+		}
+		else
+			new (&stringUnion.stringArrayLong) Vector<char>(other.stringUnion.stringArrayLong);
+	}
 }
 
 bool utils::isWordInLine(const String & word, const String & lineContent)
@@ -579,11 +611,21 @@ bool utils::isWordInLine(const String & word, const String & lineContent)
 String utils::getWordBetweenChars(const String& lineContent, char firstChar, char lastChar)
 {
 	size_t first = lineContent.find_first_of(firstChar);
+	assert(first != String::npos);
 	++first;
-	size_t last = lineContent.find_last_of(lastChar);
+	size_t last = lineContent.find_first_of(lastChar, first);
+	assert(last != String::npos);
 	String result(last - first);
 	result = lineContent.substr(first, last - first);
 	return result;
+}
+
+LongString utils::getDirPathToFile(const String& str)
+{
+	if(size_t lastSlashPos = str.find_last_of('/'); lastSlashPos != String::npos)
+		return LongString(str.substr(0, lastSlashPos + 1));
+	else
+		return "";
 }
 
 #include "UnitTester.h"
@@ -711,12 +753,12 @@ ShortString::ShortString(size_t count, char c) : String(count, c, true)
 {
 }
 
-ShortString::ShortString(const String & other) : String(other)
+ShortString::ShortString(const String & other) : String(other, true)
 {
 	assert(shortRep == true);
 }
 
-ShortString::ShortString(String && other) : String(other)
+ShortString::ShortString(String && other) : String(other, true)
 {
 	assert(shortRep == true);
 }
@@ -749,12 +791,12 @@ LongString::LongString(size_t count, char c) : String(count, c, false)
 {
 }
 
-LongString::LongString(const String & other) : String(other)
+LongString::LongString(const String & other) : String(other, false)
 {
 	assert(shortRep == false);
 }
 
-LongString::LongString(String && other) : String(other)
+LongString::LongString(String && other) : String(other, false)
 {
 	assert(shortRep == false);
 }

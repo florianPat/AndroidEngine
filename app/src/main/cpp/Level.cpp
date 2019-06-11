@@ -1,4 +1,6 @@
 #include "Level.h"
+#include "Physics.h"
+#include "Globals.h"
 
 /*void Level::eventLevelReloadHandler(EventData* eventData)
 {
@@ -6,24 +8,12 @@
 	endLevel = true;
 }*/
 
-void Level::updateModelAndComposeFrame()
+Level::Level()
+	:	window(*Globals::window), clock(window.getClock()), physics(), eventManager(), gom(),
+		gfx(window.getGfx())
 {
-    float dt = clock.getTime().asSeconds();
-    utils::logF("%f", dt);
-
-	gfx.clear();
-
-	gom.updateAndDrawActors(dt);
-
-	physics.debugRenderBodies(gfx);
-
-    physics.update(dt);
-}
-
-Level::Level(Window & window)
-	: window(window), gfx(window.getGfx()), physics(), gom(), clock(window.getClock()),
-	  eventManager()
-{
+	Globals::physics = &physics;
+	Globals::eventManager = &eventManager;
 }
 
 std::unique_ptr<Level> Level::getNewLevel()
@@ -39,6 +29,13 @@ bool Level::shouldEndLevel() const
 
 void Level::Go()
 {
-	updateModelAndComposeFrame();
+	float dt = clock.getTime().asSeconds();
+
+	gfx.clear();
+
+	gom.updateAndDrawActors(dt);
+
+	physics.update(dt);
+
 	gfx.render();
 }

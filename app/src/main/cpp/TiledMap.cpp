@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "TiledMapRenderComponent.h"
 #include <cstdlib>
+#include "Globals.h"
 
 const Vector<Physics::Collider>& TiledMap::getObjectGroup(const ShortString& objectGroupName)
 {
@@ -138,6 +139,9 @@ void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 			int width = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
 			int height = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
 
+			//NOTE: Need to do this because it is stored top down and not bottom up!
+			y = (mapHeight * tileHeight) - tileHeight - y;
+
 			objectVector.push_back(FloatRect((float)x, (float)y, (float)width, (float)height));
 
 			file.getline(lineContent);
@@ -169,7 +173,7 @@ void TiledMap::MakeRenderTexture()
 					if (source == nullptr)
 						continue;
 					Sprite sprite(source);
-					sprite.setPosition((float)x * tileWidth, (float)posY * tileHeight);
+					sprite.pos = Vector2f((float)x * tileWidth, (float)posY * tileHeight);
 
 					gfx->draw(sprite);
 				}
@@ -185,8 +189,10 @@ void TiledMap::MakeRenderTexture()
 	}
 }
 
-String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager)
+String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager, const String& filename)
 {
+    LongString dirsToAdd = utils::getDirPathToFile(filename);
+
 	String lineContent = LongString();
 	file.getline(lineContent);
 
@@ -229,7 +235,7 @@ String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager)
 			int height = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
 			String source = getLineContentBetween(lineContent, "source", '"');
 			assert(tiles.size() == id);
-			tiles.push_back(Tile{ id, width, height, assetManager->getOrAddRes<Texture>(source) });
+			tiles.push_back(Tile{ id, width, height, assetManager->getOrAddRes<Texture>(dirsToAdd + source) });
 
 			file.getline(lineContent); //</tile>
 			assert(utils::isWordInLine("</tile>", lineContent));
@@ -242,11 +248,9 @@ String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager)
 	return lineContent;
 }
 
-bool TiledMap::loadFromFile(const String& filename, void* options)
+bool TiledMap::loadFromFile(const String& filename)
 {
-	TiledMapOptions* tiledMapOptions = (TiledMapOptions*) options;
-
-	gfx = &tiledMapOptions->window.getGfx();
+	gfx = &Globals::window->getGfx();
 
 	Ifstream file;
 	file.open(filename);
@@ -284,7 +288,7 @@ bool TiledMap::loadFromFile(const String& filename, void* options)
 		tileWidth = atoi(getLineContentBetween(lineContent, "tilewidth", '"').c_str());
 		tileHeight = atoi(getLineContentBetween(lineContent, "tileheight", '"').c_str());
 
-		lineContent = ParseTiles(file, tiledMapOptions->window.getAssetManager());
+		lineContent = ParseTiles(file, Globals::window->getAssetManager(), filename);
 
 		ParseLayer(file, lineContent);
 
@@ -311,4 +315,9 @@ bool TiledMap::reloadFromFile(const String& filename)
 	MakeRenderTexture();
 
 	return true;
+}
+
+Vector2f TiledMap::getMapSize() const
+{
+    return Vector2f{ (float)mapWidth * tileWidth, (float)mapHeight * tileHeight };
 }

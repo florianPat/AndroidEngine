@@ -30,6 +30,7 @@ void Sprite::setTextureRect(const IntRect & rectIn)
 	assert(rectIn.getRight() <= texture->getWidth());
 	assert(rectIn.getBottom() <= texture->getHeight());
 	rect = rectIn;
+	size = { rect.width, rect.height };
 }
 
 const Texture * Sprite::getTexture() const
@@ -72,21 +73,6 @@ float Sprite::getHeight() const
 	return size.y * scl.y;
 }
 
-void Sprite::setPosition(float x, float y)
-{
-	pos = { x, y };
-}
-
-void Sprite::setPosition(const Vector2f & position)
-{
-	pos = position;
-}
-
-void Sprite::setRotation(float angle)
-{
-	rot = angle;
-}
-
 void Sprite::setScale(float factor)
 {
 	scl = { factor, factor };
@@ -95,41 +81,6 @@ void Sprite::setScale(float factor)
 void Sprite::setScale(float factorX, float factorY)
 {
 	scl = { factorX, factorY };
-}
-
-void Sprite::setScale(const Vector2f & factors)
-{
-	scl = factors;
-}
-
-void Sprite::setOrigin(float x, float y)
-{
-	org = { x, y };
-}
-
-void Sprite::setOrigin(const Vector2f & origin)
-{
-	org = origin;
-}
-
-const Vector2f & Sprite::getPosition() const
-{
-	return pos;
-}
-
-float Sprite::getRotation() const
-{
-	return rot;
-}
-
-const Vector2f & Sprite::getScale() const
-{
-	return scl;
-}
-
-const Vector2f & Sprite::getOrigin() const
-{
-	return org;
 }
 
 const Mat4x4 Sprite::getTransform() const
@@ -145,24 +96,4 @@ const Mat4x4 Sprite::getTransform() const
 	result *= Mat4x4::scale({ getWidth(), getHeight() });
 
 	return result;
-}
-
-void Sprite::setColor(const Color & c)
-{
-	color = c;
-}
-
-const Color & Sprite::getColor() const
-{
-	return color;
-}
-
-void Sprite::setSize(int sx, int sy)
-{
-	size = { sx, sy };
-}
-
-void Sprite::setSize(const Vector2i& sizeIn)
-{
-	size = sizeIn;
 }

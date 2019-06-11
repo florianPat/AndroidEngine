@@ -76,7 +76,17 @@ public:
 	{
 		return Vector2(*this) *= rhs;
 	}
-	T operator*(const Vector2& rhs) const
+	Vector2& operator*=(const Vector2& rhs)
+	{
+		x *= rhs.x;
+		y *= rhs.y;
+		return *this;
+	}
+	Vector2 operator*(const Vector2& rhs) const
+	{
+		return Vector2(*this) *= rhs;
+	}
+	T dotProduct(const Vector2& rhs) const
 	{
 		return x * rhs.x + y * rhs.y;
 	}
@@ -87,6 +97,16 @@ public:
 		return *this;
 	}
 	Vector2	operator/(const T &rhs) const
+	{
+		return Vector2(*this) /= rhs;
+	}
+	Vector2& operator/=(const Vector2& rhs)
+	{
+		x /= rhs.x;
+		y /= rhs.y;
+		return *this;
+	}
+	Vector2 operator/(const Vector2& rhs) const
 	{
 		return Vector2(*this) /= rhs;
 	}

@@ -56,8 +56,8 @@ public:
 	Time getTime();
 
 	Time getElapsedTimeTotal();
+	static int64_t now();
 private:
-	int64_t now();
 	void update();
 private:
 	int64_t firstTime = 0;

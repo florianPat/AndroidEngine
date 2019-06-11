@@ -26,6 +26,7 @@ void GraphicsOGL2::clear()
 
 void GraphicsOGL2::draw(const Sprite& sprite)
 {
+    assert(!isFastRectDrawing);
     assert(vb);
 
     const Texture* texture = sprite.getTexture();
@@ -53,10 +54,10 @@ void GraphicsOGL2::draw(const Sprite& sprite)
                              { texRectRight, texRectBottom },
                              { texRectLeft, texRectBottom } };
 
-    float red = sprite.getColor().r / 255.0f;
-    float green = sprite.getColor().g / 255.0f;
-    float blue = sprite.getColor().b / 255.0f;
-    float alpha = sprite.getColor().a / 255.0f;
+    float red = sprite.color.r;
+    float green = sprite.color.g;
+    float blue = sprite.color.b;
+    float alpha = sprite.color.a;
 
     Mat4x4 mv = sprite.getTransform();
 
@@ -64,7 +65,7 @@ void GraphicsOGL2::draw(const Sprite& sprite)
 
     for(int i = 0; i < 4; ++i)
     {
-        //TODO: I could also pass the pos, scl, angle in directly and compute the mv in the vertexShader
+        //NOTE: I could also pass the pos, scl, angle in directly and compute the mv in the vertexShader
         // (But I would pass in one more float; and it is not really that much faster (according to what I saw))
 
         //TODO: Can add the active texture unit this sprite belongs to and batch sprites with different
@@ -87,31 +88,39 @@ void GraphicsOGL2::draw(const Sprite& sprite)
 
 void GraphicsOGL2::draw(const RectangleShape& rect)
 {
+    assert(isFastRectDrawing);
     assert(vb);
 
-    flush();
+    if(nSpritesBatched >= NUM_SPRITES_TO_BATCH)
+    {
+        flush();
+    }
 
-    float vertices[] = {0.0f, 0.0f,
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f };
-    vb.subData(0, sizeof(vertices), vertices);
+    float red = rect.fillColor.r;
+    float green = rect.fillColor.g;
+    float blue = rect.fillColor.b;
+    float alpha = rect.fillColor.a;
 
-    VertexLayouts va;
-    va.addAttribute(2, GL_FLOAT);
-    va.set();
+    Mat4x4 mv = rect.getTransform();
 
-    Mat4x4 mvp = orhtoProj * rect.getTransform();
+    int plusI = nVerticesBatched();
 
-    Color c = rect.getFillColor();
+    for(int i = 0; i < 4; ++i)
+    {
+        //vertices[i + plusI].tex = { 0.0f, 0.0f };
+        vertices[i + plusI].colorR = red;
+        vertices[i + plusI].colorG = green;
+        vertices[i + plusI].colorB = blue;
+        vertices[i + plusI].colorA = alpha;
+        vertices[i + plusI].mvMatrix[0] = mv.matrix[0];
+        vertices[i + plusI].mvMatrix[1] = mv.matrix[1];
+        vertices[i + plusI].mvMatrix[2] = mv.matrix[4];
+        vertices[i + plusI].mvMatrix[3] = mv.matrix[5];
+        vertices[i + plusI].mvMatrix[4] = mv.matrix[12];
+        vertices[i + plusI].mvMatrix[5] = mv.matrix[13];
+    }
 
-    shaderRectShape.bind();
-    shaderRectShape.setUniformMat4f("u_mvp", mvp);
-    shaderRectShape.setUniform4f("u_color", c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
-
-    CallGL(glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, 0));
-
-    setupSpriteRendering();
+    ++nSpritesBatched;
 }
 
 void GraphicsOGL2::render()
@@ -122,7 +131,10 @@ void GraphicsOGL2::render()
     assert(result);
 
     if (view.updated())
+    {
         orhtoProj = view.getOrthoProj();
+        shaderSprite.setUniformMat4f("u_proj", orhtoProj);
+    }
 }
 
 void GraphicsOGL2::setupGfxGpu()
@@ -133,7 +145,8 @@ void GraphicsOGL2::setupGfxGpu()
 
     new (&shaderSprite) Shader("SSprite", Vector<ShortString>{ "position", "texCoord", "color",
                                                                "mvMatrixSclRot", "mvMatrixPos" });
-    new (&shaderRectShape) Shader("SRectShape", Vector<ShortString>{ "position" });
+    new (&shaderRectShape) Shader("SRectShape", Vector<ShortString>{ "position", "texCoord", "color",
+                                                                     "mvMatrixSclRot", "mvMatrixPos" });
 
     unsigned int indices[6 * NUM_SPRITES_TO_BATCH];
     for(uint i = 0, counter = 0; i < NUM_SPRITES_TO_BATCH; ++i, counter += 6)
@@ -152,6 +165,14 @@ void GraphicsOGL2::setupGfxGpu()
     vb.bind();
 
     setupSpriteRendering();
+
+    VertexLayouts va;
+    va.addAttribute(2, GL_FLOAT);
+    va.addAttribute(2, GL_FLOAT);
+    va.addAttribute(4, GL_FLOAT);
+    va.addAttribute(4, GL_FLOAT);
+    va.addAttribute(2, GL_FLOAT);
+    va.set();
 }
 
 void GraphicsOGL2::bindOtherOrthoProj(const Mat4x4& otherOrthoProj)
@@ -171,13 +192,7 @@ void GraphicsOGL2::setupSpriteRendering()
     assert(shaderSprite);
 
     shaderSprite.bind();
-    VertexLayouts va;
-    va.addAttribute(2, GL_FLOAT);
-    va.addAttribute(2, GL_FLOAT);
-    va.addAttribute(4, GL_FLOAT);
-    va.addAttribute(4, GL_FLOAT);
-    va.addAttribute(2, GL_FLOAT);
-    va.set();
+    shaderSprite.setUniformMat4f("u_proj", orhtoProj);
 }
 
 void GraphicsOGL2::flush()
@@ -199,4 +214,22 @@ int GraphicsOGL2::nVerticesBatched() const
 //TODO: Implement
 void GraphicsOGL2::draw(const CircleShape& circle)
 {
+}
+
+void GraphicsOGL2::startFastRectDrawing()
+{
+    flush();
+
+    shaderRectShape.bind();
+    shaderRectShape.setUniformMat4f("u_proj", orhtoProj);
+
+    isFastRectDrawing = true;
+}
+
+void GraphicsOGL2::stopFastRectDrawing()
+{
+    flush();
+
+    isFastRectDrawing = false;
+    setupSpriteRendering();
 }

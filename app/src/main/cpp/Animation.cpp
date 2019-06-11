@@ -21,7 +21,7 @@ Animation::Animation(const Vector<ShortString>& regionNames, const TextureAtlas 
 	{
 		auto region = atlas.findRegion(*it);
 		if (region == nullptr)
-			continue;
+			utils::logBreak("region is not in the atlas!");
 		else
 		{
 			keyFrames.push_back(*region);
@@ -37,12 +37,12 @@ Animation::Animation(const Vector<ShortString>& regionNames, const TextureAtlas 
 	keyFrameItReverse = this->keyFrames.size() - 1;
 }
 
-Animation::PlayMode Animation::getPlayMode()
+Animation::PlayMode Animation::getPlayMode() const
 {
 	return playMode;
 }
 
-int64_t Animation::getFrameDuration()
+int64_t Animation::getFrameDuration() const
 {
 	return frameDuration;
 }

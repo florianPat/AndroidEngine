@@ -58,6 +58,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/EventManager.cpp
              src/main/cpp/Font.cpp
              src/main/cpp/GameObjectManager.cpp
+             src/main/cpp/Globals.cpp
              src/main/cpp/GLUtils.cpp
              src/main/cpp/GraphicsOGL2.cpp
              src/main/cpp/GraphicsOGLIniter.cpp
@@ -99,6 +100,6 @@ target_link_libraries( # Specifies the target library.
                        GLESv2
                        OpenSLES
                        libpng
-                       freetype2 )
+                       freetype2
                        #NOTE: For building the static lib
-                       #androidEngine )
+                       androidEngine )

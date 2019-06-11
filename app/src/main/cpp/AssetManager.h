@@ -11,6 +11,7 @@ class AssetManager
     struct FilenameCacheValue
     {
         size_t ressourceCacheAssetId;
+        //NOTE: The pointers do not get invalidated in shrink/expand because I just store a pp
         std::unique_ptr<char[]> asset;
     };
 
@@ -63,7 +64,7 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 		//(TODO: Think about how to let the user also construct a asset from a stream)
 		if (!assetLoader.loadFromFile(asset.get(), filename, argOptions))
 		{
-			utils::log("Could not load asset!");
+			utils::logBreak("Could not load asset!");
 			return nullptr;
 		}
 

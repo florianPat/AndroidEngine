@@ -13,8 +13,8 @@ class TextureRegion
 {
 	friend class TextureAtlas;
 
-	ShortString textureAtlasFileName;
-	LongString filename;
+	const LongString* textureAtlasFileName;
+	ShortString filename;
 	Vector2i xy;
 	Vector2i size;
 
@@ -24,20 +24,20 @@ private:
 	TextureRegion() = default;
 	void initSprite(AssetManager* assetManager);
 public:
-	String getAtlasFileName() { return textureAtlasFileName; }
-	String getRegionName() { return filename; }
-	Vector2i getXY() { return xy; }
-	Vector2i getSize() { return size; }
+	String getAtlasFileName() const { return *textureAtlasFileName; }
+	String getRegionName() const { return filename; }
+	Vector2i getXY() const { return xy; }
+	Vector2i getSize() const { return size; }
 
 	void setRegion(int x, int y, int widht, int height);
-	Sprite getRegion();
+	Sprite getRegion() const { return regionSprite; }
 };
 
 class TextureAtlas
 {
 	struct FileHeader
 	{
-		ShortString name;
+		LongString name;
 		Vector2i size;
 		ShortString format;
 		ShortString filter[2];
@@ -47,11 +47,11 @@ public:
 	TextureAtlas(const String& filepath, AssetManager* assetManger);
 
 	const TextureRegion* findRegion(const String& name) const;
-	const std::unordered_map<String, TextureRegion>& getRegions();
+	const std::unordered_map<String, TextureRegion>& getRegions() const;
 	void addRegion(const TextureRegion& adder);
 private:
-	String getLineContentBetweeen(String& lineContent, char first, char secound);
-	Vector2i getLineContentRegionValues(String& lineContent, char firstRealChar);
+	String getLineContentBetweeen(String& lineContent, char first, char secound) const;
+	Vector2i getLineContentRegionValues(String& lineContent, char firstRealChar) const;
 private:
 	std::unordered_map<String, TextureRegion> textureAtlas;
 	static constexpr int FILE_HEADER_LINE_SIZE = 5;

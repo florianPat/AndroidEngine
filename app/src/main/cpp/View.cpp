@@ -25,7 +25,7 @@ View::View(int renderWidth, int renderHeight, int screenWidth, int screenHeight,
 			height += (int) (remainingSpace * ((float)renderHeight / (float)viewportHeight));
 			viewportHeight = screenHeight;
 		}
-		else if (height == screenHeight)
+		else if (viewportHeight == screenHeight)
 		{
 			float remainingSpace = screenWidth - viewportWidth;
 			width += (int) (remainingSpace * ((float)renderWidth / (float)viewportWidth));

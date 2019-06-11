@@ -10,6 +10,7 @@
 #include "EventManager.cpp"
 #include "Font.cpp"
 #include "GameObjectManager.cpp"
+#include "Globals.cpp"
 #include "GLUtils.cpp"
 #include "GraphicsOGL2.cpp"
 #include "GraphicsOGLIniter.cpp"

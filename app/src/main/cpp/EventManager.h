@@ -15,11 +15,11 @@ class EventManager
 private:
 	uint counter = 0;
 public:
-	DelegateFunction getDelegateFromFunction(const std::function<void(EventData*)>& function);
+	DelegateFunction getDelegateFromFunction(std::function<void(EventData*)>&& function);
 public:
 	EventManager();
-	bool addListener(unsigned int eventType, DelegateFunction& delegateFunction);
-	void removeListener(unsigned int eventType, DelegateFunction& delegateFunction);
+	bool addListener(unsigned int& eventType, const DelegateFunction& delegateFunction);
+	void removeListener(unsigned int eventType, const DelegateFunction& delegateFunction);
 	void TriggerEvent(std::unique_ptr<EventData> eventData);
 	void removeListeners();
 };

@@ -29,7 +29,6 @@ public:
     struct FontOptions
     {
         int size = 0;
-        Window* Window;
     };
 private:
     bool createGlyphRenderTextureAndMap(FT_Face& face);
@@ -46,6 +45,7 @@ public:
     Font& operator=(const Font& rhs) = delete;
     Font& operator=(Font&& rhs);
     long long getSize() const { return (sizeof(Font)); }
-    void drawText(const String& text, const Vector2f& pos);
+    void drawText(const String& text, const Vector2f& pos, Color color = Colors::White);
+    void drawText(const String& text, const Vector2f& pos, int pixelSize, Color color = Colors::White);
     explicit operator bool() const;
 };

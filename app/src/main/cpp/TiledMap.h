@@ -38,12 +38,7 @@ class TiledMap
 	Sprite textureSprite;
 	Graphics* gfx;
 public:
-	struct TiledMapOptions
-	{
-		Window& window;
-	};
-public:
-	bool loadFromFile(const String& filename, void* options);
+	bool loadFromFile(const String& filename);
 	bool reloadFromFile(const String& filename);
 public:
 	TiledMap() = default;
@@ -51,11 +46,12 @@ public:
 	const std::unordered_map<ShortString, ObjectGroup>& getObjectGroups();
 	void draw();
 	long long getSize() const { return sizeof(TiledMap); }
+	Vector2f getMapSize() const;
 private:
 	size_t getEndOfWord(const String& word, const String& lineContent, bool* result);
 	String getLineContentBetween(String& lineContent, const String& endOfFirst, char secound);
 
-	String ParseTiles(Ifstream& file, AssetManager* assetManager);
+	String ParseTiles(Ifstream& file, AssetManager* assetManager, const String& filename);
 	void ParseLayer(Ifstream& file, String& lineContent);
 	void ParseObjectGroups(Ifstream& file, String& lineContent);
 	void MakeRenderTexture();

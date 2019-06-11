@@ -5,12 +5,13 @@ EventManager::EventManager() : eventListenerMap()
 {
 }
 
-bool EventManager::addListener(unsigned int eventType, DelegateFunction & delegateFunction)
+bool EventManager::addListener(unsigned int& eventType, const DelegateFunction & delegateFunction)
 {
     Vector<DelegateFunction>* eventListenerList = nullptr;
 
 	if (eventType >= eventListenerMap.size())
 	{
+		eventType = (uint)eventListenerMap.size();
 		eventListenerMap.push_back(Vector<DelegateFunction>());
 		eventListenerList = &eventListenerMap.back();
 	}
@@ -33,7 +34,7 @@ bool EventManager::addListener(unsigned int eventType, DelegateFunction & delega
 	return true;
 }
 
-void EventManager::removeListener(unsigned int eventType, DelegateFunction & delegateFunction)
+void EventManager::removeListener(unsigned int eventType, const DelegateFunction & delegateFunction)
 {
 	eventDeleterMap.push_back(std::make_pair(eventType, delegateFunction));
 }
@@ -74,7 +75,7 @@ void EventManager::removeListeners()
 	}
 }
 
-DelegateFunction EventManager::getDelegateFromFunction(const std::function<void(EventData*)>& function)
+DelegateFunction EventManager::getDelegateFromFunction(std::function<void(EventData*)>&& function)
 {
-	return DelegateFunction(std::pair<unsigned int, std::function<void(EventData*)>>(counter++, function));
+	return DelegateFunction(std::pair<unsigned int, std::function<void(EventData*)>>(counter++, std::move(function)));
 }

@@ -1,6 +1,6 @@
 #include "EventLevelReload.h"
 
-const unsigned int EventLevelReload::eventId = utils::getGUID();
+unsigned int EventLevelReload::eventId = -1;
 
 EventLevelReload::EventLevelReload() : EventData(eventId)
 {

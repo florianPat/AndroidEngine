@@ -2,16 +2,16 @@
 
 #include "Component.h"
 #include "TiledMap.h"
+#include "Globals.h"
 
 class TiledMapComponent : public Component
 {
     TiledMap* map = nullptr;
 public:
-    TiledMapComponent(String levelName, TiledMap::TiledMapOptions* tiledMapOptions, Actor* owner)
-        : Component(utils::getGUID(), owner, Component::instantiateFunc<TiledMapComponent>())
+    TiledMapComponent(String levelName)
+        : Component(utils::getGUID(), Component::instantiateFunc<TiledMapComponent>())
     {
-        Window& window = tiledMapOptions->window;
-        map = window.getAssetManager()->getOrAddRes<TiledMap>(levelName, (void*)tiledMapOptions);
+        map = Globals::window->getAssetManager()->getOrAddRes<TiledMap>(levelName);
     }
     void updateAndRender(float dt) { map->draw(); };
 };

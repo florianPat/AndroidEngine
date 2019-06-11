@@ -1,29 +1,23 @@
 #include "Physics.h"
-#include <math.h>
+#include <cmath>
 #include "Utils.h"
 #include "RectangleShape.h"
 #include "CircleShape.h"
 #include <limits>
 
-void Physics::handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider)
+void Physics::handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int bodyIndex)
 {
-	if (itBody.isTrigger || collideElementBody.isTrigger)
+    assert(!itBody.isTrigger);
+	if (collideElementBody.isTrigger)
 	{
 		if (bodyCollider.intersects(elementCollider))
 		{
-			if (itBody.isTrigger)
-			{
-				itBody.triggered = true;
-				itBody.triggerInformation.triggerElementCollision = collideElementBody.id;
-				return;
-			}
-			else
-			{
-				collideElementBody.triggered = true;
-				collideElementBody.triggerInformation.triggerElementCollision = itBody.id;
-				return;
-			}
+            collideElementBody.triggered = true;
+            collideElementBody.triggerInformation.triggerElementCollision = itBody.id;
+            collideElementBody.triggerInformation.index = bodyIndex;
 		}
+
+		return;
 	}
 
 	Vector2f minTransVec = {};
@@ -42,12 +36,12 @@ void Physics::handleCollision(Body& itBody, Body& collideElementBody, const Coll
 		if (minTransVec.y > 0.0f)
 		{
 			itBody.vel.y = 0;
-			itBody.triggerInformation.triggerBodyPart = Body::TriggerBodyPart::HEAD;
+            itBody.triggerInformation.triggerBodyPart = Body::TriggerBodyPart::SHOES;
 		}
 		else if (minTransVec.y < 0.0f)
 		{
 			itBody.vel.y = 0;
-			itBody.triggerInformation.triggerBodyPart = Body::TriggerBodyPart::SHOES;
+            itBody.triggerInformation.triggerBodyPart = Body::TriggerBodyPart::HEAD;
 		}
 
 		itBody.pos += minTransVec;
@@ -130,7 +124,7 @@ Vector2f Physics::Collider::getProjectionMinMax(const Vector2f * points, const V
 	else
 	{
 		//TODO: Also, the circle goes a bit into the obb... (It happens because I just throw out the four corner points, but thats not really good for 
-		//for example top left...
+		// for example top left...
 		//TODO: Use vohoo regions (or how its called) to make "corner collision" nicer
 		float proj = (points[0].x + (isXAxis ? collider.circle.radius : 0)) * axis.x + (points[0].y + (isXAxis ? 0 : collider.circle.radius)) * axis.y;
 		
@@ -153,225 +147,173 @@ Vector2f Physics::Collider::getProjectionMinMax(const Vector2f * points, const V
 
 Physics::Physics() : bodies()
 {
+	for(int i = 0; i < NUM_LAYERS; ++i)
+		collisionLayers[i] = 0;
 }
-
-#define DEFINE_BODIES_COLLIDER Body& collideElementBody = *collisionIdIt; \
-								Body& itBody = *it; \
-								const Collider& bodyRect = *itBody.physicsElements[0].getCollider();
-
-#define DEFINE_BODIES_COLLIDERS DEFINE_BODIES_COLLIDER \
-								const Collider& elementRect = *collideElementBody.physicsElements[0].getCollider();
 
 void Physics::update(float dt)
 {
+	int i = 0;
 	//TODO: Add broad phase collision detection!
-	//NOTE: For now (the fighting game), it is not necessary, because I do not have lots of Colliders (7 or so)
-	size_t i = 0;
-	for (auto it = bodies.begin(); i < activeIndex; ++it, ++i)
+	for (auto it = bodies.begin(); it != bodies.end(); ++it, ++i)
 	{
-		assert(it != bodies.end());
-
-		it->triggered = false;
-		it->triggerInformation.triggerElementCollision.clear();
 		it->triggerInformation.triggerBodyPart = Body::TriggerBodyPart::NONE;
 
-		size_t oI = 0;
-		auto collisionIdIt = bodies.begin();
-		for (; oI < it->index; ++collisionIdIt, ++oI)
-		{
-			assert(collisionIdIt != bodies.end());
+        if((it->isActive) && (!it->isTrigger) && (!it->isStatic))
+        {
+            Body& itBody = *it;
+            const Collider& bodyRect = itBody.physicsElements[0];
 
-			DEFINE_BODIES_COLLIDERS;
-			
-			handleCollision(itBody, collideElementBody, bodyRect, elementRect);
-		}
+            int oI = 0;
+            for(auto collideLayerIt = it->collisionLayers.begin(); collideLayerIt != it->collisionLayers.end();
+                ++collideLayerIt)
+            {
+                if(*collideLayerIt != 0)
+                    oI = collisionLayers[*collideLayerIt - 1];
 
-		for (; oI < activeIndex; ++collisionIdIt, ++oI)
-		{
-			assert(collisionIdIt != bodies.end());
+                auto collisionIdIt = bodies.begin() + oI;
 
-			DEFINE_BODIES_COLLIDERS;
+                int nextCollideLayer = collisionLayers[*collideLayerIt];
 
-			handleCollision(itBody, collideElementBody, bodyRect, elementRect);
-		}
+                for(; (oI < nextCollideLayer); ++collisionIdIt, ++oI)
+                {
+                    assert(collisionIdIt != bodies.end());
 
-		for (; oI < inactiveIndex; ++collisionIdIt, ++oI)
-		{
-			assert(collisionIdIt != bodies.end());
+                    Body& collideElementBody = *collisionIdIt;
 
-			DEFINE_BODIES_COLLIDER;
+                    if(collideElementBody.isActive && oI != i)
+                    {
+                        for(const Collider& elementRect : collideElementBody.physicsElements)
+                            handleCollision(itBody, collideElementBody, bodyRect, elementRect, i);
+                    }
+                }
+            }
 
-			for (auto collideElementPhysicsElementIt = collideElementBody.physicsElements.begin(); collideElementPhysicsElementIt != collideElementBody.physicsElements.end(); ++collideElementPhysicsElementIt)
-			{
-				const Collider& elementRectI = *collideElementPhysicsElementIt->getCollider();
-
-				handleCollision(itBody, collideElementBody, bodyRect, elementRectI);
-			}
-		}
-
-		it->pos += it->vel * dt;
+            it->pos += it->vel * dt;
+        }
 	}
 }
 
 void Physics::debugRenderBodies(Graphics& gfx) const
 {
+    gfx.startFastRectDrawing();
+
 	for (auto it = bodies.begin(); it != bodies.end(); ++it)
 	{
-		if (!it->isStatic)
+		const Collider& collider = it->physicsElements[0];
+
+		RectangleShape body;
+
+		switch (collider.type)
 		{
-			const Collider* collider = it->physicsElements[0].getCollider();
-
-			RectangleShape body;
-
-			switch (collider->type)
+			case Collider::Type::rect:
 			{
-				case Collider::Type::rect:
-				{
-					FloatRect colliderRect = collider->collider.rect;
+				FloatRect colliderRect = collider.collider.rect;
 
-					body.setSize(Vector2f(colliderRect.width, colliderRect.height));
-					body.setPosition(Vector2f(colliderRect.left, colliderRect.top));
-					body.setFillColor(Colors::Yellow);
+				body.size = Vector2f(colliderRect.width, colliderRect.height);
+				body.pos = Vector2f(colliderRect.left, colliderRect.top);
+				body.fillColor = Colors::Yellow;
 
-					gfx.draw(body);
+				gfx.draw(body);
 
-					break;
-				}
-				case Collider::Type::obb:
-				{
-					OBB collideOBB = collider->collider.obb;
+				break;
+			}
+			case Collider::Type::obb:
+			{
+				OBB collideOBB = collider.collider.obb;
 
-					body.setPosition(collideOBB.pos);
-					body.setSize(Vector2f{ collideOBB.width, collideOBB.height });
-					body.setOrigin(collideOBB.origin);
-					body.setRotation(utils::radiansToDegrees(collideOBB.angle));
-					body.setFillColor(Colors::Yellow);
+				body.pos = collideOBB.pos;
+				body.size = Vector2f{ collideOBB.width, collideOBB.height };
+				body.origin = collideOBB.origin;
+				body.rotation = utils::radiansToDegrees(collideOBB.angle);
+				body.fillColor = Colors::Yellow;
 #if 0
-					Vector2f points[4] = { { collideOBB.pos },{ collideOBB.pos.x + collideOBB.width, collideOBB.pos.y },
-											 { collideOBB.pos.x + collideOBB.width, collideOBB.pos.y + collideOBB.height },
-											 { collideOBB.pos.x, collideOBB.pos.y + collideOBB.height } };
+				Vector2f points[4] = { { collideOBB.pos },{ collideOBB.pos.x + collideOBB.width, collideOBB.pos.y },
+										 { collideOBB.pos.x + collideOBB.width, collideOBB.pos.y + collideOBB.height },
+										 { collideOBB.pos.x, collideOBB.pos.y + collideOBB.height } };
 
-					//Global origin
-					Vector2f origin = collideOBB.pos + collideOBB.origin;
+				//Global origin
+				Vector2f origin = collideOBB.pos + collideOBB.origin;
 
-					for (int i = 0; i < 4; ++i)
-					{
-						points[i] = Vector2f(collideOBB.pos + (points[i].x - origin.x) * collideOBB.xAxis + (points[i].y - origin.y) * collideOBB.yAxis);
-					}
+				for (int i = 0; i < 4; ++i)
+				{
+					points[i] = Vector2f(collideOBB.pos + (points[i].x - origin.x) * collideOBB.xAxis + (points[i].y - origin.y) * collideOBB.yAxis);
+				}
 
-					for (unsigned int i = 0; i < body.getPointCount(); ++i)
-					{
-						Vector2f myPoint = points[i];
-						Vector2f point = body.getPoint(i);
-						point = body.getTransform().transformPoint(point);
-						sf::Transform transform = body.getTransform();
+				for (unsigned int i = 0; i < body.getPointCount(); ++i)
+				{
+					Vector2f myPoint = points[i];
+					Vector2f point = body.getPoint(i);
+					point = body.getTransform().transformPoint(point);
+					sf::Transform transform = body.getTransform();
 
-						std::cout << myPoint.x << " " << myPoint.y << "---" << point.x << " " << point.y << std::endl;
-					}
+					std::cout << myPoint.x << " " << myPoint.y << "---" << point.x << " " << point.y << std::endl;
+				}
 #endif
 
-					gfx.draw(body);
+				gfx.draw(body);
 
-					break;
-				}
-				case Collider::Type::circle:
-				{
-					CircleShape body;
+				break;
+			}
+			case Collider::Type::circle:
+			{
+				CircleShape body;
 
-					FloatCircle circle = collider->collider.circle;
+				FloatCircle circle = collider.collider.circle;
 
-					body.setPosition(circle.center.x - circle.radius, circle.center.y - circle.radius);
-					body.setRadius(circle.radius);
-					body.setFillColor(Colors::Yellow);
+				body.pos = Vector2f(circle.center.x - circle.radius, circle.center.y - circle.radius);
+				body.radius = circle.radius;
+				body.fillColor = Colors::Yellow;
 
-					gfx.draw(body);
+				gfx.draw(body);
 
-					break;
-				}
+				break;
 			}
 		}
 	}
+
+	gfx.stopFastRectDrawing();
 }
 
-Physics::Body* Physics::addElementPointer(Body&& body)
+int Physics::addElementPointer(Body&& body, int layer)
 {
+	assert(layer < NUM_LAYERS);
 	assert(body.physicsElements.size() == 1);
 
-	Body* result = nullptr;
+	int index = collisionLayers[layer]++;
+	for(int i = layer + 1; i < NUM_LAYERS; ++i)
+    {
+		++collisionLayers[i];
+    }
 
-	if (body.isStatic || body.isTrigger)
+	bodies.insert(index, std::move(body));
+	for(int i = 0; i < bodyIndices.size(); ++i)
 	{
-		bodies.push_back(std::move(body));
-		result = &bodies.back();
-		result->index = bodies.size() - 1;
+		if(bodyIndices[i] >= index)
+			++bodyIndices[i];
 	}
-	else
-	{
-		bodies.insertPush_back(activeIndex, std::move(body));
-		result = &bodies[activeIndex];
-		result->index = activeIndex++;
-	}
+	bodyIndices.push_back(index);
 
-	return result;
+	return (bodyIndices.size() - 1);
 }
 
-void Physics::addElementValue(Body&& body)
+void Physics::addElementValue(Body&& body, int layer)
 {
-	if (body.isStatic || body.isTrigger)
+	assert(layer < NUM_LAYERS);
+
+	int index = collisionLayers[layer]++;
+	for(int i = layer + 1; i < NUM_LAYERS; ++i)
 	{
-		bodies.push_back(std::move(body));
+		++collisionLayers[i];
 	}
-	else
+
+	bodies.insert(index, std::move(body));
+	for(int i = 0; i < bodyIndices.size(); ++i)
 	{
-		bodies.insertPush_back(activeIndex++, std::move(body));
+		if(bodyIndices[i] > index)
+			++bodyIndices[i];
 	}
-}
-
-void Physics::removeElementByIndex(int index)
-{
-	assert(index != -1);
-	if ((!bodies[index].isStatic) && (!bodies[index].isTrigger))
-		--activeIndex;
-	bodies.erasePop_back(index);
-}
-
-void Physics::Body::flipActive(Physics & physics)
-{
-	size_t sizeM1 = physics.bodies.size() - 1;
-
-	if (isActive)
-	{
-		if (isStatic || isTrigger)
-		{
-			physics.bodies.swap(index, --physics.inactiveIndex);
-			physics.bodies.swap(physics.inactiveIndex, sizeM1);
-		}
-		else
-		{
-			physics.bodies.swap(index, --physics.activeIndex);
-			physics.bodies.swap(physics.activeIndex, --physics.inactiveIndex);
-			physics.bodies.swap(physics.inactiveIndex, sizeM1);
-		}
-
-		index = sizeM1;
-		isActive = false;
-	}
-	else
-	{
-		if (isStatic || isTrigger)
-		{
-			physics.bodies.swap(index, physics.inactiveIndex);
-			index = physics.inactiveIndex++;
-		}
-		else
-		{
-			physics.bodies.swap(index, physics.inactiveIndex);
-			physics.bodies.swap(physics.inactiveIndex++, physics.activeIndex);
-			index = physics.activeIndex++;
-		}
-
-		isActive = true;
-	}
+	bodyIndices.push_back(index);
 }
 
 #if 0
@@ -418,67 +360,48 @@ Vector<ShortString> Physics::getAllCollisionIdsWhichContain(const ShortString & 
 	return result;
 }
 
-Physics::Body::Body(Vector2f&& pos, const ShortString& name, Collider* collider, bool isTrigger, bool isStatic)
-	: isStatic(isStatic), isTrigger(isTrigger), pos(pos), id(name), physicsElements{}, index(-1)
+Physics::Body* Physics::getBodyFromRealIndex(int realIndex)
 {
-	PhysicElement physicsElement = {};
-	physicsElement.collidersInPointer = true;
-	physicsElement.colliders.collidersPointer = collider;
+    assert(realIndex < bodies.size() && realIndex >= 0);
 
-	this->physicsElements.push_back(physicsElement);
+    return &bodies[realIndex];
+}
+
+int Physics::getRealIndex(int index) const
+{
+	assert(index < bodyIndices.size() && index >= 0);
+
+	return bodyIndices[index];
+}
+
+Physics::Body::Body(Vector2f&& pos, const ShortString& name, Collider&& collider, Vector<int>&& collideLayers,
+		bool isTrigger, bool isStatic)
+	: isStatic(isStatic), isTrigger(isTrigger), id(name), physicsElements{}, collisionLayers(collideLayers), pos(pos)
+{
+	this->physicsElements.push_back(collider);
+
+#ifdef DEBUG
+	checkCollideLayers();
+#endif
 }
 
 Physics::Body::Body(const ShortString& name, Collider&& collider, bool isTrigger, bool isStatic)
-	: isStatic(isStatic), isTrigger(isTrigger), pos(0.0f, 0.0f), id(name), physicsElements{}, index(-1)
+	: isStatic(isStatic), isTrigger(isTrigger), id(name), physicsElements{}, collisionLayers(), pos(0.0f, 0.0f)
 {
-	PhysicElement physicsElement = {};
-	physicsElement.collidersInPointer = false;
-	physicsElement.colliders.collidersValue = collider;
-
-	this->physicsElements.push_back(physicsElement);
+	this->physicsElements.push_back(collider);
 }
 
-Physics::Body::Body(const ShortString& name, Vector<Collider>&& colliders, bool isTrigger) : isStatic(true), isTrigger(isTrigger), pos(0.0f, 0.0f),
-																						 id(name), physicsElements{}, index(-1)
+Physics::Body::Body(const ShortString& name, Vector<Collider>&& colliders, bool isTrigger)
+	: isStatic(true), isTrigger(isTrigger), id(name), physicsElements(colliders), collisionLayers(), pos(0.0f, 0.0f)
 {
-	for (auto it = colliders.begin(); it != colliders.end(); ++it)
-	{
-		PhysicElement physicsElement = {};
-		physicsElement.collidersInPointer = false;
-		physicsElement.colliders.collidersValue = *it;
-
-		this->physicsElements.push_back(physicsElement);
-	}
 }
 
-bool Physics::Body::getIsTriggerd() const
+//TODO: This is a bad solution!
+bool Physics::Body::getIsTriggerd()
 {
-	return triggered;
-}
-
-const Vector2f& Physics::Body::getPos() const
-{
-	assert(!isStatic);
-
-	if (!isStatic)
-		return pos;
-	else
-	{
-		InvalidCodePath;
-		return pos;
-	}
-}
-
-void Physics::Body::setPos(Vector2f newPos)
-{
-	assert(!isStatic);
-
-	if (!isStatic)
-		pos = newPos;
-	else
-	{
-		InvalidCodePath;
-	}
+	bool result = triggered;
+    triggered = false;
+	return result;
 }
 
 const Physics::Body::TriggerInformation & Physics::Body::getTriggerInformation() const
@@ -491,22 +414,31 @@ const ShortString & Physics::Body::getId() const
 	return id;
 }
 
-int Physics::Body::getIndex() const
+void Physics::Body::checkCollideLayers()
 {
-	return index;
+	if(!collisionLayers.empty())
+	{
+		for(int i = 0;i < this->collisionLayers.size() - 1;++i)
+		{
+			assert(this->collisionLayers[i] < this->collisionLayers[i + 1]);
+		}
+	}
+}
+
+Physics::Collider& Physics::Body::getCollider()
+{
+    return physicsElements[0];
+}
+
+void Physics::Body::setIsActive(bool isActiveIn)
+{
+	isActive = isActiveIn;
+	triggered = false;
 }
 
 bool Physics::Body::getIsActive() const
 {
 	return isActive;
-}
-
-const Physics::Collider * Physics::PhysicElement::getCollider() const
-{
-	if (collidersInPointer)
-		return colliders.collidersPointer;
-	else
-		return &colliders.collidersValue;
 }
 
 Physics::Collider::Collider() : type(Type::rect), collider{ {} }
@@ -595,14 +527,15 @@ bool Physics::Collider::collide(const Collider & other, Vector2f *minTransVec) c
 			FloatRect rect = collider.rect;
 			FloatRect otherRect = other.collider.rect;
 			
-			*minTransVec = { -(rect.left - (otherRect.left + otherRect.width)), -0 };
-			Vector<Vector2f> corners;
-			corners.push_back(Vector2f{ (rect.left + rect.width) - otherRect.left, 0 });
-			corners.push_back(Vector2f{ 0, rect.top - (otherRect.top + otherRect.height) });
-			corners.push_back(Vector2f{ 0, (rect.top + rect.height) - otherRect.top });
+			*minTransVec = { rect.left - (otherRect.left + otherRect.width), 0 };
+			Vector2f corners[3];
+			corners[0] = Vector2f{ (rect.left + rect.width) - otherRect.left, 0 };
+			corners[1] = Vector2f{ 0, rect.top - (otherRect.top + otherRect.height) };
+			corners[2] = Vector2f{ 0, (rect.top + rect.height) - otherRect.top };
 
-			for (auto it = corners.begin(); it != corners.end(); ++it)
+			for (int i = 0; i < arrayCount(corners); ++i)
 			{
+			    Vector2f* it = &corners[i];
 				if (fabsf(minTransVec->x * minTransVec->x + minTransVec->y * minTransVec->y) > fabsf(it->x * it->x + it->y * it->y))
 				{
 					*minTransVec = -*it;

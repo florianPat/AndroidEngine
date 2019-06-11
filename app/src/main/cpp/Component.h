@@ -12,18 +12,16 @@ typedef void(*UpdateAndDrawFunc)(char* thiz, float dt);
 class Component
 {
 protected:
-	const int id;
+	const uint id;
 	void(*updateAndDrawFunc)(char* thiz, float dt);
-	Actor* owner;
 public:
-	Component(int id, Actor* owner, UpdateAndDrawFunc updateAndDrawFunc) : id(id),
-																			updateAndDrawFunc(updateAndDrawFunc),
-																			owner(owner)
+	Component(uint id, UpdateAndDrawFunc updateAndDrawFunc) : id(id),
+												 	 		 updateAndDrawFunc(updateAndDrawFunc)
 	{};
 
 	void updateAndDraw(float dt) { updateAndDrawFunc((char*)this, dt); };
 	virtual gomSort::SortKey sort() { return gomSort::SortKey{ 0, 0.0f }; };
-	int getId() { return id; };
+	uint getId() { return id; };
 
 	//NOTE: The current working of this makes it necessary to only derive once from Component
 	template <typename T>

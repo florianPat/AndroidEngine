@@ -82,25 +82,11 @@ public:
 		void getPointsAxis(Vector2f* points, Vector2f* axis) const;
 		Vector2f getProjectionMinMax(const Vector2f* points, const Vector2f& axis, bool isXAxis) const;
 	};
-private:
-	//NOTE: All is public, but really you should only use the two methods, could make a constructor for that and therefore make it a class but yeah ;)
-	struct PhysicElement
-	{
-		bool collidersInPointer;
-
-		union
-		{
-			Collider* collidersPointer;
-			Collider collidersValue;
-		} colliders;
-	public:
-		const Collider* getCollider() const;
-	};
 public:
 	class Body
 	{
 		friend class Physics;
-
+	public:
 		enum class TriggerBodyPart
 		{
 			NONE,
@@ -109,10 +95,11 @@ public:
 			LEFT,
 			RIGHT
 		};
-
+	private:
 		struct TriggerInformation
 		{
 			ShortString triggerElementCollision = "";
+			int index = -1;
 			TriggerBodyPart triggerBodyPart = TriggerBodyPart::NONE;
 		};
 
@@ -120,45 +107,51 @@ public:
 		bool isTrigger;
 		bool triggered = false;
 		bool isActive = true;
+    private:
 		TriggerInformation triggerInformation = {};
-		Vector2f pos;
 		ShortString id;
-		Vector<PhysicElement> physicsElements;
-		int index;
+		Vector<Collider> physicsElements;
+		Vector<int> collisionLayers;
 	public:
+		Vector2f pos;
 		Vector2f vel = { 0.0f, 0.0f };
 	public:
 		//Should be called, if the object is moving
-		Body(Vector2f&& pos, const ShortString& name, Collider* collider, bool isTrigger = false, bool isStatic = false);
+		Body(Vector2f&& pos, const ShortString& name, Collider&& collider, Vector<int>&& collideLayers,
+				bool isTrigger = false, bool isStatic = false);
 		//Should be called if the object, is a static one
 		Body(const ShortString& name, Collider&& collider, bool isTrigger = false, bool isStatic = true);
 		//To have one name for a lot of Colliders. The body you have to pass by value, because pos and that does not make sense to manipulate here!
 		Body(const ShortString& name, Vector<Collider>&& colliders, bool isTrigger = false);
 	public:
-		bool getIsTriggerd() const;
-		const Vector2f& getPos() const;
-		void setPos(Vector2f newPos);
+		bool getIsTriggerd();
 		const TriggerInformation& getTriggerInformation() const;
 		const ShortString& getId() const;
-		int getIndex() const;
+		Collider& getCollider();
+		void setIsActive(bool isActive);
 		bool getIsActive() const;
-		void flipActive(Physics& physics);
+	private:
+		void checkCollideLayers();
 	};
+public:
+	static constexpr float GRAVITY = -9.81f;
 private:
-	static constexpr float gravity = 9.81f;
-	size_t activeIndex = 0;
-	size_t inactiveIndex = 0;
+	static constexpr int NUM_LAYERS = 4;
 	Vector<Body> bodies;
+	int collisionLayers[NUM_LAYERS];
+	Vector<int> bodyIndices;
 private:
-	void handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider);
+	void handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int bodyIndex);
 public:
 	Physics();
 	void update(float dt);
 	void debugRenderBodies(Graphics& gfx) const;
 	//Use if you need a reference to the body, to get back triggerInformation etc.
-	Body* addElementPointer(Body&& body);
+	int addElementPointer(Body&& body, int layer);
+	//You need to call this each frame, because the Body could be "moved" to another memory location
+	int getRealIndex(int index) const;
+	Body* getBodyFromRealIndex(int realIndex);
 	//Use this otherwise
-	void addElementValue(Body&& body);
-	void removeElementByIndex(int index);
+	void addElementValue(Body&& body, int layer);
 	Vector<ShortString> getAllCollisionIdsWhichContain(const ShortString & string);
 };

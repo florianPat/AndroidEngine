@@ -4,11 +4,11 @@
 
 class IGraphics
 {
-protected:
-    int screenWidth = 0, screenHeight = 0;
 public:
     //NOTE: These a really just meant to be use by the TouchInput.
     const int renderWidth = 0, renderHeight = 0;
+    //NOTE: This is just meant to be modified by the Window (but friend setters... I do not know)
+    int screenWidth = 0, screenHeight = 0;
 public:
     IGraphics(int renderWidth, int renderHeight) : renderWidth(renderWidth), renderHeight(renderHeight)
     {}

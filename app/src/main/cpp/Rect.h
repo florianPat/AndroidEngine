@@ -2,6 +2,7 @@
 
 #include "Vector2.h"
 
+//TODO: Change naming, because it operates bottom up now!
 template <typename T>
 class Rect
 {

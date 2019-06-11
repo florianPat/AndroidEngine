@@ -6,6 +6,8 @@
 
 TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) : textureAtlas(), fileHeader{}, assetManager(assetManager)
 {
+	LongString dirsToAdd = utils::getDirPathToFile(filepath);
+
 	Ifstream file;
 	file.open(filepath);
 
@@ -28,7 +30,8 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 			{
 				case 0:
 				{
-					fileHeader.name = lineContent;
+					//NOTE: The dirsToAdd are added here!
+					fileHeader.name = dirsToAdd + lineContent;
 				}	break;
 				case 1:
 				{
@@ -79,7 +82,7 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 		bool isEof = false;
 		TextureRegion region;
 
-		region.textureAtlasFileName = fileHeader.name;
+		region.textureAtlasFileName = &fileHeader.name;
 
 		for (int i = 0; i < FILE_LINES_PER_REGION; ++i)
 		{
@@ -118,6 +121,8 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 			}
 		}
 
+		region.xy.y = fileHeader.size.y - region.size.y - region.xy.y;
+
 		if(!isEof)
 			textureAtlas.insert({ region.filename, region });
 	}
@@ -143,7 +148,7 @@ const TextureRegion* TextureAtlas::findRegion(const String& name) const
 	}
 }
 
-const std::unordered_map<String, TextureRegion>& TextureAtlas::getRegions()
+const std::unordered_map<String, TextureRegion>& TextureAtlas::getRegions() const
 {
 	return textureAtlas;
 }
@@ -153,7 +158,7 @@ void TextureAtlas::addRegion(const TextureRegion & adder)
 	textureAtlas.insert({ adder.filename, adder });
 }
 
-String TextureAtlas::getLineContentBetweeen(String & lineContent, char first, char secound)
+String TextureAtlas::getLineContentBetweeen(String & lineContent, char first, char secound) const
 {
 	String result = LongString();
 
@@ -170,7 +175,7 @@ String TextureAtlas::getLineContentBetweeen(String & lineContent, char first, ch
 	return result;
 }
 
-Vector2i TextureAtlas::getLineContentRegionValues(String & lineContent, char firstRealChar)
+Vector2i TextureAtlas::getLineContentRegionValues(String & lineContent, char firstRealChar) const
 {
 	Vector2i result;
 
@@ -184,9 +189,9 @@ Vector2i TextureAtlas::getLineContentRegionValues(String & lineContent, char fir
 
 void TextureRegion::initSprite(AssetManager* assetManager)
 {
-	assert((!textureAtlasFileName.empty()) || (!filename.empty()));
+	assert((!textureAtlasFileName->empty()) || (!filename.empty()));
 
-	atlasTexture = assetManager->getOrAddRes<Texture>(textureAtlasFileName);
+	atlasTexture = assetManager->getOrAddRes<Texture>(*textureAtlasFileName);
 	regionSprite = Sprite(atlasTexture, IntRect(xy.x, xy.y, size.x, size.y));
 }
 
@@ -201,9 +206,4 @@ void TextureRegion::setRegion(int x, int y, int widht, int height)
 			size.x = widht;
 			size.y = height;
 		}
-}
-
-Sprite TextureRegion::getRegion()
-{
-	return regionSprite;
 }

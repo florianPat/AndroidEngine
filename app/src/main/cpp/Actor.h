@@ -2,11 +2,14 @@
 
 #include "Component.h"
 #include <memory>
+#include "Window.h"
+#include "Physics.h"
 
 class Actor
 {
 	const unsigned int id;
-	//TODO: Think about if I can refactor Actor do not use an unique_ptr here!
+	//TODO: Think about if I can refactor Actor do not use an unique_ptr here! But!
+	//NOTE: The pointers do not get invalidated in shrink/expand because I just store a pp
 	Vector<std::unique_ptr<Component>> components;
 private:
 	unsigned long long GetActorComponentId(unsigned int componentId);

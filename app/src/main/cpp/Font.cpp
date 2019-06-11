@@ -1,14 +1,14 @@
 #include "Font.h"
 #include "Ifstream.h"
-#include "Window.h"
+#include "Globals.h"
 #include FT_IMAGE_H
 
 bool Font::loadFromFile(const String& filename, void* fontOpts)
 {
     FontOptions* opts = (FontOptions*) fontOpts;
-    library = opts->Window->getFontLibrary();
+    library = Globals::window->getFontLibrary();
     size = opts->size;
-    gfx = &opts->Window->getGfx();
+    gfx = &Globals::window->getGfx();
     assert(library != nullptr && opts->size != 0 && gfx != nullptr);
 
     FT_Face face = nullptr;
@@ -71,10 +71,8 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
 
         texture = Texture(pixels, face->glyph->bitmap.pitch, glyphRegion.size.y);
         sprite.setTexture(&texture, true);
-        sprite.setPosition((Vector2f) xy);
+        sprite.pos = (Vector2f) xy;
         gfx->draw(sprite);
-        //TODO: This flush is not nice! (But it needs to happen because the texture gets deleted
-        // every iteration)
         gfx->flush();
 
         xy.x += texture.getWidth();
@@ -90,7 +88,8 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
 
 bool Font::reloadFromFile(const String& filename)
 {
-    this->~Font();
+    faceHeight = 0;
+    renderTexture.~RenderTexture();
 
     FT_Face face = nullptr;
 
@@ -103,10 +102,13 @@ bool Font::reloadFromFile(const String& filename)
     return createGlyphRenderTextureAndMap(face);
 }
 
-void Font::drawText(const String& text, const Vector2f& pos)
+void Font::drawText(const String& text, const Vector2f& pos, int pixelSize, Color color)
 {
     Vector2f pen = { 0.0f, 0.0f };
+    float scale = (float)pixelSize / size;
     Sprite sprite;
+    sprite.color = color;
+    sprite.setScale(scale);
 
     for(int i = 0; i < text.size(); ++i)
     {
@@ -114,13 +116,13 @@ void Font::drawText(const String& text, const Vector2f& pos)
 
         if(c == '\n')
         {
-            pen.y -= faceHeight;
+            pen.y -= faceHeight * scale;
             pen.x = 0;
         }
         else if(c == ' ')
         {
             const GlyphRegion& region = regions[c - ' '];
-            pen.x += region.advanceX;
+            pen.x += region.advanceX * scale;
         }
         else
         {
@@ -130,9 +132,9 @@ void Font::drawText(const String& text, const Vector2f& pos)
             sprite.setTextureRect(IntRect(region.xy.x, region.xy.y, region.size.x,
                                           region.size.y));
 
-            sprite.setPosition(pos + pen + region.bitmapTopLeft);
+            sprite.pos = pos + pen + region.bitmapTopLeft;
 
-            pen.x += region.advanceX;
+            pen.x += region.advanceX * scale;
 
             gfx->draw(sprite);
         }
@@ -141,7 +143,7 @@ void Font::drawText(const String& text, const Vector2f& pos)
 
 Font::Font(Font&& other) : size(std::exchange(other.size, 0)), faceHeight(std::exchange(other.faceHeight, 0)),
                            renderTexture(std::exchange(other.renderTexture, RenderTexture())),
-                           gfx(std::exchange(other.gfx, nullptr))
+                           library(std::exchange(other.library, nullptr)), gfx(std::exchange(other.gfx, nullptr))
 {
     for(int i = 0; i < NUM_GLYPHS; ++i)
     {
@@ -156,6 +158,7 @@ Font& Font::operator=(Font&& rhs)
     faceHeight = std::exchange(rhs.faceHeight, 0);
     size = std::exchange(rhs.size, 0);
     renderTexture = std::exchange(rhs.renderTexture, RenderTexture());
+    library = std::exchange(rhs.library, nullptr);
     gfx = std::exchange(rhs.gfx, nullptr);
 
     for(int i = 0; i < NUM_GLYPHS; ++i)
@@ -188,7 +191,6 @@ bool Font::loadFaceFromLibrary(const void* fileBuffer, long long fileSize, FT_Fa
 
     if(face->charmap == nullptr)
     {
-        utils::log("no charmap found");
         error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
         if(error)
         {
@@ -243,4 +245,9 @@ bool Font::loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vec
     }
 
     return true;
+}
+
+void Font::drawText(const String& text, const Vector2f& pos, Color color)
+{
+    drawText(text, pos, size, color);
 }

@@ -18,12 +18,6 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            //NOTE: Only for development builds!
-            externalNativeBuild {
-                cmake {
-                    cppFlags += "-DDEBUG=1"
-                }
-            }
         }
         debug {
             jniDebuggable = true

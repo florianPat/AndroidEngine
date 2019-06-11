@@ -28,8 +28,8 @@ protected:
 public:
 	Animation(Vector<TextureRegion>& keyFrames, int64_t frameDuration, PlayMode type);
 	Animation(const Vector<ShortString>& regionNames, const TextureAtlas& atlas, int64_t frameDuration = Time::seconds(0.2f).asMicroseconds(), PlayMode type = PlayMode::LOOPED);
-	PlayMode getPlayMode();
-	int64_t getFrameDuration();
+	PlayMode getPlayMode() const;
+	int64_t getFrameDuration() const;
 	void setFrameDuration(int64_t frameDuration);
 	void setKeyFrames(Vector<TextureRegion>& keyFrames);
 	//NOTE: animation goes on if you call this (and this is maybe not want I want)

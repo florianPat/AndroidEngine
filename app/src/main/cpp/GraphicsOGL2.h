@@ -34,6 +34,7 @@ private:
     static constexpr int NUM_VERTICES_TO_BATCH = NUM_SPRITES_TO_BATCH * 4;
     int nSpritesBatched = 0;
     std::unique_ptr<Vertex[]> vertices;
+    bool isFastRectDrawing = false;
 
     static constexpr EGLint DISPLAY_ATTRIBS[] = {
             EGL_RENDERABLE_TYPE,
@@ -60,4 +61,7 @@ public:
     void draw(const CircleShape& circle);
     void flush();
     void render();
+
+    void startFastRectDrawing();
+    void stopFastRectDrawing();
 };

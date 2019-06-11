@@ -492,7 +492,7 @@ inline void Vector<T>::swap(size_t first, size_t second)
 {
 	assert(first < vectorArray.size() && second < vectorArray.size());
 
-	T&& temp = std::move(vectorArray[second]);
+	T temp = std::move(vectorArray[second]);
 	vectorArray[second] = std::move(vectorArray[first]);
 	vectorArray[first] = std::move(temp);
 }
