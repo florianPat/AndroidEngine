@@ -139,6 +139,7 @@ private:
 	static constexpr int NUM_LAYERS = 4;
 	Vector<Body> bodies;
 	int collisionLayers[NUM_LAYERS];
+	//TODO: Can I get rid of this?
 	Vector<int> bodyIndices;
 private:
 	void handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int bodyIndex);

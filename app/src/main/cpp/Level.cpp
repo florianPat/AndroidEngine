@@ -12,13 +12,14 @@ Level::Level()
 	:	window(*Globals::window), clock(window.getClock()), physics(), eventManager(), gom(),
 		gfx(window.getGfx())
 {
-	Globals::physics = &physics;
 	Globals::eventManager = &eventManager;
 }
 
 std::unique_ptr<Level> Level::getNewLevel()
 {
     endLevel = false;
+    gfx.getDefaultView().setCenter(gfx.getDefaultView().getSize().x / 2.0f, gfx.getDefaultView().getSize().y / 2.0f);
+    //TODO: Set zoom and rotation of defaultView to default!
 	return std::move(newLevel);
 }
 
@@ -34,8 +35,6 @@ void Level::Go()
 	gfx.clear();
 
 	gom.updateAndDrawActors(dt);
-
-	physics.update(dt);
 
 	gfx.render();
 }

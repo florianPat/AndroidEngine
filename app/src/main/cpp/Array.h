@@ -13,7 +13,6 @@ template <typename T>
 class Iterator
 {
 	//TODO: Maybe just return the pointer in Release?
-	//TODO: Maybe add a reference and fix itData pointers through storing a pp? (Performance further down?)
 
 	size_t itIndex;
 	size_t itSize;

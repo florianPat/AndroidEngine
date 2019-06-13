@@ -9,9 +9,9 @@ class TiledMapComponent : public Component
     TiledMap* map = nullptr;
 public:
     TiledMapComponent(String levelName)
-        : Component(utils::getGUID(), Component::instantiateFunc<TiledMapComponent>())
+        : Component(utils::getGUID())
     {
         map = Globals::window->getAssetManager()->getOrAddRes<TiledMap>(levelName);
     }
-    void updateAndRender(float dt) { map->draw(); };
+    void render() override { map->draw(); };
 };

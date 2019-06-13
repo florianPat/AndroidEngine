@@ -3,11 +3,14 @@
 
 GameObjectManager::GameObjectManager() : actors(), destroyActorQueue()
 {
+    //NOTE: This is the RenderOnlyActorThing
+    addActor();
 }
 
-Actor* GameObjectManager::addActor()
+const Actor* GameObjectManager::addActor()
 {
 	actors.push_back(Actor(actors.size()));
+
 	return &actors.back();
 }
 
@@ -18,8 +21,20 @@ void GameObjectManager::destroyActor(unsigned int actorId)
 
 void GameObjectManager::updateAndDrawActors(float dt)
 {
-	for (auto it = actors.begin(); it != actors.end(); ++it)
-		it->updateAndDraw(dt);
+    //NOTE: ++ because the first one is reserved for the only draw components
+	for (auto it = (++actors.begin()); it != actors.end(); ++it)
+		it->update(dt);
+
+	for(int i = 0; i < arrayCount(layers); ++i)
+	{
+		auto& layer = layers[i];
+
+		for(auto it = layer.begin(); it != layer.end(); ++it)
+		{
+			Actor& actor = actors[it->first];
+			actor.getComponent<Component>(it->second)->render();
+		}
+	}
 
 	destroyActors();
 }
@@ -30,20 +45,9 @@ void GameObjectManager::destroyActors()
 	{
 		for (auto it = destroyActorQueue.begin(); it != destroyActorQueue.end(); ++it)
 		{
-			Actor& actorIt = actors.at(*it);
-			actorIt.clearComponents();
 			actors.erasePop_back(*it);
+			actors[*it].id = *it;
 		}
 		destroyActorQueue.clear();
 	}
-}
-
-unsigned int GameObjectManager::getActorId(unsigned long long id)
-{
-	return (uint) (id >> 32);
-}
-
-unsigned int GameObjectManager::getComponentId(unsigned long long id)
-{
-	return (uint) (id & 0xffffffff);
 }

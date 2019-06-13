@@ -6,35 +6,31 @@ Actor::Actor(unsigned int id)
 {
 }
 
-void Actor::addComponent(std::unique_ptr<Component> component)
+void Actor::update(float dt)
 {
-	components.push_back(std::move(component));
-}
-
-void Actor::removeComponent(unsigned int componentId)
-{
-	for(auto it = components.begin(); it != components.end(); ++it)
+	for (auto it = components.begin(); it != components.end();)
 	{
-		if((*it)->getId() == componentId)
-		{
-			components.erasePop_back(it.getIndex());
-			return;
-		}
+		uint compSize = *((uint*) it);
+		it += sizeof(uint);
+
+		((Component*)(it))->update(dt, this);
+
+		it += compSize;
 	}
 }
 
-void Actor::clearComponents()
+int Actor::getComponentIndex(uint componentId) const
 {
-	components.clear();
-}
+	for(auto it = components.begin(); it != components.end();)
+	{
+		uint compSize = *((uint*) it);
+		it += sizeof(uint);
 
-void Actor::updateAndDraw(float dt)
-{
-	for (auto it = components.begin(); it != components.end(); ++it)
-		(*it)->updateAndDraw(dt);
-}
+		if(((Component*)(it))->getId() == componentId)
+			return (int)(it - components.begin());
 
-unsigned long long Actor::GetActorComponentId(unsigned int componentId)
-{
-	return ((unsigned long long)id << 32llu) | (unsigned long long)componentId;
+		it += compSize;
+	}
+
+	return -1;
 }

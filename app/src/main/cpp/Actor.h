@@ -4,45 +4,47 @@
 #include <memory>
 #include "Window.h"
 #include "Physics.h"
+#include "VariableVector.h"
 
 class Actor
 {
-	const unsigned int id;
-	//TODO: Think about if I can refactor Actor do not use an unique_ptr here! But!
-	//NOTE: The pointers do not get invalidated in shrink/expand because I just store a pp
-	Vector<std::unique_ptr<Component>> components;
-private:
-	unsigned long long GetActorComponentId(unsigned int componentId);
+    //Needs to happen because it has to change the id if an Actor gets deleted!
+    friend class GameObjectManager;
+
+	unsigned int id;
+	VariableVector components;
 public:
 	Actor(unsigned int id);
-	void addComponent(std::unique_ptr<Component> component);
-	void clearComponents();
-	//NOTE: These methods not take O(n) (because of the linear search). Do not call these functions
-	// often.
-	//TODO: Optimization?
-	void removeComponent(unsigned int componentId);
-	template <typename T> T* getComponent(unsigned int componentId);
+	template <typename T, typename... Args>
+	const T* addComponent(Args&&... args);
+	//NOTE: These methods take O(n) (because of the linear search). Do not call these functions often.
+	int getComponentIndex(uint componentId) const;
+
+	template <typename T> T* getComponent(int componentIndex);
 
 	int getId() const { return id; };
-	void updateAndDraw(float dt);
+	void update(float dt);
 };
 
 template<typename T>
-inline T* Actor::getComponent(unsigned int componentId)
+inline T* Actor::getComponent(int componentIndex)
 {
-	for(auto it = components.begin(); it != components.end(); ++it)
-	{
-		if((*it)->getId() == componentId)
-		{
-			Component* componentPtr = it->get();
+	assert(componentIndex < components.getOffsetToEnd());
+	Component* componentPtr = (Component*) (components.begin() + componentIndex);
 
-			//NOTE: Only used to really verify that it is ok what I am doing. RTTI should be switched off in release mode
-			assert(typeid((*componentPtr)) == typeid(T));
-			assert(dynamic_cast<T*>(componentPtr) != nullptr);
+	//NOTE: Only used to really verify that it is ok what I am doing. RTTI should be switched off in release mode
+	//assert(typeid((*componentPtr)) == typeid(T));
+	assert(dynamic_cast<T*>(componentPtr) != nullptr);
 
-			return (T*) componentPtr;
-		}
-	}
+	return (T*) componentPtr;
+}
 
-	return nullptr;
+template<typename T, typename... Args>
+inline const T* Actor::addComponent(Args&&... args)
+{
+	size_t lastOffsetToEnd = components.getOffsetToEnd();
+
+	components.push_back<T>(std::forward<Args>(args)...);
+
+	return (T*)(components.begin() + lastOffsetToEnd + 4);
 }

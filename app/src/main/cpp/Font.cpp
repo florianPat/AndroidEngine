@@ -56,7 +56,6 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         }
 
         ushort numGrayLevels = face->glyph->bitmap.num_grays;
-        //TODO: Get rid of this loop!
         for(int y = 0, pixelY = glyphRegion.size.y - 1; y < glyphRegion.size.y; ++y, --pixelY)
         {
             for(int x = 0; x < glyphRegion.size.x; ++x)

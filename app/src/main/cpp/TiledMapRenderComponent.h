@@ -11,9 +11,8 @@ class TiledMapRenderComponent : public Component
 	Graphics& gfx;
 public:
 	TiledMapRenderComponent(Sprite& sprite, Graphics& gfx)
-		: Component(utils::getGUID(),
-		  Component::instantiateFunc<TiledMapRenderComponent>()), sprite(sprite),
-		  gfx(gfx) {};
-	void updateAndRender(float dt) { gfx.draw(sprite); };
-	gomSort::SortKey sort() override { return gomSort::SortKey{ 0, sprite.pos.y }; }
+		: Component(utils::getGUID()), sprite(sprite),
+		  gfx(gfx)
+		  {}
+	void render() override { gfx.draw(sprite); }
 };

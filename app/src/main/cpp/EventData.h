@@ -3,8 +3,8 @@
 class EventData
 {
 private:
-	unsigned int& eventId;
+	int& eventId;
 public:
-	EventData(unsigned int& eventId) : eventId(eventId) {};
-	unsigned int getEventId() const { return eventId; };
+	EventData(int& eventId) : eventId(eventId) {};
+	int getEventId() const { return eventId; };
 };

@@ -27,7 +27,6 @@ public:
 		return result;
 	}
 
-	//TODO: DRY!! (But how can I not use it?)
 	template <typename T, bool isGpuIn>
 	static constexpr AssetLoader initLoaderWithOptions()
     {
