@@ -17,6 +17,7 @@ void android_main(android_app* app)
 	registerAssetLoaders(window.getAssetManager());
 
 	std::unique_ptr<Level> currentLevel = std::make_unique<MainLevel>("testLevel.tmx");
+	currentLevel->setup();
 
 	while (window.processEvents())
 	{
@@ -25,6 +26,7 @@ void android_main(android_app* app)
 		{
 			currentLevel = currentLevel->getNewLevel();
 			assert(currentLevel != nullptr);
+			currentLevel->setup();
 		}
 	}
 }

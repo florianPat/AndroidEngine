@@ -19,8 +19,11 @@ protected:
 
 	std::unique_ptr<Level> newLevel = nullptr;
 	bool endLevel = false;
+private:
+	virtual void init() = 0;
 public:
 	Level();
+	void setup();
 	virtual ~Level() = default;
     std::unique_ptr<Level> getNewLevel();
     bool shouldEndLevel() const;

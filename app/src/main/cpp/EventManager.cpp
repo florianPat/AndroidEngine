@@ -5,18 +5,18 @@ EventManager::EventManager() : eventListenerMap()
 {
 }
 
-bool EventManager::addListener(unsigned int& eventType, const DelegateFunction & delegateFunction)
+bool EventManager::addListener(int& eventType, const DelegateFunction & delegateFunction)
 {
     Vector<DelegateFunction>* eventListenerList = nullptr;
 
-	if (eventType >= eventListenerMap.size())
+	if (eventType == -1)
 	{
-		eventType = (uint)eventListenerMap.size();
-		eventListenerMap.push_back(Vector<DelegateFunction>());
-		eventListenerList = &eventListenerMap.back();
+		eventType = eventListenerMap.size();
+		eventListenerMap.push_back(EventListenerMapEntry{eventType, Vector<DelegateFunction>()});
+		eventListenerList = &eventListenerMap.back().delegateFunctions;
 	}
 	else
-		eventListenerList = &eventListenerMap.at(eventType);
+		eventListenerList = &eventListenerMap.at(eventType).delegateFunctions;
 
 #ifdef DEBUG
 	for (auto it = eventListenerList->begin(); it != eventListenerList->end();
@@ -34,19 +34,32 @@ bool EventManager::addListener(unsigned int& eventType, const DelegateFunction &
 	return true;
 }
 
-void EventManager::removeListener(unsigned int eventType, const DelegateFunction & delegateFunction)
+void EventManager::removeListener(int eventType, const DelegateFunction & delegateFunction)
 {
 	eventDeleterMap.push_back(std::make_pair(eventType, delegateFunction));
 }
 
-void EventManager::TriggerEvent(std::unique_ptr<EventData> eventData)
+void EventManager::TriggerEvent(EventData* eventData)
 {
 	assert(eventData->getEventId() < eventListenerMap.size());
-	auto findIt = eventListenerMap.at(eventData->getEventId());
+	auto findIt = eventListenerMap.at(eventData->getEventId()).delegateFunctions;
 	for (auto it = findIt.begin(); it != findIt.end(); ++it)
 	{
-		it->second(eventData.get());
+		it->second(eventData);
 	}
+}
+
+EventManager::~EventManager()
+{
+	for(auto it = eventListenerMap.begin(); it != eventListenerMap.end(); ++it)
+	{
+		it->eventType = -1;
+	}
+
+	counter = 0;
+
+	eventListenerMap.~Vector();
+	eventDeleterMap.~Vector();
 }
 
 void EventManager::removeListeners()
@@ -55,11 +68,12 @@ void EventManager::removeListeners()
 	{
 		for (auto it = eventDeleterMap.begin(); it != eventDeleterMap.end(); ++it)
 		{
-			uint eventType = it->first;
+			int eventType = it->first;
 			DelegateFunction delegateFunction = it->second;
 
 			assert(eventType < eventListenerMap.size());
-			auto findIt = eventListenerMap.at(eventType);
+			auto foundTuple = eventListenerMap.at(eventType);
+			auto findIt = foundTuple.delegateFunctions;
 			for (auto it = findIt.begin(); it != findIt.end(); ++it)
 			{
 				if (delegateFunction.first == it->first)
@@ -69,7 +83,12 @@ void EventManager::removeListeners()
 				}
 			}
 			if (findIt.empty())
-				eventListenerMap.erase(eventType);
+			{
+			    int eventType = foundTuple.eventType;
+                foundTuple.eventType = -1;
+				eventListenerMap.erasePop_back(eventType);
+				eventListenerMap.at(eventType).eventType = eventType;
+			}
 		}
 		eventDeleterMap.clear();
 	}

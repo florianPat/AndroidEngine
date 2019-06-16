@@ -12,7 +12,6 @@ Level::Level()
 	:	window(*Globals::window), clock(window.getClock()), physics(), eventManager(), gom(),
 		gfx(window.getGfx())
 {
-	Globals::eventManager = &eventManager;
 }
 
 std::unique_ptr<Level> Level::getNewLevel()
@@ -37,4 +36,10 @@ void Level::Go()
 	gom.updateAndDrawActors(dt);
 
 	gfx.render();
+}
+
+void Level::setup()
+{
+	Globals::eventManager = &eventManager;
+	init();
 }

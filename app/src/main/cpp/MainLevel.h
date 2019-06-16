@@ -10,4 +10,5 @@ private:
 	void eventLevelReloadHandler(EventData* eventData);
 public:
 	MainLevel(const String& tiledMapName);
+	void init() override;
 };

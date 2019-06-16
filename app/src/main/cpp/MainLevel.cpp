@@ -10,7 +10,12 @@ void MainLevel::eventLevelReloadHandler(EventData * eventData)
 
 MainLevel::MainLevel(const String& tiledMapName) : Level(), tiledMapName(tiledMapName)
 {
+}
+
+void MainLevel::init()
+{
 	gom.addRenderComponent<TiledMapComponent>(0, tiledMapName);
 
-	eventManager.addListener(EventLevelReload::eventId, std::bind(&MainLevel::eventLevelReloadHandler, this, std::placeholders::_1));
+	eventManager.addListener(EventLevelReload::eventId,
+	        eventManager.getDelegateFromFunction(std::bind(&MainLevel::eventLevelReloadHandler, this, std::placeholders::_1)));
 }
