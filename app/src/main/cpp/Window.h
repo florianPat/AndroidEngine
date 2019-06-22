@@ -3,7 +3,6 @@
 #include "android_native_app_glue.h"
 #include "Clock.h"
 #include "AssetManager.h"
-#include <memory>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include "Sound.h"

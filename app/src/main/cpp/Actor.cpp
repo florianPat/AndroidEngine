@@ -1,8 +1,8 @@
 #include "Actor.h"
 #include "GameObjectManager.h"
 
-Actor::Actor(unsigned int id)
-	:	id(id), components()
+Actor::Actor(unsigned int id, size_t componentsSize)
+	:	id(id), components(componentsSize)
 {
 }
 
@@ -32,5 +32,6 @@ int Actor::getComponentIndex(uint componentId) const
 		it += compSize;
 	}
 
+	InvalidCodePath;
 	return -1;
 }

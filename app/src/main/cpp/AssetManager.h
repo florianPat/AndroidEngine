@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
 #include <unordered_map>
+#include <malloc.h>
 #include "AssetLoader.h"
 #include "Utils.h"
 #include "android_native_app_glue.h"
@@ -12,7 +12,7 @@ class AssetManager
     {
         size_t ressourceCacheAssetId;
         //NOTE: The pointers do not get invalidated in shrink/expand because I just store a pp
-        std::unique_ptr<char[]> asset;
+        char* asset;
     };
 
     struct RessourceCacheAssetVector
@@ -45,13 +45,13 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 	auto res = filenameCache.find(filename);
 	if (res != filenameCache.end())
 	{
-		T* asset = (T*) res->second.asset.get();
+		T* asset = (T*) res->second.asset;
 		return asset;
 	}
 	else
 	{
-		std::unique_ptr<char[]> asset = std::make_unique<char[]>(sizeof(T));
-		T* tP = (T*) asset.get();
+		auto asset = (char*) malloc(sizeof(T));
+		auto tP = (T*) asset;
 		new (tP) T();
 		String ext = filename.substr(filename.length() - 3);
 		assert(assetLoaderCache.find(ext) != assetLoaderCache.end());
@@ -62,13 +62,13 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 		AssetLoader& assetLoader = ressourceCachePair.first;
 
 		//(TODO: Think about how to let the user also construct a asset from a stream)
-		if (!assetLoader.loadFromFile(asset.get(), filename, argOptions))
+		if (!assetLoader.loadFromFile(asset, filename, argOptions))
 		{
 			utils::logBreak("Could not load asset!");
 			return nullptr;
 		}
 
-		currentSize += assetLoader.getSize(asset.get());
+		currentSize += assetLoader.getSize(asset);
 		//TODO: Do something if the assetCache is full!
 		if (currentSize > maxSize)
 		{
@@ -87,14 +87,12 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 		}
 
         auto result = filenameCache.emplace(std::make_pair(filename,
-                FilenameCacheValue{ ressourceCachePair.second.size(), std::move(asset)} ));
+                FilenameCacheValue{ ressourceCachePair.second.size(), asset} ));
         assert(result.second);
 
-        char* assetP = result.first->second.asset.get();
+		ressourceCachePair.second.push_back(RessourceCacheAssetVector{ result.first->first, asset });
 
-		ressourceCachePair.second.push_back(RessourceCacheAssetVector{ result.first->first, assetP });
-
-		T* returnAsset = (T*) assetP;
+		T* returnAsset = (T*) asset;
 		return returnAsset;
 	}
 }

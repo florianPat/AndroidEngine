@@ -54,7 +54,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/Benchmark.cpp
              src/main/cpp/CircleShape.cpp
              src/main/cpp/Clock.cpp
-        src/main/cpp/EventManager.cpp
+             src/main/cpp/EventManager.cpp
              src/main/cpp/Font.cpp
              src/main/cpp/GameObjectManager.cpp
              src/main/cpp/Globals.cpp
@@ -79,6 +79,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/TextureAtlas.cpp
              src/main/cpp/TiledMap.cpp
              src/main/cpp/Utils.cpp
+             src/main/cpp/VariableComponentVector.cpp
              src/main/cpp/Vector.cpp
              src/main/cpp/VertexArray.cpp
              src/main/cpp/VertexBuffer.cpp

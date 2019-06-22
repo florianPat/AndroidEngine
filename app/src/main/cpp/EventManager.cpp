@@ -5,7 +5,7 @@ EventManager::EventManager() : eventListenerMap()
 {
 }
 
-bool EventManager::addListener(int& eventType, const DelegateFunction & delegateFunction)
+EventManager::DelegateFunctionRef EventManager::addListener(int& eventType, Delegate<void(EventData*)>&& function)
 {
     Vector<DelegateFunction>* eventListenerList = nullptr;
 
@@ -18,25 +18,14 @@ bool EventManager::addListener(int& eventType, const DelegateFunction & delegate
 	else
 		eventListenerList = &eventListenerMap.at(eventType).delegateFunctions;
 
-#ifdef DEBUG
-	for (auto it = eventListenerList->begin(); it != eventListenerList->end();
-		++it)
-	{
-		if (delegateFunction.first == it->first)
-		{
-			utils::logBreak("Attempting to double - register a delegate");
-			return false;
-		}
-	}
-#endif
+	eventListenerList->push_back(getDelegateFromFunction(std::move(function)));
 
-	eventListenerList->push_back(delegateFunction);
-	return true;
+	return DelegateFunctionRef{ eventType, counter - 1 };
 }
 
-void EventManager::removeListener(int eventType, const DelegateFunction & delegateFunction)
+void EventManager::removeListener(const DelegateFunctionRef& delegateFunctionRef)
 {
-	eventDeleterMap.push_back(std::make_pair(eventType, delegateFunction));
+	eventDeleterMap.push_back(delegateFunctionRef);
 }
 
 void EventManager::TriggerEvent(EventData* eventData)
@@ -68,15 +57,15 @@ void EventManager::removeListeners()
 	{
 		for (auto it = eventDeleterMap.begin(); it != eventDeleterMap.end(); ++it)
 		{
-			int eventType = it->first;
-			DelegateFunction delegateFunction = it->second;
+			int eventType = it->eventType;
+			uint delegateFunctionId = it->delegateId;
 
 			assert(eventType < eventListenerMap.size());
 			auto foundTuple = eventListenerMap.at(eventType);
 			auto findIt = foundTuple.delegateFunctions;
 			for (auto it = findIt.begin(); it != findIt.end(); ++it)
 			{
-				if (delegateFunction.first == it->first)
+				if (delegateFunctionId == it->first)
 				{
 					findIt.erasePop_back(it);
 					break;
@@ -94,7 +83,7 @@ void EventManager::removeListeners()
 	}
 }
 
-DelegateFunction EventManager::getDelegateFromFunction(std::function<void(EventData*)>&& function)
+DelegateFunction EventManager::getDelegateFromFunction(Delegate<void(EventData*)>&& function)
 {
-	return DelegateFunction(std::pair<unsigned int, std::function<void(EventData*)>>(counter++, std::move(function)));
+	return DelegateFunction(std::pair<unsigned int, Delegate<void(EventData*)>>(counter++, std::move(function)));
 }

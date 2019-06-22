@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Component.h"
-#include <memory>
 #include "Window.h"
 #include "Physics.h"
-#include "VariableVector.h"
+#include "VariableComponentVector.h"
 
 class Actor
 {
@@ -12,12 +11,12 @@ class Actor
     friend class GameObjectManager;
 
 	unsigned int id;
-	VariableVector components;
+	VariableComponentVector components;
 public:
-	Actor(unsigned int id);
+	Actor(unsigned int id, size_t componentsSize);
 	template <typename T, typename... Args>
 	const T* addComponent(Args&&... args);
-	//NOTE: These methods take O(n) (because of the linear search). Do not call these functions often.
+	//NOTE: This method takes O(n) (because of the linear search). Do not call this function often.
 	int getComponentIndex(uint componentId) const;
 
 	template <typename T> T* getComponent(int componentIndex);

@@ -10,7 +10,9 @@ bool AssetManager::unloadNotUsedRes(const String & filename)
 		auto& ressourceCachePair = ressourceCache.at(assetLoaderIndex);
 		AssetLoader& assetLoader = ressourceCachePair.first;
 
-		assetLoader.destruct(res->second.asset.get());
+		assetLoader.destruct(res->second.asset);
+		free(res->second.asset);
+		res->second.asset = nullptr;
 		ressourceCachePair.second.erasePop_back(res->second.ressourceCacheAssetId);
         filenameCache.erase(res);
 		return true;
@@ -28,6 +30,8 @@ void AssetManager::clear()
 		for(auto assetIt = it->second.begin(); assetIt != it->second.end(); ++assetIt)
         {
             assetLoader.destruct(assetIt->assetP);
+            free(assetIt->assetP);
+            assetIt->assetP = nullptr;
             filenameCache.erase(assetIt->filename);
         }
 

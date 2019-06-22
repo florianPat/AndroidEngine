@@ -3,7 +3,6 @@
 #include "Vector.h"
 #include "String.h"
 #include "Texture.h"
-#include <memory>
 #include <unordered_map>
 #include "Vector2.h"
 #include "Sprite.h"

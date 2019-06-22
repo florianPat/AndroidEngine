@@ -4,12 +4,14 @@
 
 class GameObjectManager
 {
+	static constexpr size_t DEFAULT_COMPONENT_SIZE = 512;
 	Vector<Actor> actors;
 	Vector<std::pair<int, int>> layers[4];
 	Vector<int> destroyActorQueue;
 public:
 	GameObjectManager();
 	const Actor* addActor();
+	const Actor* addActor(size_t componentsSize);
 	template <typename T, typename... Args>
 	void addUpdateComponent(Args&&... args);
 	template <typename T, typename... Args>

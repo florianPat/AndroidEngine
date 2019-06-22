@@ -2,7 +2,6 @@
 
 #include "Vector2.h"
 #include "Vector.h"
-#include <memory>
 #include "Rect.h"
 #include "Window.h"
 

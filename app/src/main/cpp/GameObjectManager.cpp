@@ -3,13 +3,20 @@
 
 GameObjectManager::GameObjectManager() : actors(), destroyActorQueue()
 {
-    //NOTE: This is the RenderOnlyActorThing
+    //NOTE: This is the RenderOnlyActor
     addActor();
 }
 
 const Actor* GameObjectManager::addActor()
 {
-	actors.push_back(Actor(actors.size()));
+	actors.push_back(Actor(actors.size(), DEFAULT_COMPONENT_SIZE));
+
+	return &actors.back();
+}
+
+const Actor* GameObjectManager::addActor(size_t componentsSize)
+{
+	actors.push_back(Actor(actors.size(), componentsSize));
 
 	return &actors.back();
 }

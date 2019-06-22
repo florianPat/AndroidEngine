@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include "Texture.h"
-#include <memory>
 #include "Physics.h"
 #include "GameObjectManager.h"
 #include "RenderTexture.h"

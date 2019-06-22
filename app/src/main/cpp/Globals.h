@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Physics.h"
-#include "EventManager.h"
 
 struct Globals
 {
-    static EventManager* eventManager;
+    static class EventManager* eventManager;
     static Window* window;
 };

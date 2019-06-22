@@ -1,12 +1,11 @@
 #pragma once
 
 #include "EventData.h"
-#include <functional>
-#include <memory>
 #include "Vector.h"
+#include "Delegate.h"
+#include "Globals.h"
 
-//TODO: Replace std::function
-typedef std::pair<unsigned int, std::function<void(EventData*)>> DelegateFunction;
+typedef std::pair<unsigned int, Delegate<void(EventData*)>> DelegateFunction;
 
 class EventManager
 {
@@ -15,18 +14,23 @@ class EventManager
         int& eventType;
         Vector<DelegateFunction> delegateFunctions;
     };
-
-	Vector<EventListenerMapEntry> eventListenerMap;
-	Vector<std::pair<int, DelegateFunction>> eventDeleterMap;
-private:
-	uint counter = 0;
 public:
-	DelegateFunction getDelegateFromFunction(std::function<void(EventData*)>&& function);
+	struct DelegateFunctionRef
+	{
+		const int& eventType;
+		const uint delegateId;
+	};
+private:
+	Vector<EventListenerMapEntry> eventListenerMap;
+	Vector<DelegateFunctionRef> eventDeleterMap;
+	uint counter = 0;
+private:
+    DelegateFunction getDelegateFromFunction(Delegate<void(EventData*)>&& function);
 public:
 	EventManager();
 	~EventManager();
-	bool addListener(int& eventType, const DelegateFunction& delegateFunction);
-	void removeListener(int eventType, const DelegateFunction& delegateFunction);
+	DelegateFunctionRef addListener(int& eventType, Delegate<void(EventData*)>&& function);
+	void removeListener(const DelegateFunctionRef& delegateFunctionRef);
 	void TriggerEvent(EventData* eventData);
 	void removeListeners();
 };

@@ -29,6 +29,7 @@
 #include "TextureAtlas.cpp"
 #include "TiledMap.cpp"
 #include "Utils.cpp"
+#include "VariableComponentVector.cpp"
 #include "Vector.cpp"
 #include "VertexArray.cpp"
 #include "VertexBuffer.cpp"

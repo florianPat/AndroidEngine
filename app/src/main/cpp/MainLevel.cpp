@@ -1,6 +1,7 @@
 #include "MainLevel.h"
 #include "EventLevelReload.h"
 #include "TiledMapComponent.h"
+#include "Delegate.h"
 
 void MainLevel::eventLevelReloadHandler(EventData * eventData)
 {
@@ -16,6 +17,5 @@ void MainLevel::init()
 {
 	gom.addRenderComponent<TiledMapComponent>(0, tiledMapName);
 
-	eventManager.addListener(EventLevelReload::eventId,
-	        eventManager.getDelegateFromFunction(std::bind(&MainLevel::eventLevelReloadHandler, this, std::placeholders::_1)));
+	eventManager.addListener(EventLevelReload::eventId, Delegate<void(EventData*)>::from<MainLevel, &MainLevel::eventLevelReloadHandler>(this));
 }

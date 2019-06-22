@@ -30,7 +30,7 @@ int Window::processInputEvent(AInputEvent * event)
                 {
                     int combined = AMotionEvent_getAction(event);
                     uint action = ((uint)combined & AMOTION_EVENT_ACTION_MASK);
-                    uint pointerIndex = ((uint)combined & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK);
+                    uint pointerIndex = (((uint)combined) & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
 
                     int pointerId = AMotionEvent_getPointerId(event, pointerIndex);
 
@@ -55,6 +55,18 @@ int Window::processInputEvent(AInputEvent * event)
                         case AMOTION_EVENT_ACTION_UP:
                         {
                             touchInput.inputs[pointerId].up = true;
+                            break;
+                        }
+                        case AMOTION_EVENT_ACTION_POINTER_DOWN:
+                        {
+                            touchInput.inputs[pointerId].down = true;
+                            utils::log("pointer down");
+                            break;
+                        }
+                        case AMOTION_EVENT_ACTION_POINTER_UP:
+                        {
+                            touchInput.inputs[pointerId].up = true;
+                            utils::log("pointer up");
                             break;
                         }
                     }
