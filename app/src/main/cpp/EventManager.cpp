@@ -5,7 +5,7 @@ EventManager::EventManager() : eventListenerMap()
 {
 }
 
-EventManager::DelegateFunctionRef EventManager::addListener(int& eventType, Delegate<void(EventData*)>&& function)
+EventManager::DelegateFunctionRef EventManager::addListener(int32_t& eventType, Delegate<void(EventData*)>&& function)
 {
     Vector<DelegateFunction>* eventListenerList = nullptr;
 
@@ -57,8 +57,8 @@ void EventManager::removeListeners()
 	{
 		for (auto it = eventDeleterMap.begin(); it != eventDeleterMap.end(); ++it)
 		{
-			int eventType = it->eventType;
-			uint delegateFunctionId = it->delegateId;
+			int32_t eventType = it->eventType;
+			uint32_t delegateFunctionId = it->delegateId;
 
 			assert(eventType < eventListenerMap.size());
 			auto foundTuple = eventListenerMap.at(eventType);
@@ -73,7 +73,7 @@ void EventManager::removeListeners()
 			}
 			if (findIt.empty())
 			{
-			    int eventType = foundTuple.eventType;
+			    int32_t eventType = foundTuple.eventType;
                 foundTuple.eventType = -1;
 				eventListenerMap.erasePop_back(eventType);
 				eventListenerMap.at(eventType).eventType = eventType;
@@ -85,5 +85,5 @@ void EventManager::removeListeners()
 
 DelegateFunction EventManager::getDelegateFromFunction(Delegate<void(EventData*)>&& function)
 {
-	return DelegateFunction(std::pair<unsigned int, Delegate<void(EventData*)>>(counter++, std::move(function)));
+	return DelegateFunction(std::pair<uint32_t, Delegate<void(EventData*)>>(counter++, std::move(function)));
 }

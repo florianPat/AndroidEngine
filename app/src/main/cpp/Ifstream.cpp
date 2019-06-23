@@ -69,7 +69,7 @@ void Ifstream::readTempLine()
 	for (char c = get(); (!eof()) && (c != '\n'); c = get());
 }
 
-long long Ifstream::getSize()
+uint64_t Ifstream::getSize()
 {
 	return AAsset_getLength64(asset);
 }
@@ -101,9 +101,9 @@ void Ifstream::close()
 	}
 }
 
-void Ifstream::read(void * s, uint n)
+void Ifstream::read(void * s, uint32_t n)
 {
-	int result = AAsset_read(asset, s, n);
+	int32_t result = AAsset_read(asset, s, n);
 	assert(result > 0);
 }
 
@@ -119,13 +119,13 @@ std::streampos Ifstream::tellg()
 	return std::streampos(getSize() - AAsset_getRemainingLength64(asset));
 }
 
-void Ifstream::seekg(uint pos)
+void Ifstream::seekg(uint32_t pos)
 {
 	off64_t result = AAsset_seek64(asset, pos, SEEK_SET);
 	assert(result != -1);
 }
 
-void Ifstream::seekg(uint off, SeekDir way)
+void Ifstream::seekg(uint32_t off, SeekDir way)
 {
 	switch (way)
 	{

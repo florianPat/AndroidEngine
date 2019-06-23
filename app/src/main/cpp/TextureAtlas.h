@@ -28,7 +28,7 @@ public:
 	Vector2i getXY() const { return xy; }
 	Vector2i getSize() const { return size; }
 
-	void setRegion(int x, int y, int widht, int height);
+	void setRegion(int32_t x, int32_t y, int32_t widht, int32_t height);
 	Sprite getRegion() const { return regionSprite; }
 };
 
@@ -53,8 +53,8 @@ private:
 	Vector2i getLineContentRegionValues(String& lineContent, char firstRealChar) const;
 private:
 	std::unordered_map<String, TextureRegion> textureAtlas;
-	static constexpr int FILE_HEADER_LINE_SIZE = 5;
-	static constexpr int FILE_LINES_PER_REGION = 7;
+	static constexpr int32_t FILE_HEADER_LINE_SIZE = 5;
+	static constexpr int32_t FILE_LINES_PER_REGION = 7;
 	FileHeader fileHeader;
 	AssetManager* assetManager = nullptr;
 };

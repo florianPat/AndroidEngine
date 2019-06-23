@@ -6,7 +6,7 @@ bool AssetManager::unloadNotUsedRes(const String & filename)
 	auto res = filenameCache.find(filename);
 	if (res != filenameCache.end())
 	{
-	    int assetLoaderIndex = assetLoaderCache.at(res->first.substr(res->first.length() - 3));
+	    int32_t assetLoaderIndex = assetLoaderCache.at(res->first.substr(res->first.length() - 3));
 		auto& ressourceCachePair = ressourceCache.at(assetLoaderIndex);
 		AssetLoader& assetLoader = ressourceCachePair.first;
 

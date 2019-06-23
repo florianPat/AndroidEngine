@@ -15,7 +15,7 @@ class VertexLayouts
 
 	Vector<VertexLayout> vertexLayouts;
 private:
-	int sizeofType(GLenum type) const;
+	int32_t sizeofType(GLenum type) const;
 public:
 	VertexLayouts() = default;
 	void addAttribute(GLint size, GLenum type);

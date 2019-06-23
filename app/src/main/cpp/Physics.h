@@ -98,7 +98,7 @@ public:
 		struct TriggerInformation
 		{
 			ShortString triggerElementCollision = "";
-			int index = -1;
+			int32_t index = -1;
 			TriggerBodyPart triggerBodyPart = TriggerBodyPart::NONE;
 		};
 
@@ -135,23 +135,23 @@ public:
 public:
 	static constexpr float GRAVITY = -9.81f;
 private:
-	static constexpr int NUM_LAYERS = 4;
+	static constexpr int32_t NUM_LAYERS = 4;
 	Vector<Body> bodies;
-	int collisionLayers[NUM_LAYERS];
+	int32_t collisionLayers[NUM_LAYERS];
 	//TODO: Can I get rid of this?
 	Vector<int> bodyIndices;
 private:
-	void handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int bodyIndex);
+	void handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int32_t bodyIndex);
 public:
 	Physics();
 	void update(float dt);
 	void debugRenderBodies(Graphics& gfx) const;
 	//Use if you need a reference to the body, to get back triggerInformation etc.
-	int addElementPointer(Body&& body, int layer);
+	int32_t addElementPointer(Body&& body, int32_t layer);
 	//You need to call this each frame, because the Body could be "moved" to another memory location
-	int getRealIndex(int index) const;
-	Body* getBodyFromRealIndex(int realIndex);
+	int32_t getRealIndex(int32_t index) const;
+	Body* getBodyFromRealIndex(int32_t realIndex);
 	//Use this otherwise
-	void addElementValue(Body&& body, int layer);
+	void addElementValue(Body&& body, int32_t layer);
 	Vector<ShortString> getAllCollisionIdsWhichContain(const ShortString & string);
 };

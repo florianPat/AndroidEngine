@@ -17,8 +17,8 @@ public:
 	};
 protected:
 	Vector<Sprite> keyFrames;
-	size_t keyFrameIt;
-	size_t keyFrameItReverse;
+	uint32_t keyFrameIt;
+	uint32_t keyFrameItReverse;
 	int64_t currentTime = 0;
 	int64_t frameDuration;
 	PlayMode playMode;

@@ -137,7 +137,7 @@ struct android_app {
     // state and place the information here.  In that case the memory will be
     // freed for you later.
     void* savedState;
-    size_t savedStateSize;
+    uint32_t savedStateSize;
 
     // The ALooper associated with the app's thread.
     ALooper* looper;

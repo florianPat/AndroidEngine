@@ -29,9 +29,9 @@ void TiledMap::draw()
 	gfx->draw(textureSprite);
 }
 
-size_t TiledMap::getEndOfWord(const String & word, const String & lineContent, bool* result)
+uint32_t TiledMap::getEndOfWord(const String & word, const String & lineContent, bool* result)
 {
-	size_t o = 0;
+	uint32_t o = 0;
 	*result = false;
 	while (o < lineContent.size() && !(*result))
 	{
@@ -62,12 +62,12 @@ size_t TiledMap::getEndOfWord(const String & word, const String & lineContent, b
 String TiledMap::getLineContentBetween(String & lineContent, const String & endOfFirst, char secound)
 {
 	bool resultValue;
-	size_t widthEndPos = getEndOfWord(endOfFirst, lineContent, &resultValue);
+	uint32_t widthEndPos = getEndOfWord(endOfFirst, lineContent, &resultValue);
 	if (resultValue)
 	{
 		lineContent.erase(0, widthEndPos += 2);
 
-		size_t kommaPos = lineContent.find(secound);
+		uint32_t kommaPos = lineContent.find(secound);
 
 		String result(kommaPos);
 
@@ -86,8 +86,8 @@ void TiledMap::ParseLayer(Ifstream & file, String& lineContent)
 	while (utils::isWordInLine("<layer", lineContent))
 	{
 		String layerName = getLineContentBetween(lineContent, "name", '"');
-		int layerWidth = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
-		int layerHeight = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
+		int32_t layerWidth = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
+		int32_t layerHeight = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
 
 		layers.push_back(Layer{ layerName, layerWidth, layerHeight, Vector<Tile>() });
 
@@ -102,12 +102,12 @@ void TiledMap::ParseLayer(Ifstream & file, String& lineContent)
 
 		file.getline(lineContent); //Begin of encoding
 
-		for (int y = 0; y < layerHeight; ++y)
+		for (int32_t y = 0; y < layerHeight; ++y)
 		{
-			for (int x = 0; x < layerWidth; ++x)
+			for (int32_t x = 0; x < layerWidth; ++x)
 			{
-				size_t kommaPos = lineContent.find(',');
-				int nextTileId = atoi(lineContent.substr(0, kommaPos).c_str());
+				uint32_t kommaPos = lineContent.find(',');
+				int32_t nextTileId = atoi(lineContent.substr(0, kommaPos).c_str());
 				lineContent.erase(0, ++kommaPos);
 
 				currentLayer.tiles.push_back(tiles.at(nextTileId));
@@ -134,10 +134,10 @@ void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 		{
 			assert(utils::isWordInLine("<object", lineContent));
 
-			int x = atoi(getLineContentBetween(lineContent, "x", '"').c_str());
-			int y = atoi(getLineContentBetween(lineContent, "y", '"').c_str());
-			int width = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
-			int height = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
+			int32_t x = atoi(getLineContentBetween(lineContent, "x", '"').c_str());
+			int32_t y = atoi(getLineContentBetween(lineContent, "y", '"').c_str());
+			int32_t width = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
+			int32_t height = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
 
 			//NOTE: Need to do this because it is stored top down and not bottom up!
 			y = (mapHeight * tileHeight) - tileHeight - y;
@@ -164,9 +164,9 @@ void TiledMap::MakeRenderTexture()
 		for (auto it = layers.begin(); it != layers.end(); ++it)
 		{
 			//NOTE: posY is needed here, because renderTexture 0 is bottom, but here it is top...
-			for (int y = 0, posY = mapHeight - 1; y < mapHeight; ++y, --posY)
+			for (int32_t y = 0, posY = mapHeight - 1; y < mapHeight; ++y, --posY)
 			{
-				for (int x = 0; x < mapWidth; ++x)
+				for (int32_t x = 0; x < mapWidth; ++x)
 				{
 					Layer& currentLayer = *it;
 					Texture* source = currentLayer.tiles.at(mapWidth * y + x).source;
@@ -206,15 +206,15 @@ String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager, const S
 
 	while (utils::isWordInLine("<tileset", lineContent))
 	{
-		int firstgrid = atoi(getLineContentBetween(lineContent, "firstgid", '"').c_str());
+		int32_t firstgrid = atoi(getLineContentBetween(lineContent, "firstgid", '"').c_str());
 
-		for (int i = tiles.size(); i < firstgrid; ++i)
+		for (int32_t i = tiles.size(); i < firstgrid; ++i)
 		{
 			tiles.push_back(Tile{i, 0, 0, nullptr});
 		}
 
-		int tileCount = atoi(getLineContentBetween(lineContent, "tilecount", '"').c_str());
-		for (int i = 0; i < tileCount; ++i)
+		int32_t tileCount = atoi(getLineContentBetween(lineContent, "tilecount", '"').c_str());
+		for (int32_t i = 0; i < tileCount; ++i)
 		{
 			if (gridInFile)
 			{
@@ -227,12 +227,12 @@ String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager, const S
 				gridInFile = true;
 			}
 			assert(utils::isWordInLine("<tile", lineContent));
-			int id = atoi(getLineContentBetween(lineContent, "id", '"').c_str()) + firstgrid;
+			int32_t id = atoi(getLineContentBetween(lineContent, "id", '"').c_str()) + firstgrid;
 
 			file.getline(lineContent);
 			assert(utils::isWordInLine("<image", lineContent));
-			int width = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
-			int height = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
+			int32_t width = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
+			int32_t height = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
 			String source = getLineContentBetween(lineContent, "source", '"');
 			assert(tiles.size() == id);
 			tiles.push_back(Tile{ id, width, height, assetManager->getOrAddRes<Texture>(dirsToAdd + source) });

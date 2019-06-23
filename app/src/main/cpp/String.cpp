@@ -1,6 +1,6 @@
 #include "String.h"
 
-String::String(size_t count, bool shortRepIn) : shortRep(shortRepIn), stringUnion{ { { {0} } } }
+String::String(uint32_t count, bool shortRepIn) : shortRep(shortRepIn), stringUnion{ { { {0} } } }
 {
 	if (!shortRep)
 	{
@@ -15,7 +15,7 @@ String::String(size_t count, bool shortRepIn) : shortRep(shortRepIn), stringUnio
 	}
 }
 
-String::String(size_t count, char c, bool shortRepIn) : shortRep(shortRepIn), stringUnion{{ { {0} } }}
+String::String(uint32_t count, char c, bool shortRepIn) : shortRep(shortRepIn), stringUnion{{ { {0} } }}
 {
 	if (!shortRep)
 	{
@@ -30,11 +30,11 @@ String::String(size_t count, char c, bool shortRepIn) : shortRep(shortRepIn), st
 	}
 }
 
-String::String(size_t count) : String(count, (count < SHORT_STRING_SIZE))
+String::String(uint32_t count) : String(count, (count < SHORT_STRING_SIZE))
 {
 }
 
-String::String(size_t count, char c) : String(count, c, (count < SHORT_STRING_SIZE))
+String::String(uint32_t count, char c) : String(count, c, (count < SHORT_STRING_SIZE))
 {
 }
 
@@ -80,24 +80,24 @@ String::~String()
 		stringUnion.stringArrayLong.~Vector();
 }
 
-char & String::at(size_t pos)
+char & String::at(uint32_t pos)
 {
 	assert(pos < size());
 
 	CALL_STRING_ARRAY(at(pos));
 }
 
-char String::at(size_t pos) const
+char String::at(uint32_t pos) const
 {
 	CALL_STRING_ARRAY(at(pos));
 }
 
-char & String::operator[](size_t pos)
+char & String::operator[](uint32_t pos)
 {
 	CALL_STRING_ARRAY(operator[](pos));
 }
 
-char String::operator[](size_t pos) const
+char String::operator[](uint32_t pos) const
 {
 	CALL_STRING_ARRAY(operator[](pos));
 }
@@ -157,24 +157,24 @@ bool String::empty() const
 	return (size() == 0);
 }
 
-size_t String::size() const
+uint32_t String::size() const
 {
 	CALL_STRING_ARRAY(size() - 1);
 }
 
-size_t String::length() const
+uint32_t String::length() const
 {
 	CALL_STRING_ARRAY(size() - 1);
 }
 
-void String::reserve(size_t count)
+void String::reserve(uint32_t count)
 {
 	assert(!shortRep);
 
 	stringUnion.stringArrayLong.reserve(count);
 }
 
-size_t String::capacity() const
+uint32_t String::capacity() const
 {
 	CALL_STRING_ARRAY(capacity());
 }
@@ -198,7 +198,7 @@ void String::clear()
 	}
 }
 
-String & String::erase(size_t pos, size_t count)
+String & String::erase(uint32_t pos, uint32_t count)
 {
 	assert((pos + count) <= size());
 
@@ -234,7 +234,7 @@ Iterator<char> String::pop_back()
 	CALL_STRING_ARRAY(erasePop_back(size()));
 }
 
-String & String::append(size_t count, char c)
+String & String::append(uint32_t count, char c)
 {
 	if (shortRep)
 		stringUnion.stringArrayShort.insert(size(), count, c);
@@ -272,7 +272,7 @@ String & String::append(const String & str)
 	return *this;
 }
 
-String & String::append(const String & str, size_t pos, size_t count)
+String & String::append(const String & str, uint32_t pos, uint32_t count)
 {
 	assert((pos + count) < str.size());
 
@@ -280,7 +280,7 @@ String & String::append(const String & str, size_t pos, size_t count)
 	{
 		stringUnion.stringArrayShort.pop_back();
 
-		size_t i = 0;
+		uint32_t i = 0;
 		for (auto it = (str.begin() + pos); i < count; ++i, ++it)
 		{
 			stringUnion.stringArrayShort.push_back(*it);
@@ -292,7 +292,7 @@ String & String::append(const String & str, size_t pos, size_t count)
 	{
 		stringUnion.stringArrayLong.pop_back();
 
-		size_t i = 0;
+		uint32_t i = 0;
 		for (auto it = (str.begin() + pos); i < count; ++i, ++it)
 		{
 			stringUnion.stringArrayLong.push_back(*it);
@@ -310,7 +310,7 @@ String & String::append(const char * str)
 	{
 		stringUnion.stringArrayShort.pop_back();
 
-		for (size_t i = 0; str[i] != '\0'; ++i)
+		for (uint32_t i = 0; str[i] != '\0'; ++i)
 		{
 			stringUnion.stringArrayShort.push_back(str[i]);
 		}
@@ -321,7 +321,7 @@ String & String::append(const char * str)
 	{
 		stringUnion.stringArrayLong.pop_back();
 
-		for (size_t i = 0; str[i] != '\0'; ++i)
+		for (uint32_t i = 0; str[i] != '\0'; ++i)
 		{
 			stringUnion.stringArrayLong.push_back(str[i]);
 		}
@@ -332,13 +332,13 @@ String & String::append(const char * str)
 	return *this;
 }
 
-String & String::append(const char * str, size_t count)
+String & String::append(const char * str, uint32_t count)
 {
 	if (shortRep)
 	{
 		stringUnion.stringArrayShort.pop_back();
 
-		for (size_t i = 0; str[i] != '\0' && i < count; ++i)
+		for (uint32_t i = 0; str[i] != '\0' && i < count; ++i)
 		{
 			stringUnion.stringArrayShort.push_back(str[i]);
 		}
@@ -349,7 +349,7 @@ String & String::append(const char * str, size_t count)
 	{
 		stringUnion.stringArrayLong.pop_back();
 
-		for (size_t i = 0; str[i] != '\0' && i < count; ++i)
+		for (uint32_t i = 0; str[i] != '\0' && i < count; ++i)
 		{
 			stringUnion.stringArrayLong.push_back(str[i]);
 		}
@@ -375,7 +375,7 @@ String & String::operator+=(const char * str)
 	return append(str);
 }
 
-String String::substr(size_t pos, size_t count) const
+String String::substr(uint32_t pos, uint32_t count) const
 {
 	if (count == npos)
 		count = size() - pos;
@@ -384,7 +384,7 @@ String String::substr(size_t pos, size_t count) const
 
 	String result(count + 1);
 
-	for (size_t i = pos; i < (pos + count); ++i)
+	for (uint32_t i = pos; i < (pos + count); ++i)
 	{
 		result.push_back(this->at(i));
 	}
@@ -392,9 +392,9 @@ String String::substr(size_t pos, size_t count) const
 	return result;
 }
 
-size_t String::find(char c, size_t pos) const
+uint32_t String::find(char c, uint32_t pos) const
 {
-	for (size_t i = pos; i < size(); ++i)
+	for (uint32_t i = pos; i < size(); ++i)
 	{
 		if (at(i) == c)
 			return i;
@@ -403,24 +403,24 @@ size_t String::find(char c, size_t pos) const
 	return npos;
 }
 
-size_t String::find(const String & str, size_t pos) const
+uint32_t String::find(const String & str, uint32_t pos) const
 {
     return find(str.c_str(), pos, str.size());
 }
 
-size_t String::find_first_of(char c, size_t pos) const
+uint32_t String::find_first_of(char c, uint32_t pos) const
 {
 	return find(c, pos);
 }
 
-size_t String::find_last_of(char c, size_t pos) const
+uint32_t String::find_last_of(char c, uint32_t pos) const
 {
 	assert(size() > 0);
 
 	if (pos == npos)
 		pos = size() - 1;
 
-	for (int i = pos; i >= 0; --i)
+	for (int32_t i = pos; i >= 0; --i)
 	{
 		if (at(i) == c)
 			return i;
@@ -470,7 +470,7 @@ bool String::operator==(const String & rhs) const
 
 bool String::operator==(const char * rhs) const
 {
-	for (size_t i = 0; (i < size()) && (rhs[i] != '\0'); ++i)
+	for (uint32_t i = 0; (i < size()) && (rhs[i] != '\0'); ++i)
 	{
 		if (at(i) != rhs[i])
 			return false;
@@ -520,20 +520,20 @@ bool operator!=(const char * lhs, const String & rhs)
 	return !(rhs == lhs);
 }
 
-size_t String::find(const char* str, size_t pos, size_t strSize) const
+uint32_t String::find(const char* str, uint32_t pos, uint32_t strSize) const
 {
     if(str[0] == '\0')
         return npos;
 
-    const size_t thisSize = size();
+    const uint32_t thisSize = size();
     if(pos >= thisSize)
     	return npos;
 
-    size_t result = npos;
-    for(size_t i = pos; (result == npos) && ((thisSize - i) >= strSize) && (i < size()); ++i)
+    uint32_t result = npos;
+    for(uint32_t i = pos; (result == npos) && ((thisSize - i) >= strSize) && (i < size()); ++i)
     {
         result = i;
-        for(size_t j = 0, k = i; str[j] != '\0'; ++j, ++k)
+        for(uint32_t j = 0, k = i; str[j] != '\0'; ++j, ++k)
         {
             if(at(k) == str[j])
                 continue;
@@ -557,7 +557,7 @@ String::String(const String& other, bool shortRepIn) : shortRep(shortRepIn), str
 			new (&stringUnion.stringArrayShort) Array<char, SHORT_STRING_SIZE>(other.stringUnion.stringArrayShort);
 		else
 		{
-			for (size_t i = 0; i < other.size(); ++i)
+			for (uint32_t i = 0; i < other.size(); ++i)
 				stringUnion.stringArrayShort.push_back(other[i]);
 
 			stringUnion.stringArrayShort.push_back('\0');
@@ -569,7 +569,7 @@ String::String(const String& other, bool shortRepIn) : shortRep(shortRepIn), str
 		{
 			new (&stringUnion.stringArrayLong) Vector<char>();
 
-			for (size_t i = 0; i < other.size(); ++i)
+			for (uint32_t i = 0; i < other.size(); ++i)
 				stringUnion.stringArrayLong.push_back(other[i]);
 
 			stringUnion.stringArrayLong.push_back('\0');
@@ -581,7 +581,7 @@ String::String(const String& other, bool shortRepIn) : shortRep(shortRepIn), str
 
 bool utils::isWordInLine(const String & word, const String & lineContent)
 {
-	size_t o = 0;
+	uint32_t o = 0;
 	bool result = false;
 	while (o < lineContent.size() && !result)
 	{
@@ -610,10 +610,10 @@ bool utils::isWordInLine(const String & word, const String & lineContent)
 
 String utils::getWordBetweenChars(const String& lineContent, char firstChar, char lastChar)
 {
-	size_t first = lineContent.find_first_of(firstChar);
+	uint32_t first = lineContent.find_first_of(firstChar);
 	assert(first != String::npos);
 	++first;
-	size_t last = lineContent.find_first_of(lastChar, first);
+	uint32_t last = lineContent.find_first_of(lastChar, first);
 	assert(last != String::npos);
 	String result(last - first);
 	result = lineContent.substr(first, last - first);
@@ -622,7 +622,7 @@ String utils::getWordBetweenChars(const String& lineContent, char firstChar, cha
 
 LongString utils::getDirPathToFile(const String& str)
 {
-	if(size_t lastSlashPos = str.find_last_of('/'); lastSlashPos != String::npos)
+	if(uint32_t lastSlashPos = str.find_last_of('/'); lastSlashPos != String::npos)
 		return LongString(str.substr(0, lastSlashPos + 1));
 	else
 		return "";
@@ -745,11 +745,11 @@ ShortString::ShortString() : String(0, true)
 {
 }
 
-ShortString::ShortString(size_t count) : String(count, true)
+ShortString::ShortString(uint32_t count) : String(count, true)
 {
 }
 
-ShortString::ShortString(size_t count, char c) : String(count, c, true)
+ShortString::ShortString(uint32_t count, char c) : String(count, c, true)
 {
 }
 
@@ -783,11 +783,11 @@ LongString::LongString() : String(SHORT_STRING_SIZE, false)
 {
 }
 
-LongString::LongString(size_t count) : String(count, false)
+LongString::LongString(uint32_t count) : String(count, false)
 {
 }
 
-LongString::LongString(size_t count, char c) : String(count, c, false)
+LongString::LongString(uint32_t count, char c) : String(count, c, false)
 {
 }
 

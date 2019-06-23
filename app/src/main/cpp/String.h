@@ -2,6 +2,7 @@
 
 #include "Utils.h"
 #include "Vector.h"
+#include <string>
 
 #define CALL_STRING_ARRAY(exp) if(shortRep) return stringUnion.stringArrayShort.exp; else return stringUnion.stringArrayLong.exp
 //NOTE: For now, there is no possibiliy for a wide-character string. I could potentialy shoot myself in the foot here for localization purporses
@@ -9,8 +10,8 @@
 class String
 {
 public:
-	static constexpr int SHORT_STRING_SIZE = 16;
-	static constexpr size_t npos = -1;
+	static constexpr int32_t SHORT_STRING_SIZE = 16;
+	static constexpr uint32_t npos = -1;
 //NOTE: Is protected for the copy/move-constructor of Short- / LongString!
 protected:
 	const bool shortRep;
@@ -23,31 +24,31 @@ private:
 		~StringUnion();
 	} stringUnion;
 protected:
-	String(size_t count, bool shortRepIn);
-	String(size_t count, char c, bool shortRepIn);
+	String(uint32_t count, bool shortRepIn);
+	String(uint32_t count, char c, bool shortRepIn);
 	String(const String& other, bool shortRepIn);
-	//String(const String& other, size_t pos, size_t count);
-	//String(const char* s, size_t count);
+	//String(const String& other, uint32_t pos, uint32_t count);
+	//String(const char* s, uint32_t count);
 private:
-	size_t find(const char* str, size_t pos, size_t strSize) const;
+	uint32_t find(const char* str, uint32_t pos, uint32_t strSize) const;
 public:
-	String(size_t count);
-	String(size_t count, char c);
-	template <size_t N>
+	String(uint32_t count);
+	String(uint32_t count, char c);
+	template <uint32_t N>
 	String(const char(&s)[N], bool shortRepIn = (N <= SHORT_STRING_SIZE));
 	String(const String& other);
 	String(String&& other);
 	String& operator=(const String& rhs);
 	String& operator=(String&& rhs);
-	template <size_t N>
+	template <uint32_t N>
 	String& operator=(const char(&s)[N]);
 	~String();
 
-	char& at(size_t pos);
-	char at(size_t pos) const;
+	char& at(uint32_t pos);
+	char at(uint32_t pos) const;
 
-	char& operator[](size_t pos);
-	char operator[](size_t pos) const;
+	char& operator[](uint32_t pos);
+	char operator[](uint32_t pos) const;
 	
 	char& front();
 	char front() const;
@@ -64,17 +65,17 @@ public:
 
 	bool empty() const;
 	
-	size_t size() const;
-	size_t length() const;
+	uint32_t size() const;
+	uint32_t length() const;
 
-	void reserve(size_t count);
-	size_t capacity() const;
+	void reserve(uint32_t count);
+	uint32_t capacity() const;
 
 	void clear();
 	
 	//NOTE: Implement insert if you need them
 
-	String& erase(size_t pos, size_t count);
+	String& erase(uint32_t pos, uint32_t count);
 	Iterator<char> erase(const Iterator<char>& pos);
 	Iterator<char> erase(const Iterator<char>& first, const Iterator<char>& last);
 
@@ -82,24 +83,24 @@ public:
 	Iterator<char> pop_back();
 
 	//NOTE: Will fail if string is "full" if it is a short string
-	String& append(size_t count, char c);
+	String& append(uint32_t count, char c);
 	String& append(const String& str);
-	String& append(const String& str, size_t pos, size_t count);
+	String& append(const String& str, uint32_t pos, uint32_t count);
 	String& append(const char* str);
-	String& append(const char* str, size_t count);
+	String& append(const char* str, uint32_t count);
 	String& operator+=(const String& str);
 	String& operator+=(char c);
 	String& operator+=(const char* str);
 
-	String substr(size_t pos = 0, size_t count = npos) const;
+	String substr(uint32_t pos = 0, uint32_t count = npos) const;
 
-	size_t find(char c, size_t pos = 0) const;
-	template <size_t N>
-	size_t find(const char(&str)[N], size_t pos = 0) const;
-	size_t find(const String& str, size_t pos = 0) const;
+	uint32_t find(char c, uint32_t pos = 0) const;
+	template <uint32_t N>
+	uint32_t find(const char(&str)[N], uint32_t pos = 0) const;
+	uint32_t find(const String& str, uint32_t pos = 0) const;
 	//NOTE: isn't it unnecessary?
-	size_t find_first_of(char c, size_t pos = 0) const;
-	size_t find_last_of(char c, size_t pos = npos) const;
+	uint32_t find_first_of(char c, uint32_t pos = 0) const;
+	uint32_t find_last_of(char c, uint32_t pos = npos) const;
 
 	//NOTE: Implement resize if you need it!
 
@@ -120,25 +121,25 @@ public:
 	friend bool operator!=(const char* lhs, const String& rhs);
 };
 
-template<size_t N>
+template<uint32_t N>
 inline String::String(const char(&s)[N], bool shortRepIn) : shortRep(shortRepIn), stringUnion{{ { {0} } }}
 {
 	if (shortRep)
 	{
 		assert(N <= SHORT_STRING_SIZE);
-		for (size_t i = 0; i < N; ++i)
+		for (uint32_t i = 0; i < N; ++i)
 			stringUnion.stringArrayShort.push_back(s[i]);
 	}
 	else
 	{
 		new (&stringUnion.stringArrayLong) Vector<char>(N);
 
-		for (size_t i = 0; i < N; ++i)
+		for (uint32_t i = 0; i < N; ++i)
 			stringUnion.stringArrayLong.push_back(s[i]);
 	}
 }
 
-template<size_t N>
+template<uint32_t N>
 inline String & String::operator=(const char(&s)[N])
 {
 	this->~String();
@@ -148,8 +149,8 @@ inline String & String::operator=(const char(&s)[N])
 	return *this;
 }
 
-template<size_t N>
-inline size_t String::find(const char (&str)[N], size_t pos) const
+template<uint32_t N>
+inline uint32_t String::find(const char (&str)[N], uint32_t pos) const
 {
 	//NOTE: N - 1 because size() of the String class returns the size minus the 0 terminator!
 	return find(str, pos, N - 1);
@@ -158,9 +159,9 @@ inline size_t String::find(const char (&str)[N], size_t pos) const
 struct ShortString : public String
 {
 	ShortString();
-	ShortString(size_t count);
-	ShortString(size_t count, char c);
-	template <size_t N>
+	ShortString(uint32_t count);
+	ShortString(uint32_t count, char c);
+	template <uint32_t N>
 	ShortString(const char(&s)[N]);
 	ShortString(const String& other);
 	ShortString(String&& other);
@@ -169,9 +170,9 @@ struct ShortString : public String
 struct LongString : public String
 {
 	LongString();
-	LongString(size_t count);
-	LongString(size_t count, char c);
-	template <size_t N>
+	LongString(uint32_t count);
+	LongString(uint32_t count, char c);
+	template <uint32_t N>
 	LongString(const char(&s)[N]);
 	LongString(const String& other);
 	LongString(String&& other);
@@ -183,30 +184,30 @@ namespace std {
 	template<>
 	struct hash<String> {
 	public:
-		size_t operator()(const String &s) const
+		uint32_t operator()(const String &s) const
 		{
 			//TODO: Build own hasher!
-			return std::hash<std::string>()(s.c_str());
+			return (uint32_t)std::hash<std::string>()(s.c_str());
 		}
 	};
 
 	template<>
 	struct hash<ShortString> {
 	public:
-		size_t operator()(const ShortString &s) const
+		uint32_t operator()(const ShortString &s) const
 		{
 			//TODO: Build own hasher!
-			return std::hash<std::string>()(s.c_str());
+			return (uint32_t)std::hash<std::string>()(s.c_str());
 		}
 	};
 
 	template<>
 	struct hash<LongString> {
 	public:
-		size_t operator()(const LongString &s) const
+		uint32_t operator()(const LongString &s) const
 		{
 			//TODO: Build own hasher!
-			return std::hash<std::string>()(s.c_str());
+			return (uint32_t)std::hash<std::string>()(s.c_str());
 		}
 	};
 }
@@ -224,12 +225,12 @@ namespace StringUnitTest
 	void runStdStringUnitTests();
 }
 
-template<size_t N>
+template<uint32_t N>
 inline ShortString::ShortString(const char(&s)[N]) : String(s, true)
 {
 }
 
-template<size_t N>
+template<uint32_t N>
 inline LongString::LongString(const char(&s)[N]) : String(s, false)
 {
 }

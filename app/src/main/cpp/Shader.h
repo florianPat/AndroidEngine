@@ -24,9 +24,9 @@ public:
 	void setUniform4f(const ShortString& var, float v0, float v1, float v2, float v3);
 	void setUniformMat4f(const ShortString& var, const Mat4x4& mat);
 private:
-	int getUniformLoc(const ShortString& var);
+	int32_t getUniformLoc(const ShortString& var);
 private:
-	static constexpr unsigned int NUM_SHADERS = 2;
+	static constexpr uint32_t NUM_SHADERS = 2;
 	//NOTE: Same as in Texture!
 	GLuint program = -1;
 	std::unordered_map<ShortString, GLint> uniformCache;

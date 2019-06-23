@@ -1,6 +1,7 @@
 #pragma once
 
 #include <android/log.h>
+#include "Types.h"
 
 #undef assert
 
@@ -25,7 +26,7 @@ static constexpr float _180OverPi = 180 / PIf;
 
 namespace utils
 {
-	unsigned int getGUID();
+	uint32_t getGUID();
 	float lerp(float v0, float v1, float t);
 	float degreesToRadians(float degree);
 	float radiansToDegrees(float radians);

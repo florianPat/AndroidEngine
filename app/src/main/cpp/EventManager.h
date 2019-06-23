@@ -5,31 +5,31 @@
 #include "Delegate.h"
 #include "Globals.h"
 
-typedef std::pair<unsigned int, Delegate<void(EventData*)>> DelegateFunction;
+typedef std::pair<uint32_t, Delegate<void(EventData*)>> DelegateFunction;
 
 class EventManager
 {
     struct EventListenerMapEntry
     {
-        int& eventType;
+        int32_t& eventType;
         Vector<DelegateFunction> delegateFunctions;
     };
 public:
 	struct DelegateFunctionRef
 	{
-		const int& eventType;
-		const uint delegateId;
+		const int32_t& eventType;
+		const uint32_t delegateId;
 	};
 private:
 	Vector<EventListenerMapEntry> eventListenerMap;
 	Vector<DelegateFunctionRef> eventDeleterMap;
-	uint counter = 0;
+	uint32_t counter = 0;
 private:
     DelegateFunction getDelegateFromFunction(Delegate<void(EventData*)>&& function);
 public:
 	EventManager();
 	~EventManager();
-	DelegateFunctionRef addListener(int& eventType, Delegate<void(EventData*)>&& function);
+	DelegateFunctionRef addListener(int32_t& eventType, Delegate<void(EventData*)>&& function);
 	void removeListener(const DelegateFunctionRef& delegateFunctionRef);
 	void TriggerEvent(EventData* eventData);
 	void removeListeners();

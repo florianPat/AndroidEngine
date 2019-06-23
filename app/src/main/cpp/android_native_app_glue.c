@@ -235,7 +235,7 @@ static void* android_app_entry(void* param) {
 // --------------------------------------------------------------------
 
 static struct android_app* android_app_create(ANativeActivity* activity,
-        void* savedState, size_t savedStateSize) {
+        void* savedState, uint32_t savedStateSize) {
     struct android_app* android_app = (struct android_app*)malloc(sizeof(struct android_app));
     memset(android_app, 0, sizeof(struct android_app));
     android_app->activity = activity;

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Types.h"
+
 class EventData
 {
 private:
-	int& eventId;
+	int32_t& eventId;
 public:
-	EventData(int& eventId) : eventId(eventId) {};
-	int getEventId() const { return eventId; };
+	EventData(int32_t& eventId) : eventId(eventId) {};
+	int32_t getEventId() const { return eventId; };
 };

@@ -12,7 +12,7 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String& inkscapeFileNam
 
 	LongString lineContent;
 
-	for(int iteration = 0; !file.eof(); ++iteration)
+	for(int32_t iteration = 0; !file.eof(); ++iteration)
 	{
 		if (lineContent.find("</g>") != String::npos)
 		{
@@ -96,7 +96,7 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String& inkscapeFileNam
 								shouldAdd = false;
 								break;
 							}
-							size_t underlinePos = id.find_first_of('_');
+							uint32_t underlinePos = id.find_first_of('_');
 							if (underlinePos != String::npos)
 							{
 								id = id.substr(0, underlinePos);

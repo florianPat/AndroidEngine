@@ -10,23 +10,23 @@ class Actor
     //Needs to happen because it has to change the id if an Actor gets deleted!
     friend class GameObjectManager;
 
-	unsigned int id;
+	uint32_t id;
 	VariableComponentVector components;
 public:
-	Actor(unsigned int id, size_t componentsSize);
+	Actor(uint32_t id, uint32_t componentsSize);
 	template <typename T, typename... Args>
 	const T* addComponent(Args&&... args);
 	//NOTE: This method takes O(n) (because of the linear search). Do not call this function often.
-	int getComponentIndex(uint componentId) const;
+	int32_t getComponentIndex(uint32_t componentId) const;
 
-	template <typename T> T* getComponent(int componentIndex);
+	template <typename T> T* getComponent(int32_t componentIndex);
 
-	int getId() const { return id; };
+	int32_t getId() const { return id; };
 	void update(float dt);
 };
 
 template<typename T>
-inline T* Actor::getComponent(int componentIndex)
+inline T* Actor::getComponent(int32_t componentIndex)
 {
 	assert(componentIndex < components.getOffsetToEnd());
 	Component* componentPtr = (Component*) (components.begin() + componentIndex);
@@ -41,7 +41,7 @@ inline T* Actor::getComponent(int componentIndex)
 template<typename T, typename... Args>
 inline const T* Actor::addComponent(Args&&... args)
 {
-	size_t lastOffsetToEnd = components.getOffsetToEnd();
+	uint32_t lastOffsetToEnd = components.getOffsetToEnd();
 
 	components.push_back<T>(std::forward<Args>(args)...);
 

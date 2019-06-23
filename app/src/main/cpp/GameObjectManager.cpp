@@ -14,14 +14,14 @@ const Actor* GameObjectManager::addActor()
 	return &actors.back();
 }
 
-const Actor* GameObjectManager::addActor(size_t componentsSize)
+const Actor* GameObjectManager::addActor(uint32_t componentsSize)
 {
 	actors.push_back(Actor(actors.size(), componentsSize));
 
 	return &actors.back();
 }
 
-void GameObjectManager::destroyActor(unsigned int actorId)
+void GameObjectManager::destroyActor(uint32_t actorId)
 {
 	destroyActorQueue.push_back(actorId);
 }

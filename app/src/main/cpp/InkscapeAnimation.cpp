@@ -36,7 +36,7 @@ void InkscapeAnimation::setInkscapeAnimationElement(const String& inkscapeFileNa
 
 IntRect InkscapeAnimation::getInkscapeAnimationElementKeyFrame(const ShortString & keyFrameId) const
 {
-	size_t i = (playMode == PlayMode::LOOPED || playMode == PlayMode::NORMAL) ? keyFrameIt : keyFrameItReverse;
+	uint32_t i = (playMode == PlayMode::LOOPED || playMode == PlayMode::NORMAL) ? keyFrameIt : keyFrameItReverse;
 
 	auto result = inkscapeKeyFrames[i].find(keyFrameId);
 	if (result != inkscapeKeyFrames[i].end())

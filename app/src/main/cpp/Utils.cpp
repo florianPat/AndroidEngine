@@ -1,9 +1,9 @@
 #include "Utils.h"
 #include "Types.h"
 
-static uint counter = 0;
+static uint32_t counter = 0;
 
-unsigned int utils::getGUID()
+uint32_t utils::getGUID()
 {
 	return counter++;
 }

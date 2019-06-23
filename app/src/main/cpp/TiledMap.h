@@ -12,14 +12,14 @@ class TiledMap
 {
 	struct Tile
 	{
-		int id;
-		int width, height;
+		int32_t id;
+		int32_t width, height;
 		Texture* source;
 	};
 	struct Layer
 	{
 		ShortString name;
-		int width, height;
+		int32_t width, height;
 		Vector<Tile> tiles;
 	};
 	struct ObjectGroup
@@ -31,7 +31,7 @@ class TiledMap
 	Vector<Tile> tiles;
 	Vector<Layer> layers;
 	std::unordered_map<ShortString, ObjectGroup> objectGroups;
-	int mapWidth = 0, mapHeight = 0, tileWidth = 0, tileHeight = 0;
+	int32_t mapWidth = 0, mapHeight = 0, tileWidth = 0, tileHeight = 0;
 
 	RenderTexture texture;
 	Sprite textureSprite;
@@ -44,10 +44,10 @@ public:
 	const Vector<Physics::Collider>& getObjectGroup(const ShortString& objectGroupName);
 	const std::unordered_map<ShortString, ObjectGroup>& getObjectGroups();
 	void draw();
-	long long getSize() const { return sizeof(TiledMap); }
+	uint64_t getSize() const { return sizeof(TiledMap); }
 	Vector2f getMapSize() const;
 private:
-	size_t getEndOfWord(const String& word, const String& lineContent, bool* result);
+	uint32_t getEndOfWord(const String& word, const String& lineContent, bool* result);
 	String getLineContentBetween(String& lineContent, const String& endOfFirst, char secound);
 
 	String ParseTiles(Ifstream& file, AssetManager* assetManager, const String& filename);

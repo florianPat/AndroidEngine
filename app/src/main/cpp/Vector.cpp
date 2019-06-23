@@ -59,8 +59,8 @@ void VectorTestSuit::runVectorUnitTest()
 		thisVector.clear();
 		unitAssert(thisVector.capacity() == 20);
 
-		int sum = 0;
-		for (int e : thisVector)
+		int32_t sum = 0;
+		for (int32_t e : thisVector)
 		{
 			sum += e;
 		}
@@ -130,8 +130,8 @@ void VectorTestSuit::runStdVectorTest()
 		thisVector.clear();
 		unitAssert(thisVector.capacity() == 20);
 
-		int sum = 0;
-		for (int e : thisVector)
+		int32_t sum = 0;
+		for (int32_t e : thisVector)
 		{
 			sum += e;
 		}

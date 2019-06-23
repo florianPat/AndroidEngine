@@ -148,7 +148,7 @@ void GraphicsOGL2::setupGfxGpu()
     new (&shaderRectShape) Shader("SRectShape", Vector<ShortString>{ "position", "texCoord", "color",
                                                                      "mvMatrixSclRot", "mvMatrixPos" });
 
-    unsigned int indices[6 * NUM_SPRITES_TO_BATCH];
+    uint32_t indices[6 * NUM_SPRITES_TO_BATCH];
     for(uint i = 0, counter = 0; i < NUM_SPRITES_TO_BATCH; ++i, counter += 6)
     {
         indices[counter + 0] = 0 + i * 4;

@@ -14,11 +14,11 @@ class Iterator
 {
 	//TODO: Maybe just return the pointer in Release?
 
-	size_t itIndex;
-	size_t itSize;
+	uint32_t itIndex;
+	uint32_t itSize;
 	T* itData;
 public:
-	Iterator(size_t indexIn, size_t sizeIn, T* dataIn) : itIndex(indexIn), itSize(sizeIn), itData(dataIn) {}
+	Iterator(uint32_t indexIn, uint32_t sizeIn, T* dataIn) : itIndex(indexIn), itSize(sizeIn), itData(dataIn) {}
 
 	Iterator& operator++()
 	{
@@ -26,7 +26,7 @@ public:
 		assert(itIndex <= itSize);
 		return *this;
 	}
-	Iterator operator++(int)
+	Iterator operator++(int32_t)
 	{
 		Iterator temp(*this);
 		operator++();
@@ -38,7 +38,7 @@ public:
 		--itIndex;
 		return *this;
 	}
-	Iterator operator--(int)
+	Iterator operator--(int32_t)
 	{
 		Iterator temp(*this);
 		operator--();
@@ -50,7 +50,7 @@ public:
 		assert((itData == rhs.itData) && (itIndex <= itSize));
 		return *this;
 	}
-	Iterator& operator+=(size_t rhs)
+	Iterator& operator+=(uint32_t rhs)
 	{
 		itIndex += rhs;
 		assert(itIndex <= itSize);
@@ -62,7 +62,7 @@ public:
 		itIndex -= rhs.itIndex;
 		return *this;
 	}
-	Iterator& operator-=(size_t rhs)
+	Iterator& operator-=(uint32_t rhs)
 	{
 		assert(itIndex >= rhs);
 		itIndex -= rhs;
@@ -74,13 +74,13 @@ public:
 		lhs += rhs;
 		return lhs;
 	}
-	Iterator operator+(int rhs)
+	Iterator operator+(int32_t rhs)
 	{
 		Iterator lhs = *this;
 		lhs += rhs;
 		return lhs;
 	}
-	friend Iterator operator+(int lhs, Iterator rhs)
+	friend Iterator operator+(int32_t lhs, Iterator rhs)
 	{
 		rhs += lhs;
 		return rhs;
@@ -91,13 +91,13 @@ public:
 		lhs -= rhs;
 		return lhs;
 	}
-	Iterator operator-(int rhs)
+	Iterator operator-(int32_t rhs)
 	{
 		Iterator lhs = *this;
 		lhs -= rhs;
 		return lhs;
 	}
-	friend Iterator operator-(int lhs, Iterator rhs)
+	friend Iterator operator-(int32_t lhs, Iterator rhs)
 	{
 		rhs -= lhs;
 		return rhs;
@@ -107,7 +107,7 @@ public:
 		assert((itIndex < itSize) && (itData != nullptr));
 		return itData[itIndex];
 	}
-	T& operator[](size_t indexIn)
+	T& operator[](uint32_t indexIn)
 	{
 		return *(this->operator+(indexIn));
 	}
@@ -116,7 +116,7 @@ public:
 		assert((itIndex < itSize) && (itData != nullptr));
 		return &itData[itIndex];
 	}
-	size_t getIndex() const
+	uint32_t getIndex() const
 	{
 		return itIndex;
 	}
@@ -135,11 +135,11 @@ public:
 template <typename T>
 class ConstIterator
 {
-	size_t itIndex;
-	size_t itSize;
+	uint32_t itIndex;
+	uint32_t itSize;
 	const T* itData;
 public:
-	ConstIterator(size_t indexIn, size_t sizeIn, const T* dataIn) : itIndex(indexIn), itSize(sizeIn), itData(dataIn) {}
+	ConstIterator(uint32_t indexIn, uint32_t sizeIn, const T* dataIn) : itIndex(indexIn), itSize(sizeIn), itData(dataIn) {}
 
 	ConstIterator& operator++()
 	{
@@ -147,7 +147,7 @@ public:
 		assert(itIndex <= itSize);
 		return *this;
 	}
-	ConstIterator operator++(int)
+	ConstIterator operator++(int32_t)
 	{
 		ConstIterator temp(*this);
 		operator++();
@@ -159,7 +159,7 @@ public:
 		--itIndex;
 		return *this;
 	}
-	ConstIterator operator--(int)
+	ConstIterator operator--(int32_t)
 	{
 		ConstIterator temp(*this);
 		operator--();
@@ -171,7 +171,7 @@ public:
 		assert((itData == rhs.itData) && (itIndex <= itSize));
 		return *this;
 	}
-	ConstIterator& operator+=(size_t rhs)
+	ConstIterator& operator+=(uint32_t rhs)
 	{
 		itIndex += rhs;
 		assert(itIndex <= itSize);
@@ -183,7 +183,7 @@ public:
 		itIndex -= rhs.itIndex;
 		return *this;
 	}
-	ConstIterator& operator-=(size_t rhs)
+	ConstIterator& operator-=(uint32_t rhs)
 	{
 		assert(itIndex >= rhs);
 		itIndex -= rhs;
@@ -195,14 +195,13 @@ public:
 		lhs += rhs;
 		return lhs;
 	}
-	//TODO: Should all these int`s be size_t`s instead?
-	ConstIterator operator+(int rhs)
+	ConstIterator operator+(int32_t rhs)
 	{
 		ConstIterator lhs = *this;
 		lhs += rhs;
 		return lhs;
 	}
-	friend ConstIterator operator+(int lhs, ConstIterator rhs)
+	friend ConstIterator operator+(int32_t lhs, ConstIterator rhs)
 	{
 		rhs += lhs;
 		return rhs;
@@ -213,13 +212,13 @@ public:
 		lhs -= rhs;
 		return lhs;
 	}
-	ConstIterator operator-(int rhs)
+	ConstIterator operator-(int32_t rhs)
 	{
 		ConstIterator lhs = *this;
 		lhs -= rhs;
 		return lhs;
 	}
-	friend ConstIterator operator-(int lhs, ConstIterator rhs)
+	friend ConstIterator operator-(int32_t lhs, ConstIterator rhs)
 	{
 		rhs -= lhs;
 		return rhs;
@@ -229,7 +228,7 @@ public:
 		assert((itIndex < itSize) && (itData != nullptr));
 		return itData[itIndex];
 	}
-	const T& operator[](size_t indexIn)
+	const T& operator[](uint32_t indexIn)
 	{
 		return *(this->operator+(indexIn));
 	}
@@ -238,7 +237,7 @@ public:
 		assert((itIndex < itSize) && (itData != nullptr));
 		return &itData[itIndex];
 	}
-	size_t getIndex() const
+	uint32_t getIndex() const
 	{
 		return itIndex;
 	}
@@ -256,7 +255,7 @@ public:
 
 #define DEFINE_ARRAY_DATA auto arrayData = getRightPointer(); assert(arrayData != nullptr)
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 struct Array
 {
 	union ArrayUnion
@@ -265,23 +264,23 @@ struct Array
 		struct
 		{
 			T* p = nullptr;
-			size_t capacity = 0;
+			uint32_t capacity = 0;
 		} heapArray;
 
 		~ArrayUnion();
 	} arrayUnion;
 
-	size_t arraySize = 0;
+	uint32_t arraySize = 0;
 private:
 	constexpr T* getRightPointer();
 	constexpr const T* getRightPointer() const;
 public:
 	~Array();
 
-	inline T& at(size_t pos);
-	inline const T& at(size_t pos) const;
-	inline T& operator[](size_t pos);
-	inline const T& operator[](size_t pos) const;
+	inline T& at(uint32_t pos);
+	inline const T& at(uint32_t pos) const;
+	inline T& operator[](uint32_t pos);
+	inline const T& operator[](uint32_t pos) const;
 
 	inline T& front();
 	inline const T& front() const;
@@ -296,27 +295,27 @@ public:
 	inline ConstIterator<T> begin() const;
 	inline ConstIterator<T> end() const;
 	
-	inline size_t capacity() const;
-	inline size_t size() const;
+	inline uint32_t capacity() const;
+	inline uint32_t size() const;
 	inline bool empty() const;
 
 	void clear();
-	Iterator<T> insert(size_t pos, const T& value);
+	Iterator<T> insert(uint32_t pos, const T& value);
 	Iterator<T> insert(const Iterator<T>& pos, const T& value);
-	Iterator<T> insert(size_t pos, size_t count, const T& value);
-	Iterator<T> insert(size_t pos, T&& value);
-	Iterator<T> insert(const Iterator<T>& pos, size_t count, const T& value);
+	Iterator<T> insert(uint32_t pos, uint32_t count, const T& value);
+	Iterator<T> insert(uint32_t pos, T&& value);
+	Iterator<T> insert(const Iterator<T>& pos, uint32_t count, const T& value);
 	Iterator<T> insert(const Iterator<T>& pos, T&& value);
 	//NOTE: Do theses functions even make sense??
-	Iterator<T> insertPush_back(size_t pos, const T& value);
+	Iterator<T> insertPush_back(uint32_t pos, const T& value);
 	Iterator<T> insertPush_back(const Iterator<T>& pos, const T& value);
-	Iterator<T> insertPush_back(size_t pos, T&& value);
+	Iterator<T> insertPush_back(uint32_t pos, T&& value);
 	Iterator<T> insertPush_back(const Iterator<T>& pos, T&& value);
-	Iterator<T> erase(size_t pos);
+	Iterator<T> erase(uint32_t pos);
 	Iterator<T> erase(const Iterator<T>& pos);
-	Iterator<T> erase(size_t first, size_t last);
+	Iterator<T> erase(uint32_t first, uint32_t last);
 	Iterator<T> erase(const Iterator<T>& first, const Iterator<T>& last);
-	Iterator<T> erasePop_back(size_t pos);
+	Iterator<T> erasePop_back(uint32_t pos);
 	Iterator<T> erasePop_back(const Iterator<T>& pos);
 	void push_back(const T& value);
 	void push_back(T&& value);
@@ -326,8 +325,8 @@ public:
 	bool operator!=(const Array& rhs) const;
 };
 
-template<typename T, size_t N>
-inline T & Array<T, N>::at(size_t pos)
+template<typename T, uint32_t N>
+inline T & Array<T, N>::at(uint32_t pos)
 {
 	DEFINE_ARRAY_DATA;
 
@@ -335,8 +334,8 @@ inline T & Array<T, N>::at(size_t pos)
 	return arrayData[pos];
 }
 
-template<typename T, size_t N>
-inline const T & Array<T, N>::at(size_t pos) const
+template<typename T, uint32_t N>
+inline const T & Array<T, N>::at(uint32_t pos) const
 {
 	DEFINE_ARRAY_DATA;
 
@@ -344,23 +343,23 @@ inline const T & Array<T, N>::at(size_t pos) const
 	return arrayData[pos];
 }
 
-template<typename T, size_t N>
-inline T & Array<T, N>::operator[](size_t pos)
+template<typename T, uint32_t N>
+inline T & Array<T, N>::operator[](uint32_t pos)
 {
 	DEFINE_ARRAY_DATA;
 
 	return arrayData[pos];
 }
 
-template<typename T, size_t N>
-inline const T & Array<T, N>::operator[](size_t pos) const
+template<typename T, uint32_t N>
+inline const T & Array<T, N>::operator[](uint32_t pos) const
 {
 	DEFINE_ARRAY_DATA;
 
 	return arrayData[pos];
 }
 
-template<typename T, size_t N>
+template<typename T, uint32_t N>
 inline T & Array<T, N>::front()
 {
 	DEFINE_ARRAY_DATA;
@@ -369,7 +368,7 @@ inline T & Array<T, N>::front()
 	return arrayData[0];
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline const T & Array<T, N>::front() const
 {
 	DEFINE_ARRAY_DATA;
@@ -378,7 +377,7 @@ inline const T & Array<T, N>::front() const
 	return arrayData[0];
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline T & Array<T, N>::back()
 {
 	DEFINE_ARRAY_DATA;
@@ -387,7 +386,7 @@ inline T & Array<T, N>::back()
 	return arrayData[arraySize - 1];
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline const T & Array<T, N>::back() const
 {
 	DEFINE_ARRAY_DATA;
@@ -396,7 +395,7 @@ inline const T & Array<T, N>::back() const
 	return arrayData[arraySize - 1];
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline T * Array<T, N>::data()
 {
 	DEFINE_ARRAY_DATA;
@@ -404,7 +403,7 @@ inline T * Array<T, N>::data()
 	return arrayData;
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline const T * Array<T, N>::data() const
 {
 	DEFINE_ARRAY_DATA;
@@ -412,7 +411,7 @@ inline const T * Array<T, N>::data() const
 	return arrayData;
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::begin()
 {
 	DEFINE_ARRAY_DATA;
@@ -420,7 +419,7 @@ inline Iterator<T> Array<T, N>::begin()
 	return Iterator<T>{ 0, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::end()
 {
 	DEFINE_ARRAY_DATA;
@@ -428,7 +427,7 @@ inline Iterator<T> Array<T, N>::end()
 	return Iterator<T>{ arraySize, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline ConstIterator<T> Array<T, N>::begin() const
 {
 	DEFINE_ARRAY_DATA;
@@ -436,7 +435,7 @@ inline ConstIterator<T> Array<T, N>::begin() const
 	return ConstIterator<T>{ 0, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline ConstIterator<T> Array<T, N>::end() const
 {
 	DEFINE_ARRAY_DATA;
@@ -444,20 +443,20 @@ inline ConstIterator<T> Array<T, N>::end() const
 	return ConstIterator<T>{ arraySize, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline bool Array<T, N>::empty() const
 {
 	return (arraySize == 0);
 }
 
-template <typename T, size_t N>
-inline size_t Array<T, N>::size() const
+template <typename T, uint32_t N>
+inline uint32_t Array<T, N>::size() const
 {
 	return arraySize;
 }
 
-template <typename T, size_t N>
-inline size_t Array<T, N>::capacity() const
+template <typename T, uint32_t N>
+inline uint32_t Array<T, N>::capacity() const
 {
 	if constexpr (N == 0)
 		return arrayUnion.heapArray.capacity;
@@ -465,20 +464,20 @@ inline size_t Array<T, N>::capacity() const
 		return N;
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline void Array<T, N>::clear()
 {
 	DEFINE_ARRAY_DATA;
 
-	for (size_t i = 0; i < arraySize; ++i)
+	for (uint32_t i = 0; i < arraySize; ++i)
 	{
 		arrayData[i].~T();
 	}
 	arraySize = 0;
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::insert(size_t pos, const T & value)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::insert(uint32_t pos, const T & value)
 {
 	DEFINE_ARRAY_DATA;
 
@@ -488,7 +487,7 @@ inline Iterator<T> Array<T, N>::insert(size_t pos, const T & value)
 	if (pos != (arraySize - 1))
 	{
 		new (&arrayData[arraySize - 1]) T(std::move(arrayData[arraySize - 2]));
-		for (size_t i = (arraySize - 2); i > pos; --i)
+		for (uint32_t i = (arraySize - 2); i > pos; --i)
 		{
 			arrayData[i] = std::move(arrayData[i - 1]);
 		}
@@ -498,14 +497,14 @@ inline Iterator<T> Array<T, N>::insert(size_t pos, const T & value)
 	return Iterator<T>{ pos, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::insert(const Iterator<T> & pos, const T & value)
 {
 	return insert(pos.getIndex(), value);
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::insert(size_t pos, T && value)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::insert(uint32_t pos, T && value)
 {
 	DEFINE_ARRAY_DATA;
 
@@ -515,7 +514,7 @@ inline Iterator<T> Array<T, N>::insert(size_t pos, T && value)
 	if (pos != (arraySize - 1))
 	{
 		new (&arrayData[arraySize - 1]) T(std::move(arrayData[arraySize - 2]));
-		for (size_t i = (arraySize - 2); i > pos; --i)
+		for (uint32_t i = (arraySize - 2); i > pos; --i)
 		{
 			arrayData[i] = std::move(arrayData[i - 1]);
 		}
@@ -525,14 +524,14 @@ inline Iterator<T> Array<T, N>::insert(size_t pos, T && value)
 	return Iterator<T>{ pos, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::insert(const Iterator<T> & pos, T && value)
 {
 	return insert(pos.getIndex(), std::move(value));
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::insert(size_t pos, size_t count, const T & value)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::insert(uint32_t pos, uint32_t count, const T & value)
 {
 	DEFINE_ARRAY_DATA;
 
@@ -541,10 +540,10 @@ inline Iterator<T> Array<T, N>::insert(size_t pos, size_t count, const T & value
 	if (pos != arraySize)
 	{
 		//TODO: Isn`t is better if you shift the buckets up by there amount, so that I do not get O(n�)?
-		for (size_t j = 0; j < count; ++j, ++pos, ++arraySize)
+		for (uint32_t j = 0; j < count; ++j, ++pos, ++arraySize)
 		{
 			new (&arrayData[arraySize]) T(std::move(arrayData[arraySize - 1]));
-			for (size_t i = (arraySize - 1); i > pos; --i)
+			for (uint32_t i = (arraySize - 1); i > pos; --i)
 			{
 				arrayData[i] = std::move(arrayData[i - 1]);
 			}
@@ -556,7 +555,7 @@ inline Iterator<T> Array<T, N>::insert(size_t pos, size_t count, const T & value
 		arraySize += count;
 	}
 
-	for (size_t i = (pos - count); i < pos; ++i)
+	for (uint32_t i = (pos - count); i < pos; ++i)
 	{
 		arrayData[i] = value;
 	}
@@ -564,14 +563,14 @@ inline Iterator<T> Array<T, N>::insert(size_t pos, size_t count, const T & value
 	return Iterator<T>{ pos - count, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::insert(const Iterator<T> & pos, size_t count, const T & value)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::insert(const Iterator<T> & pos, uint32_t count, const T & value)
 {
 	return insert(pos.getIndex(), count, value);
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::insertPush_back(size_t pos, const T & value)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::insertPush_back(uint32_t pos, const T & value)
 {
 	DEFINE_ARRAY_DATA;
 
@@ -584,14 +583,14 @@ inline Iterator<T> Array<T, N>::insertPush_back(size_t pos, const T & value)
 	return Iterator<T>(pos, arraySize, arrayData);
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::insertPush_back(const Iterator<T> & pos, const T & value)
 {
 	return insertPush_back(pos.getIndex(), value);
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::insertPush_back(size_t pos, T && value)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::insertPush_back(uint32_t pos, T && value)
 {
 	DEFINE_ARRAY_DATA;
 
@@ -604,21 +603,21 @@ inline Iterator<T> Array<T, N>::insertPush_back(size_t pos, T && value)
 	return Iterator<T>(pos, arraySize, arrayData);
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::insertPush_back(const Iterator<T> & pos, T && value)
 {
 	return insertPush_back(pos.getIndex(), std::move(value));
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::erase(size_t pos)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::erase(uint32_t pos)
 {
 	DEFINE_ARRAY_DATA;
 
 	assert((pos < arraySize));
 
 	arrayData[pos].~T();
-	for (size_t i = (pos + 1); i < arraySize; ++i)
+	for (uint32_t i = (pos + 1); i < arraySize; ++i)
 	{
 		arrayData[i - 1] = std::move(arrayData[i]);
 	}
@@ -628,31 +627,31 @@ inline Iterator<T> Array<T, N>::erase(size_t pos)
 	return Iterator<T>{ pos, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::erase(const Iterator<T> & pos)
 {
 	return erase(pos.getIndex());
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::erase(size_t first, size_t last)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::erase(uint32_t first, uint32_t last)
 {
 	DEFINE_ARRAY_DATA;
 
 	assert((first < arraySize) && (last <= arraySize));
 
-	for (size_t i = first; i < last; ++i)
+	for (uint32_t i = first; i < last; ++i)
 	{
 		arrayData[i].~T();
 	}
 
 	if (last != arraySize)
 	{
-		size_t newarraySize = arraySize;
+		uint32_t newarraySize = arraySize;
 		//TODO: Isn`t is better if you shift the buckets down by there amount, so that I do not get O(n�)?
-		for (size_t j = last; j > first; --j, --newarraySize)
+		for (uint32_t j = last; j > first; --j, --newarraySize)
 		{
-			for (size_t i = j; i < newarraySize; ++i)
+			for (uint32_t i = j; i < newarraySize; ++i)
 			{
 				arrayData[i - 1] = arrayData[i];
 			}
@@ -666,14 +665,14 @@ inline Iterator<T> Array<T, N>::erase(size_t first, size_t last)
 	return Iterator<T>{ first, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::erase(const Iterator<T> & first, const Iterator<T> & last)
 {
 	return erase(first.getIndex(), last.getIndex());
 }
 
-template <typename T, size_t N>
-inline Iterator<T> Array<T, N>::erasePop_back(size_t pos)
+template <typename T, uint32_t N>
+inline Iterator<T> Array<T, N>::erasePop_back(uint32_t pos)
 {
 	DEFINE_ARRAY_DATA;
 
@@ -687,13 +686,13 @@ inline Iterator<T> Array<T, N>::erasePop_back(size_t pos)
 	return Iterator<T>{ pos, arraySize, arrayData };
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline Iterator<T> Array<T, N>::erasePop_back(const Iterator<T> & pos)
 {
 	return erasePop_back(pos.getIndex());
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline void Array<T, N>::push_back(const T & value)
 {
 	DEFINE_ARRAY_DATA;
@@ -703,7 +702,7 @@ inline void Array<T, N>::push_back(const T & value)
 	new (&arrayData[arraySize++]) T(value);
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline void Array<T, N>::push_back(T && value)
 {
 	DEFINE_ARRAY_DATA;
@@ -713,7 +712,7 @@ inline void Array<T, N>::push_back(T && value)
 	new (&arrayData[arraySize++]) T(std::move(value));
 }
 
-template <typename T, size_t N>
+template <typename T, uint32_t N>
 inline void Array<T, N>::pop_back()
 {
 	DEFINE_ARRAY_DATA;
@@ -723,7 +722,7 @@ inline void Array<T, N>::pop_back()
 	arrayData[--arraySize].~T();
 }
 
-template<typename T, size_t N>
+template<typename T, uint32_t N>
 inline constexpr T * Array<T, N>::getRightPointer()
 {
 	if constexpr (N == 0)
@@ -732,7 +731,7 @@ inline constexpr T * Array<T, N>::getRightPointer()
 		return arrayUnion.arrayValue;
 }
 
-template<typename T, size_t N>
+template<typename T, uint32_t N>
 inline constexpr const T * Array<T, N>::getRightPointer() const
 {
 	if constexpr (N == 0)
@@ -741,14 +740,14 @@ inline constexpr const T * Array<T, N>::getRightPointer() const
 		return arrayUnion.arrayValue;
 }
 
-template<typename T, size_t N>
+template<typename T, uint32_t N>
 inline Array<T, N>::~Array()
 {
 	if constexpr (N == 0)
 	{
 		if (arrayUnion.heapArray.p != nullptr)
 		{
-			for (size_t i = 0; i < arraySize; ++i)
+			for (uint32_t i = 0; i < arraySize; ++i)
 				arrayUnion.heapArray.p[i].~T();
 
 			free(arrayUnion.heapArray.p);
@@ -758,7 +757,7 @@ inline Array<T, N>::~Array()
 	arraySize = 0;
 }
 
-template<typename T, size_t N>
+template<typename T, uint32_t N>
 inline bool  Array<T, N>::operator==(const Array & rhs) const
 {
 	if (this->arraySize != rhs.arraySize)
@@ -768,7 +767,7 @@ inline bool  Array<T, N>::operator==(const Array & rhs) const
 	auto otherArrayData = rhs.getRightPointer();
 	assert(otherArrayData != nullptr);
 
-	for (size_t i = 0; i < this->arraySize; ++i)
+	for (uint32_t i = 0; i < this->arraySize; ++i)
 	{
 		if (arrayData[i] != otherArrayData[i])
 			return false;
@@ -777,7 +776,7 @@ inline bool  Array<T, N>::operator==(const Array & rhs) const
 	return true;
 }
 
-template<typename T, size_t N>
+template<typename T, uint32_t N>
 inline bool  Array<T, N>::operator!=(const Array & rhs) const
 {
 	return (!(this->operator==(rhs)));
@@ -788,7 +787,7 @@ namespace ArrayTestSuit
 	void runTestSuit();
 }
 
-template<typename T, size_t N>
+template<typename T, uint32_t N>
 inline Array<T, N>::ArrayUnion::~ArrayUnion()
 {
 	//NOTE: Oh man... The union needs a destructor so that the destructor of Array is not implicitly deleted!

@@ -4,21 +4,21 @@
 
 class GameObjectManager
 {
-	static constexpr size_t DEFAULT_COMPONENT_SIZE = 512;
+	static constexpr uint32_t DEFAULT_COMPONENT_SIZE = 512;
 	Vector<Actor> actors;
 	Vector<std::pair<int, int>> layers[4];
 	Vector<int> destroyActorQueue;
 public:
 	GameObjectManager();
 	const Actor* addActor();
-	const Actor* addActor(size_t componentsSize);
+	const Actor* addActor(uint32_t componentsSize);
 	template <typename T, typename... Args>
 	void addUpdateComponent(Args&&... args);
 	template <typename T, typename... Args>
 	void addComponent(uint renderLayer, Args&&... args);
 	template <typename T, typename... Args>
 	void addRenderComponent(uint renderLayer, Args&&... args);
-	void destroyActor(unsigned int actorId);
+	void destroyActor(uint32_t actorId);
 	void updateAndDrawActors(float dt);
 private:
 	void destroyActors();

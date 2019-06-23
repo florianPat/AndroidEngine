@@ -22,7 +22,7 @@ public:
 	RenderTexture& operator=(const RenderTexture& rhs) = delete;
 	RenderTexture& operator=(RenderTexture&& rhs);
 	~RenderTexture();
-	bool create(uint width, uint height);
+	bool create(uint32_t width, uint32_t height);
 	const Texture& getTexture() const;
 	void begin(Graphics& gfx);
 	void end(Graphics& gfx);

@@ -1,7 +1,7 @@
 #include "IndexBuffer.h"
 #include "GLUtils.h"
 
-IndexBuffer::IndexBuffer(unsigned int * indices, int count) : count(count)
+IndexBuffer::IndexBuffer(uint32_t * indices, int32_t count) : count(count)
 {
 	CallGL(glGenBuffers(1, &rendererId));
 	CallGL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererId));
@@ -38,7 +38,7 @@ void IndexBuffer::unbind() const
 	CallGL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
-int IndexBuffer::getCount() const
+int32_t IndexBuffer::getCount() const
 {
 	return count;
 }

@@ -1,7 +1,7 @@
 #include "VertexBuffer.h"
 #include "GLUtils.h"
 
-VertexBuffer::VertexBuffer(const void * data, int size, GLenum usage)
+VertexBuffer::VertexBuffer(const void * data, int32_t size, GLenum usage)
 {
 	CallGL(glGenBuffers(1, &rendererId));
 	CallGL(glBindBuffer(GL_ARRAY_BUFFER, rendererId));
@@ -42,7 +42,7 @@ void VertexBuffer::unbind() const
 	CallGL(glBindBuffer(GL_ARRAY_BUFFER, rendererId));
 }
 
-void VertexBuffer::subData(int offset, int size, const void* data)
+void VertexBuffer::subData(int32_t offset, int32_t size, const void* data)
 {
 	CallGL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
 }

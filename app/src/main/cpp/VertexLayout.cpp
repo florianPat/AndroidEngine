@@ -3,7 +3,7 @@
 #include "GLUtils.h"
 #include <GLES2/gl2.h>
 
-int VertexLayouts::sizeofType(GLenum type) const
+int32_t VertexLayouts::sizeofType(GLenum type) const
 {
 	switch (type)
 	{
@@ -35,9 +35,9 @@ void VertexLayouts::set() const
 {
 	assert(vertexLayouts.size() > 0);
 
-	int offset = 0;
+	int32_t offset = 0;
 
-	for (size_t i = 0; i < vertexLayouts.size(); ++i)
+	for (uint32_t i = 0; i < vertexLayouts.size(); ++i)
 	{
 		auto& it = vertexLayouts[i];
 

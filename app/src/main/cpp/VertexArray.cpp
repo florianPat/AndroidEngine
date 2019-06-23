@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include "GLUtils.h"
 
-int VertexArray::sizeofType(GLenum type) const
+int32_t VertexArray::sizeofType(GLenum type) const
 {
 	switch (type)
 	{
@@ -62,9 +62,9 @@ void VertexArray::bind() const
 	CallGL(glBindVertexArray(rendererId));
 	vb->bind();
 
-	int offset = 0;
+	int32_t offset = 0;
 
-	for (size_t i = 0; i < vertexLayouts.size(); ++i)
+	for (uint32_t i = 0; i < vertexLayouts.size(); ++i)
 	{
 		auto& it = vertexLayouts[i];
 
@@ -82,7 +82,7 @@ void VertexArray::unbind() const
 	CallGL(glBindVertexArray(0));
 }
 
-int VertexArray::getIboCount() const
+int32_t VertexArray::getIboCount() const
 {
 	return ib->getCount();
 }

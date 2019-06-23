@@ -22,7 +22,7 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 	{
 		LongString lineContent;
 
-		for (int i = 0; i < FILE_HEADER_LINE_SIZE; ++i)
+		for (int32_t i = 0; i < FILE_HEADER_LINE_SIZE; ++i)
 		{
 			file.getline(lineContent);
 
@@ -35,12 +35,12 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 				}	break;
 				case 1:
 				{
-					int width, height;
+					int32_t width, height;
 					ShortString widthChar, heightChar;
 					
 					widthChar = getLineContentBetweeen(lineContent, ' ', ',');
 					
-					size_t nCharsToCopyHeight = lineContent.size();
+					uint32_t nCharsToCopyHeight = lineContent.size();
 					heightChar = lineContent.substr(0, nCharsToCopyHeight);
 
 					width = atoi(widthChar.c_str());
@@ -50,7 +50,7 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 				}	break;
 				case 2:
 				{
-					size_t spacePos = lineContent.find(' ');
+					uint32_t spacePos = lineContent.find(' ');
 					lineContent.erase(0, ++spacePos);
 					fileHeader.format = lineContent;
 				}	break;
@@ -58,12 +58,12 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 				{
 					fileHeader.filter[0] = getLineContentBetweeen(lineContent, ' ', ',');
 					
-					size_t nCharsToCopyFilter1 = lineContent.size();
+					uint32_t nCharsToCopyFilter1 = lineContent.size();
 					fileHeader.filter[1] = lineContent.substr(0, nCharsToCopyFilter1);
 				}	break;
 				case 4:
 				{
-					size_t spacePos = lineContent.find(' ');
+					uint32_t spacePos = lineContent.find(' ');
 					lineContent.erase(0, ++spacePos);
 					fileHeader.repeat = lineContent;
 					break;
@@ -84,7 +84,7 @@ TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) :
 
 		region.textureAtlasFileName = &fileHeader.name;
 
-		for (int i = 0; i < FILE_LINES_PER_REGION; ++i)
+		for (int32_t i = 0; i < FILE_LINES_PER_REGION; ++i)
 		{
 			if (file.eof())
 			{
@@ -162,12 +162,12 @@ String TextureAtlas::getLineContentBetweeen(String & lineContent, char first, ch
 {
 	String result = LongString();
 
-	size_t spacePos = lineContent.find(first);
+	uint32_t spacePos = lineContent.find(first);
 	lineContent.erase(0, ++spacePos);
 
-	size_t kommaPos = lineContent.find(secound);
+	uint32_t kommaPos = lineContent.find(secound);
 
-	size_t nCharsToCopy = kommaPos;
+	uint32_t nCharsToCopy = kommaPos;
 	result = lineContent.substr(0, nCharsToCopy);
 
 	lineContent.erase(0, ++kommaPos);
@@ -195,10 +195,10 @@ void TextureRegion::initSprite(AssetManager* assetManager)
 	regionSprite = Sprite(atlasTexture, IntRect(xy.x, xy.y, size.x, size.y));
 }
 
-void TextureRegion::setRegion(int x, int y, int widht, int height)
+void TextureRegion::setRegion(int32_t x, int32_t y, int32_t widht, int32_t height)
 {
 	if(x >= 0 && y >= 0)
-		if ((unsigned int)widht <= regionSprite.getTexture()->getWidth() && (unsigned int)height <= regionSprite.getTexture()->getHeight())
+		if ((uint32_t)widht <= regionSprite.getTexture()->getWidth() && (uint32_t)height <= regionSprite.getTexture()->getHeight())
 		{
 			regionSprite.setTextureRect(IntRect(x, y, widht, height));
 			xy.x = x;

@@ -28,7 +28,7 @@ RenderTexture::~RenderTexture()
 	screenTexture = 0;
 }
 
-bool RenderTexture::create(uint width, uint height)
+bool RenderTexture::create(uint32_t width, uint32_t height)
 {
 	CallGL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*) &screenTexture));
 

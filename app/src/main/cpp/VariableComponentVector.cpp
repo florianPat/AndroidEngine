@@ -21,7 +21,7 @@ VariableComponentVector::VariableComponentVector(VariableComponentVector&& other
 {
 }
 
-VariableComponentVector::VariableComponentVector(size_t size) : size(size), vector((uchar*)malloc(size))
+VariableComponentVector::VariableComponentVector(uint32_t size) : size(size), vector((uint8_t*)malloc(size))
 {
 }
 

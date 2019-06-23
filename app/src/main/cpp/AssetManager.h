@@ -10,21 +10,21 @@ class AssetManager
 {
     struct FilenameCacheValue
     {
-        size_t ressourceCacheAssetId;
+        uint32_t ressourceCacheAssetId;
         //NOTE: The pointers do not get invalidated in shrink/expand because I just store a pp
-        char* asset;
+        int8_t* asset;
     };
 
     struct RessourceCacheAssetVector
     {
         const String& filename;
-        char* assetP;
+        int8_t* assetP;
     };
 private:
-	static constexpr long long maxSize = Gigabyte(1);
-	long long currentSize = 0;
+	static constexpr uint64_t maxSize = Gigabyte(1);
+	uint64_t currentSize = 0;
 	std::unordered_map<String, FilenameCacheValue> filenameCache;
-	std::unordered_map<String, int> assetLoaderCache;
+	std::unordered_map<String, int32_t> assetLoaderCache;
 	Vector<std::pair<AssetLoader, Vector<RessourceCacheAssetVector>>> ressourceCache;
 public:
     AssetManager() = default;
@@ -50,12 +50,12 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 	}
 	else
 	{
-		auto asset = (char*) malloc(sizeof(T));
+		auto asset = (int8_t*) malloc(sizeof(T));
 		auto tP = (T*) asset;
 		new (tP) T();
 		String ext = filename.substr(filename.length() - 3);
 		assert(assetLoaderCache.find(ext) != assetLoaderCache.end());
-		int assetLoaderIndex = assetLoaderCache.at(ext);
+		int32_t assetLoaderIndex = assetLoaderCache.at(ext);
 
 		auto& ressourceCachePair = ressourceCache.at(assetLoaderIndex);
 

@@ -1,15 +1,16 @@
 #pragma once
 
 #include <GLES2/gl2.h>
+#include "Types.h"
 
 class IndexBuffer
 {
 	//NOTE: Same as in Texture!
 	GLuint rendererId = -1;
-	int count = 0;
+	int32_t count = 0;
 public:
 	IndexBuffer() = default;
-	IndexBuffer(unsigned int* indices, int count);
+	IndexBuffer(uint32_t* indices, int32_t count);
 	IndexBuffer(const IndexBuffer& other) = delete;
 	IndexBuffer(IndexBuffer&& other);
 	IndexBuffer& operator=(const IndexBuffer& rhs) = delete;
@@ -17,6 +18,6 @@ public:
 	~IndexBuffer();
 	void bind() const;
 	void unbind() const;
-	int getCount() const;
+	int32_t getCount() const;
 	explicit operator bool() const;
 };

@@ -18,55 +18,55 @@ class Sound
 #pragma pack(push, 1)
 	struct FileHeader
 	{
-		uint riffId;
-		uint size;
-		uint waveId;
+		uint32_t riffId;
+		uint32_t size;
+		uint32_t waveId;
 	};
 
 	struct Chunk
 	{
-		uint id;
-		uint size;
+		uint32_t id;
+		uint32_t size;
 	};
 
 	struct Fmt
 	{
-		ushort wFormatTag;
-		ushort nChannles;
-		uint nSamplesPerSecond;
-		uint nAvgBytesPerSec;
-		ushort nBlockAlign;
-		ushort wBitsPerSample;
-		ushort cbSize;
-		ushort wValidBitsPerSample;
-		uint dwChannelMask;
-		ushort subFormat[16];
+		uint16_t wFormatTag;
+		uint16_t nChannles;
+		uint32_t nSamplesPerSecond;
+		uint32_t nAvgBytesPerSec;
+		uint16_t nBlockAlign;
+		uint16_t wBitsPerSample;
+		uint16_t cbSize;
+		uint16_t wValidBitsPerSample;
+		uint32_t dwChannelMask;
+		uint16_t subFormat[16];
 	};
 #pragma pack(pop)
 
 	class RiffIt
 	{
-		uchar* at;
-		uchar* stop;
+		uint8_t* at;
+		uint8_t* stop;
 	public:
 		RiffIt(void* at, void* stop);
 		explicit operator bool() const;
 		RiffIt& operator++();
 		void* getChunkData() const;
-		uint getType() const;
-		uint getChunkDataSize() const;
+		uint32_t getType() const;
+		uint32_t getChunkDataSize() const;
 	};
 private:
-	Vector<Vector<short>> samples;
-	int nChannels = 0;
-	int nSamples = 0;
+	Vector<Vector<int16_t>> samples;
+	int32_t nChannels = 0;
+	int32_t nSamples = 0;
 public:
 	bool loadFromFile(const String& filename);
 public:
 	Sound() = default;
-	const Vector<Vector<short>>& getSamples() const;
-	const int getNSamples() const;
-	long long getSize() const;
-	const short* getBuffer() const;
+	const Vector<Vector<int16_t>>& getSamples() const;
+	const int32_t getNSamples() const;
+	uint64_t getSize() const;
+	const int16_t* getBuffer() const;
 	explicit operator bool() const;
 };

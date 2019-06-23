@@ -32,7 +32,7 @@ public:
     };
 private:
     bool createGlyphRenderTextureAndMap(FT_Face& face);
-    bool loadFaceFromLibrary(const void* fileBuffer, long long fileSize, FT_Face& face);
+    bool loadFaceFromLibrary(const void* fileBuffer, uint64_t fileSize, FT_Face& face);
     void destructFace(FT_Face& face);
     bool loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vector2i& xy);
 public:
@@ -44,7 +44,7 @@ public:
     Font(Font&& other);
     Font& operator=(const Font& rhs) = delete;
     Font& operator=(Font&& rhs);
-    long long getSize() const { return (sizeof(Font)); }
+    uint64_t getSize() const { return (sizeof(Font)); }
     void drawText(const String& text, const Vector2f& pos, Color color = Colors::White);
     void drawText(const String& text, const Vector2f& pos, int pixelSize, Color color = Colors::White);
     explicit operator bool() const;

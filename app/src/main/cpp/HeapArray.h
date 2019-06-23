@@ -6,40 +6,40 @@
 template <typename T>
 struct HeapArray : public Array<T, 0>
 {
-	HeapArray(size_t size);
-	HeapArray(size_t count, const T& value);
-	HeapArray(size_t count, size_t plusCount, const T& value);
+	HeapArray(uint32_t size);
+	HeapArray(uint32_t count, const T& value);
+	HeapArray(uint32_t count, uint32_t plusCount, const T& value);
 	HeapArray(const HeapArray& other);
 	HeapArray(HeapArray&& other);
-	HeapArray(const HeapArray& other, size_t sizeIn);
-	HeapArray(HeapArray&& other, size_t sizeIn);
+	HeapArray(const HeapArray& other, uint32_t sizeIn);
+	HeapArray(HeapArray&& other, uint32_t sizeIn);
 	HeapArray& operator=(const HeapArray& other);
 	HeapArray& operator=(HeapArray&& other);
 };
 
 template <typename T>
-inline HeapArray<T>::HeapArray(size_t size) : Array<T, 0>{ { .heapArray.p = (T*)malloc(sizeof(T) * size), .heapArray.capacity = size } }
+inline HeapArray<T>::HeapArray(uint32_t size) : Array<T, 0>{ { .heapArray.p = (T*)malloc(sizeof(T) * size), .heapArray.capacity = size } }
 {
-    uchar* charPtr = (uchar*)this->arrayUnion.heapArray.p;
-	for(int i = 0; i < sizeof(T) * size; ++i)
+    uint8_t* charPtr = (uint8_t*)this->arrayUnion.heapArray.p;
+	for(int32_t i = 0; i < sizeof(T) * size; ++i)
     {
 		charPtr[i] = 0;
     }
 }
 
 template <typename T>
-inline HeapArray<T>::HeapArray(size_t count, const T & value) : HeapArray(count)
+inline HeapArray<T>::HeapArray(uint32_t count, const T & value) : HeapArray(count)
 {
-	for (size_t i = 0; i < count; ++i)
+	for (uint32_t i = 0; i < count; ++i)
 		new (&this->arrayUnion.heapArray.p[i]) T(value);
 
 	this->arraySize = count;
 }
 
 template<typename T>
-inline HeapArray<T>::HeapArray(size_t count, size_t plusCount, const T & value) : HeapArray(count + plusCount)
+inline HeapArray<T>::HeapArray(uint32_t count, uint32_t plusCount, const T & value) : HeapArray(count + plusCount)
 {
-	for (size_t i = 0; i < count; ++i)
+	for (uint32_t i = 0; i < count; ++i)
 		new (&this->arrayUnion.heapArray.p[i]) T(value);
 
 	this->arraySize = count;
@@ -48,7 +48,7 @@ inline HeapArray<T>::HeapArray(size_t count, size_t plusCount, const T & value) 
 template <typename T>
 inline HeapArray<T>::HeapArray(const HeapArray & other) : HeapArray(other.arrayUnion.heapArray.capacity)
 {
-	for (size_t i = 0; i < other.arraySize; ++i)
+	for (uint32_t i = 0; i < other.arraySize; ++i)
 		new (&this->arrayUnion.heapArray.p[i]) T(other.arrayUnion.heapArray.p[i]);
 
 	this->arraySize = other.arraySize;
@@ -61,18 +61,18 @@ inline HeapArray<T>::HeapArray(HeapArray && other) : Array<T, 0>{ { .heapArray.p
 }
 
 template <typename T>
-inline HeapArray<T>::HeapArray(const HeapArray & other, size_t capacityIn) : HeapArray(capacityIn)
+inline HeapArray<T>::HeapArray(const HeapArray & other, uint32_t capacityIn) : HeapArray(capacityIn)
 {
 	//NOTE: Why would you call this then?
 	assert(other.arrayUnion.heapArray.capacity != capacityIn);
 
-	size_t size;
+	uint32_t size;
 	if (other.arraySize < capacityIn)
 		size = other.arraySize;
 	else
 		size = capacityIn;
 
-	for (size_t i = 0; i < size; ++i)
+	for (uint32_t i = 0; i < size; ++i)
 	{
 		new (&this->arrayUnion.heapArray.p[i]) T(other.arrayUnion.heapArray.p[i]);
 	}
@@ -80,17 +80,17 @@ inline HeapArray<T>::HeapArray(const HeapArray & other, size_t capacityIn) : Hea
 }
 
 template <typename T>
-inline HeapArray<T>::HeapArray(HeapArray && other, size_t capacityIn) : HeapArray(capacityIn)
+inline HeapArray<T>::HeapArray(HeapArray && other, uint32_t capacityIn) : HeapArray(capacityIn)
 {
 	//NOTE: Why would you call this then?
 	assert(other.arrayUnion.heapArray.capacity != capacityIn);
 
-	size_t size = 0;
+	uint32_t size = 0;
 	if (other.arraySize <= capacityIn)
 		size = other.arraySize;
 	else if (other.arraySize > capacityIn)
 	{
-		for (size_t i = capacityIn; i < other.arraySize; ++i)
+		for (uint32_t i = capacityIn; i < other.arraySize; ++i)
 			other.arrayUnion.heapArray.p[i].~T();
 
 		size = capacityIn;
@@ -98,7 +98,7 @@ inline HeapArray<T>::HeapArray(HeapArray && other, size_t capacityIn) : HeapArra
 	else
 		InvalidCodePath;
 
-	for (size_t i = 0; i < size; ++i)
+	for (uint32_t i = 0; i < size; ++i)
 		new (&this->arrayUnion.heapArray.p[i]) T(std::move(other.arrayUnion.heapArray.p[i]));
 
 	free(other.arrayUnion.heapArray.p);

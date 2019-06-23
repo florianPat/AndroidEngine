@@ -23,15 +23,15 @@ class VertexArray
 	const IndexBuffer* ib = nullptr;
 	Vector<VertexLayout> vertexLayouts;
 private:
-	int sizeofType(GLenum type) const;
+	int32_t sizeofType(GLenum type) const;
 public:
 	VertexArray();
 	~VertexArray();
 	void setVertexBuffer(const VertexBuffer* vb);
 	void setIndexBuffer(const IndexBuffer* ib);
-	void addAttribute(GLint size, GLenum type);
+	void addAttribute(GLint32_t size, GLenum type);
 	void bind() const;
 	void unbind() const;
-	int getIboCount() const;
+	int32_t getIboCount() const;
 };
 #endif

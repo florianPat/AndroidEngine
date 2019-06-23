@@ -31,7 +31,7 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
     renderTexture.create(renderTextureSize, size);
     renderTexture.begin(*gfx);
     gfx->clear();
-    uint* pixels = (uint*) malloc(size * size * sizeof(uint));
+    uint32_t* pixels = (uint32_t*) malloc(size * size * sizeof(uint));
 
     Vector2i xy = { 0, 0 };
     Texture texture;
@@ -40,7 +40,7 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
     if(!loadGlyphIntoMap(' ', regions[' ' - ' '], face, xy))
         return false;
 
-    for(uchar c = '!'; c <= '~'; ++c)
+    for(char c = '!'; c <= '~'; ++c)
     {
         GlyphRegion& glyphRegion = regions[c - ' '];
         if(!loadGlyphIntoMap(c, glyphRegion, face, xy))
@@ -55,14 +55,14 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
             return false;
         }
 
-        ushort numGrayLevels = face->glyph->bitmap.num_grays;
+        uint16_t numGrayLevels = face->glyph->bitmap.num_grays;
         for(int y = 0, pixelY = glyphRegion.size.y - 1; y < glyphRegion.size.y; ++y, --pixelY)
         {
             for(int x = 0; x < glyphRegion.size.x; ++x)
             {
-                uchar currentPixelGrayLevel = face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x];
+                uint8_t currentPixelGrayLevel = face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x];
                 //NOTE: Premultiplied alpha for free ;)
-                uchar color = (uchar) ((float) currentPixelGrayLevel / numGrayLevels * 255.0f);
+                uint8_t color = (uint8_t) ((float) currentPixelGrayLevel / numGrayLevels * 255.0f);
                 pixels[pixelY * face->glyph->bitmap.pitch + x] = (color | (color << 8u) |
                                                                   (color << 16u) | (color << 24u));
             }
@@ -168,9 +168,9 @@ Font& Font::operator=(Font&& rhs)
     return *this;
 }
 
-bool Font::loadFaceFromLibrary(const void* fileBuffer, long long fileSize, FT_Face& face)
+bool Font::loadFaceFromLibrary(const void* fileBuffer, uint64_t fileSize, FT_Face& face)
 {
-    int error = FT_New_Memory_Face(library, (const uchar*) fileBuffer, fileSize, 0, &face);
+    int error = FT_New_Memory_Face(library, (const uint8_t*) fileBuffer, fileSize, 0, &face);
     if(error)
     {
         utils::log("could not create face");

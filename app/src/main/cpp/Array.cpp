@@ -42,8 +42,8 @@ void ArrayTestSuit::runTestSuit()
 		thisVector.insert(thisVector.size(), 2, 1);
 		thisVector.insert(thisVector.size(), 2, 0);
 
-		int sum = 0;
-		for (int e : thisVector)
+		int32_t sum = 0;
+		for (int32_t e : thisVector)
 		{
 			sum += e;
 		}

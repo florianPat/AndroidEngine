@@ -5,6 +5,6 @@
 
 struct EventLevelReload : public EventData
 {
-	inline static int eventId = -1;
+	inline static int32_t eventId = -1;
 	EventLevelReload() : EventData(eventId) {}
 };

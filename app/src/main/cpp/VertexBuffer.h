@@ -8,7 +8,7 @@ class VertexBuffer
 	GLuint rendererId = -1;
 public:
 	VertexBuffer() = default;
-	VertexBuffer(const void* data, int size, GLenum usage = GL_STATIC_DRAW);
+	VertexBuffer(const void* data, int32_t size, GLenum usage = GL_STATIC_DRAW);
 	VertexBuffer(const VertexBuffer& other) = delete;
 	VertexBuffer(VertexBuffer&& other);
 	VertexBuffer& operator=(const VertexBuffer& rhs) = delete;
@@ -17,5 +17,5 @@ public:
 	~VertexBuffer();
 	void bind() const;
 	void unbind() const;
-	void subData(int offset, int size, const void* data);
+	void subData(int32_t offset, int32_t size, const void* data);
 };

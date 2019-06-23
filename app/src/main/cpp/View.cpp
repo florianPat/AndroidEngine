@@ -1,6 +1,6 @@
 #include "View.h"
 
-View::View(int renderWidth, int renderHeight, int screenWidth, int screenHeight, View::ViewportType viewportType)
+View::View(int32_t renderWidth, int32_t renderHeight, int32_t screenWidth, int32_t screenHeight, View::ViewportType viewportType)
     : width(renderWidth), height(renderHeight)
 {
 	//NOTE: For ViewportType::FIT, but also needed for extend!
@@ -57,7 +57,7 @@ void View::setSize(const Vector2i & size)
 	shouldUpdate = true;
 }
 
-void View::setSize(int widthIn, int heightIn)
+void View::setSize(int32_t widthIn, int32_t heightIn)
 {
 	width = widthIn;
 	height = heightIn;

@@ -24,12 +24,12 @@ public:
 	bool eof();
 	void getline(String& line);
 	void readTempLine();
-	void read(void* s, uint n);
+	void read(void* s, uint32_t n);
 	char get();
 	std::streampos tellg();
-	void seekg(uint pos);
-	void seekg(uint off, SeekDir way);
-	long long getSize();
+	void seekg(uint32_t pos);
+	void seekg(uint32_t off, SeekDir way);
+	uint64_t getSize();
 	void open(const String& filename);
 	const void* getFullData();
 	void close();

@@ -5,7 +5,7 @@
 #include "CircleShape.h"
 #include <limits>
 
-void Physics::handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int bodyIndex)
+void Physics::handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int32_t bodyIndex)
 {
     assert(!itBody.isTrigger);
 	if (collideElementBody.isTrigger)
@@ -64,7 +64,7 @@ void Physics::Collider::getPointsAxis(Vector2f * points, Vector2f * axis) const
 			//Global origin
 			Vector2f origin = bodyOBB.pos + bodyOBB.origin;
 
-			for (int i = 0; i < 4; ++i)
+			for (int32_t i = 0; i < 4; ++i)
 			{
 				points[i] = Vector2f(bodyOBB.pos + bodyOBB.xAxis * (points[i].x - origin.x) + bodyOBB.yAxis * (points[i].y - origin.y));
 			}
@@ -111,7 +111,7 @@ Vector2f Physics::Collider::getProjectionMinMax(const Vector2f * points, const V
 
 	if (type != Type::circle)
 	{
-		for (int i = 1; i < 4; ++i)
+		for (int32_t i = 1; i < 4; ++i)
 		{
 			float proj = points[i].x * axis.x + points[i].y * axis.y;
 
@@ -147,13 +147,13 @@ Vector2f Physics::Collider::getProjectionMinMax(const Vector2f * points, const V
 
 Physics::Physics() : bodies()
 {
-	for(int i = 0; i < NUM_LAYERS; ++i)
+	for(int32_t i = 0; i < NUM_LAYERS; ++i)
 		collisionLayers[i] = 0;
 }
 
 void Physics::update(float dt)
 {
-	int i = 0;
+	int32_t i = 0;
 	//TODO: Add broad phase collision detection!
 	for (auto it = bodies.begin(); it != bodies.end(); ++it, ++i)
 	{
@@ -164,7 +164,7 @@ void Physics::update(float dt)
             Body& itBody = *it;
             const Collider& bodyRect = itBody.physicsElements[0];
 
-            int oI = 0;
+            int32_t oI = 0;
             for(auto collideLayerIt = it->collisionLayers.begin(); collideLayerIt != it->collisionLayers.end();
                 ++collideLayerIt)
             {
@@ -173,7 +173,7 @@ void Physics::update(float dt)
 
                 auto collisionIdIt = bodies.begin() + oI;
 
-                int nextCollideLayer = collisionLayers[*collideLayerIt];
+                int32_t nextCollideLayer = collisionLayers[*collideLayerIt];
 
                 for(; (oI < nextCollideLayer); ++collisionIdIt, ++oI)
                 {
@@ -235,12 +235,12 @@ void Physics::debugRenderBodies(Graphics& gfx) const
 				//Global origin
 				Vector2f origin = collideOBB.pos + collideOBB.origin;
 
-				for (int i = 0; i < 4; ++i)
+				for (int32_t i = 0; i < 4; ++i)
 				{
 					points[i] = Vector2f(collideOBB.pos + (points[i].x - origin.x) * collideOBB.xAxis + (points[i].y - origin.y) * collideOBB.yAxis);
 				}
 
-				for (unsigned int i = 0; i < body.getPointCount(); ++i)
+				for (uint32_t32_t i = 0; i < body.getPointCount(); ++i)
 				{
 					Vector2f myPoint = points[i];
 					Vector2f point = body.getPoint(i);
@@ -275,19 +275,19 @@ void Physics::debugRenderBodies(Graphics& gfx) const
 	gfx.stopFastRectDrawing();
 }
 
-int Physics::addElementPointer(Body&& body, int layer)
+int32_t Physics::addElementPointer(Body&& body, int32_t layer)
 {
 	assert(layer < NUM_LAYERS);
 	assert(body.physicsElements.size() == 1);
 
-	int index = collisionLayers[layer]++;
-	for(int i = layer + 1; i < NUM_LAYERS; ++i)
+	int32_t index = collisionLayers[layer]++;
+	for(int32_t i = layer + 1; i < NUM_LAYERS; ++i)
     {
 		++collisionLayers[i];
     }
 
 	bodies.insert(index, std::move(body));
-	for(int i = 0; i < bodyIndices.size(); ++i)
+	for(int32_t i = 0; i < bodyIndices.size(); ++i)
 	{
 		if(bodyIndices[i] >= index)
 			++bodyIndices[i];
@@ -297,18 +297,18 @@ int Physics::addElementPointer(Body&& body, int layer)
 	return (bodyIndices.size() - 1);
 }
 
-void Physics::addElementValue(Body&& body, int layer)
+void Physics::addElementValue(Body&& body, int32_t layer)
 {
 	assert(layer < NUM_LAYERS);
 
-	int index = collisionLayers[layer]++;
-	for(int i = layer + 1; i < NUM_LAYERS; ++i)
+	int32_t index = collisionLayers[layer]++;
+	for(int32_t i = layer + 1; i < NUM_LAYERS; ++i)
 	{
 		++collisionLayers[i];
 	}
 
 	bodies.insert(index, std::move(body));
-	for(int i = 0; i < bodyIndices.size(); ++i)
+	for(int32_t i = 0; i < bodyIndices.size(); ++i)
 	{
 		if(bodyIndices[i] > index)
 			++bodyIndices[i];
@@ -334,7 +334,7 @@ Vector<ShortString> Physics::getAllCollisionIdsWhichContain(const ShortString & 
 
 	for (auto it = bodies.begin(); it != bodies.end(); ++it)
 	{
-		size_t match = it->id.find(string, 0);
+		uint32_t match = it->id.find(string, 0);
 		if (match != String::npos)
 		{
 			bool onlyNumbers = true;
@@ -367,7 +367,7 @@ Physics::Body* Physics::getBodyFromRealIndex(int realIndex)
     return &bodies[realIndex];
 }
 
-int Physics::getRealIndex(int index) const
+int32_t Physics::getRealIndex(int32_t index) const
 {
 	assert(index < bodyIndices.size() && index >= 0);
 
@@ -418,7 +418,7 @@ void Physics::Body::checkCollideLayers()
 {
 	if(!collisionLayers.empty())
 	{
-		for(int i = 0;i < this->collisionLayers.size() - 1;++i)
+		for(int32_t i = 0;i < this->collisionLayers.size() - 1;++i)
 		{
 			assert(this->collisionLayers[i] < this->collisionLayers[i + 1]);
 		}
@@ -499,7 +499,7 @@ bool Physics::Collider::intersects(const Collider & other) const
 		getPointsAxis(s1Points, axis);
 		other.getPointsAxis(s2Points, axis + 2);
 
-		for (int i = 0; i < 4; ++i)
+		for (int32_t i = 0; i < 4; ++i)
 		{
 			Vector2f s1MinMax = getProjectionMinMax(s1Points, axis[i], i % 2 == 0);
 			Vector2f s2MinMax = getProjectionMinMax(s2Points, axis[i], i % 2 == 0);
@@ -533,7 +533,7 @@ bool Physics::Collider::collide(const Collider & other, Vector2f *minTransVec) c
 			corners[1] = Vector2f{ 0, rect.top - (otherRect.top + otherRect.height) };
 			corners[2] = Vector2f{ 0, (rect.top + rect.height) - otherRect.top };
 
-			for (int i = 0; i < arrayCount(corners); ++i)
+			for (int32_t i = 0; i < arrayCount(corners); ++i)
 			{
 			    Vector2f* it = &corners[i];
 				if (fabsf(minTransVec->x * minTransVec->x + minTransVec->y * minTransVec->y) > fabsf(it->x * it->x + it->y * it->y))
@@ -577,7 +577,7 @@ bool Physics::Collider::collide(const Collider & other, Vector2f *minTransVec) c
 		getPointsAxis(s1Points, axis);
 		other.getPointsAxis(s2Points, axis + 2);
 
-		for (int i = 0; i < 4; ++i)
+		for (int32_t i = 0; i < 4; ++i)
 		{
 			if (axis[i].x == 0.0f && axis[i].y == 0.0f)
 				continue;

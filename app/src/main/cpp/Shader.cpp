@@ -9,7 +9,7 @@ String loadShader(const String& filename)
 	file.open(filename);
 	assert(file);
 
-	String result = LongString((size_t) file.getSize());
+	String result = LongString((uint32_t) file.getSize());
 	while (!file.eof())
 	{
 		LongString line;
@@ -88,12 +88,12 @@ Shader::Shader(const String & filename, const Vector<ShortString>& attribLocs) :
 	shaders[0] = createShader(loadShader(filename + ".vs"), GL_VERTEX_SHADER);
 	shaders[1] = createShader(loadShader(filename + ".fs"), GL_FRAGMENT_SHADER);
 
-	for (unsigned int i = 0; i < NUM_SHADERS; ++i)
+	for (uint32_t i = 0; i < NUM_SHADERS; ++i)
 	{
 		CallGL(glAttachShader(program, shaders[i]));
 	}
 
-	for (uint i = 0; i < attribLocs.size(); ++i)
+	for (uint32_t i = 0; i < attribLocs.size(); ++i)
 	{
 		CallGL(glBindAttribLocation(program, i, attribLocs[i].c_str()));
 	}
@@ -104,7 +104,7 @@ Shader::Shader(const String & filename, const Vector<ShortString>& attribLocs) :
 	CallGL(glValidateProgram(program));
 	checkShaderError(program, GL_VALIDATE_STATUS, true, "Error: Shader program validating failed!");
 
-	for (unsigned int i = 0; i < NUM_SHADERS; ++i)
+	for (uint32_t i = 0; i < NUM_SHADERS; ++i)
 	{
 		CallGL(glDetachShader(program, shaders[i]));
 		CallGL(glDeleteShader(shaders[i]));
@@ -150,19 +150,19 @@ void Shader::unbind() const
 
 void Shader::setUniform4f(const ShortString & var, float v0, float v1, float v2, float v3)
 {
-	int loc = getUniformLoc(var);
+	int32_t loc = getUniformLoc(var);
 
 	CallGL(glUniform4f(loc, v0, v1, v2, v3));
 }
 
 void Shader::setUniformMat4f(const ShortString & var, const Mat4x4 & mat)
 {
-	int loc = getUniformLoc(var);
+	int32_t loc = getUniformLoc(var);
 
 	CallGL(glUniformMatrix4fv(loc, 1, GL_FALSE, mat.matrix));
 }
 
-int Shader::getUniformLoc(const ShortString & var)
+int32_t Shader::getUniformLoc(const ShortString & var)
 {
 	auto it = uniformCache.find(var);
 	if (it != uniformCache.end())
