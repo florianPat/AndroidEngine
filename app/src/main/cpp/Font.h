@@ -25,21 +25,15 @@ private:
     GlyphRegion regions[NUM_GLYPHS];
     FT_Library library = nullptr;
     Graphics* gfx = nullptr;
-public:
-    struct FontOptions
-    {
-        int size = 0;
-    };
 private:
     bool createGlyphRenderTextureAndMap(FT_Face& face);
     bool loadFaceFromLibrary(const void* fileBuffer, uint64_t fileSize, FT_Face& face);
     void destructFace(FT_Face& face);
     bool loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vector2i& xy);
 public:
-    bool loadFromFile(const String& filename, void* options);
     bool reloadFromFile(const String& filename);
 public:
-    Font() = default;
+    Font(const String& filename, int size = 0);
     Font(const Font& other) = delete;
     Font(Font&& other);
     Font& operator=(const Font& rhs) = delete;

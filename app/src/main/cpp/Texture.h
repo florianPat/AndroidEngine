@@ -17,10 +17,10 @@ private:
 	int32_t width = 0;
 	int32_t height = 0;
 public:
-	bool loadFromFile(const String& filename);
 	bool reloadFromFile(const String& filename);
 public:
 	Texture() = default;
+	Texture(const String& filename);
 	Texture(const void* buffer, int32_t width, int32_t height, GLint internalFormat = GL_RGBA);
 	Texture(const Texture& other) = delete;
 	Texture(Texture&& other);

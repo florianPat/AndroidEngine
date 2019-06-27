@@ -61,9 +61,7 @@ private:
 	int32_t nChannels = 0;
 	int32_t nSamples = 0;
 public:
-	bool loadFromFile(const String& filename);
-public:
-	Sound() = default;
+	Sound(const String& filename);
 	const Vector<Vector<int16_t>>& getSamples() const;
 	const int32_t getNSamples() const;
 	uint64_t getSize() const;

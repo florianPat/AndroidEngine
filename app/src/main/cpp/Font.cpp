@@ -3,25 +3,6 @@
 #include "Globals.h"
 #include FT_IMAGE_H
 
-bool Font::loadFromFile(const String& filename, void* fontOpts)
-{
-    FontOptions* opts = (FontOptions*) fontOpts;
-    library = Globals::window->getFontLibrary();
-    size = opts->size;
-    gfx = &Globals::window->getGfx();
-    assert(library != nullptr && opts->size != 0 && gfx != nullptr);
-
-    FT_Face face = nullptr;
-
-    Ifstream file(filename);
-    assert(file);
-
-    if(!loadFaceFromLibrary(file.getFullData(), file.getSize(), face))
-        return false;
-
-    return createGlyphRenderTextureAndMap(face);
-}
-
 bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
 {
     assert(gfx != nullptr);
@@ -249,4 +230,22 @@ bool Font::loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vec
 void Font::drawText(const String& text, const Vector2f& pos, Color color)
 {
     drawText(text, pos, size, color);
+}
+
+Font::Font(const String& filename, int size) : size(size)
+{
+    library = Globals::window->getFontLibrary();
+    gfx = &Globals::window->getGfx();
+    assert(library != nullptr && opts->size != 0 && gfx != nullptr);
+
+    FT_Face face = nullptr;
+
+    Ifstream file(filename);
+    assert(file);
+
+    if(!loadFaceFromLibrary(file.getFullData(), file.getSize(), face))
+        InvalidCodePath;
+
+    if(!createGlyphRenderTextureAndMap(face))
+        InvalidCodePath;
 }

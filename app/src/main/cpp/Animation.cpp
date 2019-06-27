@@ -1,8 +1,8 @@
 #include "Animation.h"
 #include "Utils.h"
 
-Animation::Animation(Vector<TextureRegion>& keyFrames, int64_t frameDuration, PlayMode type)
-	: keyFrames(), keyFrameIt(), keyFrameItReverse(), frameDuration(frameDuration), playMode(type), clock()
+Animation::Animation(Vector<TextureRegion>& keyFrames, uint64_t frameDuration, PlayMode type)
+	: keyFrameIt(), keyFrameItReverse(), playMode(type), clock(), keyFrames(), frameDuration(frameDuration)
 {
 	for (auto it = keyFrames.begin(); it != keyFrames.end(); ++it)
 	{
@@ -13,8 +13,8 @@ Animation::Animation(Vector<TextureRegion>& keyFrames, int64_t frameDuration, Pl
 	keyFrameItReverse = this->keyFrames.size() - 1;
 }
 
-Animation::Animation(const Vector<ShortString>& regionNames, const TextureAtlas & atlas, int64_t frameDuration, PlayMode type)
-	: keyFrames(), keyFrameIt(), keyFrameItReverse(), frameDuration(frameDuration), playMode(type), clock()
+Animation::Animation(const Vector<ShortString>& regionNames, const TextureAtlas & atlas, uint64_t frameDuration, PlayMode type)
+	: keyFrameIt(), keyFrameItReverse(), playMode(type), clock(), keyFrames(), frameDuration(frameDuration)
 {
 	Vector<TextureRegion> keyFrames;
 	for (auto it = regionNames.begin(); it != regionNames.end(); ++it)
@@ -40,28 +40,6 @@ Animation::Animation(const Vector<ShortString>& regionNames, const TextureAtlas 
 Animation::PlayMode Animation::getPlayMode() const
 {
 	return playMode;
-}
-
-int64_t Animation::getFrameDuration() const
-{
-	return frameDuration;
-}
-
-void Animation::setFrameDuration(int64_t newFrameDuration)
-{
-	if (newFrameDuration > 0)
-	{
-		frameDuration = newFrameDuration;
-	}
-}
-
-void Animation::setKeyFrames(Vector<TextureRegion>& newKeyFrames)
-{
-	keyFrames.clear();
-	for (auto it = newKeyFrames.begin(); it != newKeyFrames.end(); ++it)
-	{
-		keyFrames.push_back(it->getRegion());
-	}
 }
 
 bool Animation::isAnimationFinished()

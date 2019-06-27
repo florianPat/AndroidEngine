@@ -28,10 +28,8 @@ private:
 	Vector<std::pair<AssetLoader, Vector<RessourceCacheAssetVector>>> ressourceCache;
 public:
     AssetManager() = default;
-    //TODO: Move from argOptions to just passing and forwarding them (but template variadic function
-    // do not work, because there sits a function pointer in the AssetLoader)
-	template <typename T>
-	T* getOrAddRes(const String& filename, void* argOptions = nullptr);
+	template <typename T, typename... Args>
+	T* getOrAddRes(const String& filename, Args... args);
 	bool unloadNotUsedRes(const String& filename);
 	void clear();
 	bool isLoaded(const String& filename);
@@ -39,8 +37,8 @@ public:
 	void registerAssetLoader(const String& fileExt, const AssetLoader& assetLoader);
 };
 
-template<typename T>
-T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
+template<typename T, typename... Args>
+T * AssetManager::getOrAddRes(const String & filename, Args... args)
 {
 	auto res = filenameCache.find(filename);
 	if (res != filenameCache.end())
@@ -52,23 +50,14 @@ T * AssetManager::getOrAddRes(const String & filename, void* argOptions)
 	{
 		auto asset = (int8_t*) malloc(sizeof(T));
 		auto tP = (T*) asset;
-		new (tP) T();
+		new (tP) T(filename, std::forward<Args>(args)...);
 		String ext = filename.substr(filename.length() - 3);
 		assert(assetLoaderCache.find(ext) != assetLoaderCache.end());
 		int32_t assetLoaderIndex = assetLoaderCache.at(ext);
 
 		auto& ressourceCachePair = ressourceCache.at(assetLoaderIndex);
 
-		AssetLoader& assetLoader = ressourceCachePair.first;
-
-		//(TODO: Think about how to let the user also construct a asset from a stream)
-		if (!assetLoader.loadFromFile(asset, filename, argOptions))
-		{
-			utils::logBreak("Could not load asset!");
-			return nullptr;
-		}
-
-		currentSize += assetLoader.getSize(asset);
+		currentSize += tP->getSize();
 		//TODO: Do something if the assetCache is full!
 		if (currentSize > maxSize)
 		{

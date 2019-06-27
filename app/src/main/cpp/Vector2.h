@@ -3,9 +3,8 @@
 #include <math.h>
 
 template <typename T>
-class Vector2
+struct Vector2
 {
-public:
 	Vector2() = default;
 	Vector2(T x, T y) : x(x), y(y) {}
 	//Vector2(const Vector2& vect) : Vector2(vect.x, vect.y) {}

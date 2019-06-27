@@ -10,8 +10,8 @@ class GameObjectManager
 	Vector<int> destroyActorQueue;
 public:
 	GameObjectManager();
-	const Actor* addActor();
-	const Actor* addActor(uint32_t componentsSize);
+	Actor* addActor();
+	Actor* addActor(uint32_t componentsSize);
 	template <typename T, typename... Args>
 	void addUpdateComponent(Args&&... args);
 	template <typename T, typename... Args>

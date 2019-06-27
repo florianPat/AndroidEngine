@@ -33,13 +33,73 @@ static void callbackReadTransform(png_structp ptr, png_row_infop rowInfo, png_by
     }
 }
 
-bool Texture::loadFromFile(const String & filename)
+bool Texture::reloadFromFile(const String& filename)
+{
+	if (texture != 0)
+	{
+		CallGL(glDeleteTextures(1, &texture));
+	}
+
+	new (this) Texture(filename);
+}
+
+Texture::Texture(Texture && other) : texture(std::exchange(other.texture, 0)), width(std::exchange(other.width, 0)),
+									 height(std::exchange(other.height, 0))
+{
+}
+
+Texture & Texture::operator=(Texture && rhs)
+{
+	this->~Texture();
+
+	texture = std::exchange(rhs.texture, 0);
+	width = std::exchange(rhs.width, 0);
+	height = std::exchange(rhs.height, 0);
+
+	return *this;
+}
+
+Texture::~Texture()
+{
+    CallGL(glDeleteTextures(1, &texture));
+    width = 0;
+}
+
+Texture::operator bool() const
+{
+	return (width != 0);
+}
+
+void Texture::bind(int32_t slot) const
+{
+	CallGL(glActiveTexture(GL_TEXTURE0 + slot));
+	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
+}
+
+Texture::Texture(const void* buffer, int32_t width, int32_t height, GLint internalFormat)
+{
+	CallGL(glGenTextures(1, &texture));
+	CallGL(glActiveTexture(GL_TEXTURE0));
+	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
+
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, buffer));
+
+	this->width = width;
+	this->height = height;
+}
+
+Texture::Texture(const String& filename)
 {
 	Ifstream asset;
 	asset.open(filename);
 
 	if (!asset)
-		return false;
+		InvalidCodePath;
 
 	png_byte header[8];
 	png_structp png = nullptr;
@@ -48,20 +108,20 @@ bool Texture::loadFromFile(const String & filename)
 
 	asset.read(header, sizeof(header));
 	if (png_sig_cmp(header, 0, 8) != 0)
-		return false;
+		InvalidCodePath;
 
 	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png)
-		return false;
+		InvalidCodePath;
 	info = png_create_info_struct(png);
 	if (!info)
 	{
 		png_destroy_read_struct(&png, nullptr, nullptr);
-		return false;
+		InvalidCodePath;
 	}
 
 	png_set_read_fn(png, &asset, callbackReadPng);
-    png_set_read_user_transform_fn(png, callbackReadTransform);
+	png_set_read_user_transform_fn(png, callbackReadTransform);
 
 	png_set_sig_bytes(png, 8);
 	png_read_info(png, info);
@@ -129,7 +189,7 @@ bool Texture::loadFromFile(const String & filename)
 	if (rowSize <= 0)
 	{
 		png_destroy_read_struct(&png, &info, nullptr);
-		return false;
+		InvalidCodePath;
 	}
 
 	png_byte* image = new png_byte[rowSize * height];
@@ -157,68 +217,6 @@ bool Texture::loadFromFile(const String & filename)
 	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image));
 
 	delete[] image;
-
-	this->width = width;
-	this->height = height;
-
-	return true;
-}
-
-bool Texture::reloadFromFile(const String& filename)
-{
-	if (texture != 0)
-	{
-		CallGL(glDeleteTextures(1, &texture));
-	}
-
-	return loadFromFile(filename);
-}
-
-Texture::Texture(Texture && other) : texture(std::exchange(other.texture, 0)), width(std::exchange(other.width, 0)),
-									 height(std::exchange(other.height, 0))
-{
-}
-
-Texture & Texture::operator=(Texture && rhs)
-{
-	this->~Texture();
-
-	texture = std::exchange(rhs.texture, 0);
-	width = std::exchange(rhs.width, 0);
-	height = std::exchange(rhs.height, 0);
-
-	return *this;
-}
-
-Texture::~Texture()
-{
-    CallGL(glDeleteTextures(1, &texture));
-    width = 0;
-}
-
-Texture::operator bool() const
-{
-	return (width != 0);
-}
-
-void Texture::bind(int32_t slot) const
-{
-	CallGL(glActiveTexture(GL_TEXTURE0 + slot));
-	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
-}
-
-Texture::Texture(const void* buffer, int32_t width, int32_t height, GLint internalFormat)
-{
-	CallGL(glGenTextures(1, &texture));
-	CallGL(glActiveTexture(GL_TEXTURE0));
-	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
-
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-
-	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, buffer));
 
 	this->width = width;
 	this->height = height;

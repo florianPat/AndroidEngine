@@ -10,6 +10,7 @@ bool AssetManager::unloadNotUsedRes(const String & filename)
 		auto& ressourceCachePair = ressourceCache.at(assetLoaderIndex);
 		AssetLoader& assetLoader = ressourceCachePair.first;
 
+		currentSize -= assetLoader.getSize(res->second.asset);
 		assetLoader.destruct(res->second.asset);
 		free(res->second.asset);
 		res->second.asset = nullptr;
@@ -37,6 +38,8 @@ void AssetManager::clear()
 
 		it->second.clear();
 	}
+
+	currentSize = 0;
 }
 
 bool AssetManager::isLoaded(const String & filename)

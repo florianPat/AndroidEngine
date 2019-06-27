@@ -37,12 +37,11 @@ class TiledMap
 	Sprite textureSprite;
 	Graphics* gfx;
 public:
-	bool loadFromFile(const String& filename);
 	bool reloadFromFile(const String& filename);
 public:
-	TiledMap() = default;
-	const Vector<Physics::Collider>& getObjectGroup(const ShortString& objectGroupName);
-	const std::unordered_map<ShortString, ObjectGroup>& getObjectGroups();
+	TiledMap(const String& filename);
+	const Vector<Physics::Collider>& getObjectGroup(const ShortString& objectGroupName) const;
+	const std::unordered_map<ShortString, ObjectGroup>& getObjectGroups() const;
 	void draw();
 	uint64_t getSize() const { return sizeof(TiledMap); }
 	Vector2f getMapSize() const;

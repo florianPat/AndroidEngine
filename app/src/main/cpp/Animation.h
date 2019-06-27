@@ -16,22 +16,19 @@ public:
 		REVERSED
 	};
 protected:
-	Vector<Sprite> keyFrames;
 	uint32_t keyFrameIt;
 	uint32_t keyFrameItReverse;
 	int64_t currentTime = 0;
-	int64_t frameDuration;
 	PlayMode playMode;
 	Clock clock;
-
 	bool paused = false;
 public:
-	Animation(Vector<TextureRegion>& keyFrames, int64_t frameDuration, PlayMode type);
-	Animation(const Vector<ShortString>& regionNames, const TextureAtlas& atlas, int64_t frameDuration = Time::seconds(0.2f).asMicroseconds(), PlayMode type = PlayMode::LOOPED);
+	Vector<Sprite> keyFrames;
+	uint64_t frameDuration;
+public:
+	Animation(Vector<TextureRegion>& keyFrames, uint64_t frameDuration, PlayMode type);
+	Animation(const Vector<ShortString>& regionNames, const TextureAtlas& atlas, uint64_t frameDuration = (uint64_t)Time::seconds(0.2f).asMicroseconds(), PlayMode type = PlayMode::LOOPED);
 	PlayMode getPlayMode() const;
-	int64_t getFrameDuration() const;
-	void setFrameDuration(int64_t frameDuration);
-	void setKeyFrames(Vector<TextureRegion>& keyFrames);
 	//NOTE: animation goes on if you call this (and this is maybe not want I want)
 	bool isAnimationFinished();
 	const Sprite& getKeyFrame();

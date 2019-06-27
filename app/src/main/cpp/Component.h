@@ -4,6 +4,8 @@
 #include "Utils.h"
 #include "AssetManager.h"
 
+class Actor;
+
 class Component
 {
 protected:
@@ -11,7 +13,7 @@ protected:
 public:
 	Component(uint32_t id) : id(id) {}
 
-	virtual void update(float dt, class Actor* owner) {}
+	virtual void update(float dt, Actor* owner) {}
 	virtual void render() {}
 	uint32_t getId() const { return id; };
 

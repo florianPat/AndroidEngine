@@ -3,7 +3,32 @@
 #include "Utils.h"
 #include <memory>
 
-bool Sound::loadFromFile(const String & filename)
+const Vector<Vector<short>>& Sound::getSamples() const
+{
+	return samples;
+}
+
+const int32_t Sound::getNSamples() const
+{
+	return nSamples;
+}
+
+uint64_t Sound::getSize() const
+{
+	return (getNSamples() * sizeof(short) + sizeof(Sound));
+}
+
+const short * Sound::getBuffer() const
+{
+	return samples.data()->data();
+}
+
+Sound::operator bool() const
+{
+	return (nSamples != 0);
+}
+
+Sound::Sound(const String& filename)
 {
 	Ifstream file;
 	file.open(filename);
@@ -13,7 +38,6 @@ bool Sound::loadFromFile(const String & filename)
 		utils::logBreak("Could not open file!");
 	}
 
-	//TODO:!!!!
 	uint32_t fileSize = (uint32_t)file.getSize();
 
 	std::unique_ptr<int8_t[]> fileContents = std::make_unique<int8_t[]>(fileSize);
@@ -81,33 +105,6 @@ bool Sound::loadFromFile(const String & filename)
 	}
 	else
 		utils::logBreak("Invalid channel count!");
-
-	return true;
-}
-
-const Vector<Vector<short>>& Sound::getSamples() const
-{
-	return samples;
-}
-
-const int32_t Sound::getNSamples() const
-{
-	return nSamples;
-}
-
-uint64_t Sound::getSize() const
-{
-	return (getNSamples() * sizeof(short) + sizeof(Sound));
-}
-
-const short * Sound::getBuffer() const
-{
-	return samples.data()->data();
-}
-
-Sound::operator bool() const
-{
-	return (nSamples != 0);
 }
 
 Sound::RiffIt::RiffIt(void * at, void* stop) : at(reinterpret_cast<uint8_t*>(at)), stop(reinterpret_cast<uint8_t*>(stop))

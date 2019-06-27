@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include "Globals.h"
 
-const Vector<Physics::Collider>& TiledMap::getObjectGroup(const ShortString& objectGroupName)
+const Vector<Physics::Collider>& TiledMap::getObjectGroup(const ShortString& objectGroupName) const
 {
 	auto result = objectGroups.find(objectGroupName);
 	if (result != objectGroups.end())
@@ -17,7 +17,7 @@ const Vector<Physics::Collider>& TiledMap::getObjectGroup(const ShortString& obj
 	}
 }
 
-const std::unordered_map<ShortString, TiledMap::ObjectGroup>& TiledMap::getObjectGroups()
+const std::unordered_map<ShortString, TiledMap::ObjectGroup>& TiledMap::getObjectGroups() const
 {
 	return objectGroups;
 }
@@ -248,7 +248,21 @@ String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager, const S
 	return lineContent;
 }
 
-bool TiledMap::loadFromFile(const String& filename)
+bool TiledMap::reloadFromFile(const String& filename)
+{
+    texture = RenderTexture();
+
+	MakeRenderTexture();
+
+	return true;
+}
+
+Vector2f TiledMap::getMapSize() const
+{
+    return Vector2f{ (float)mapWidth * tileWidth, (float)mapHeight * tileHeight };
+}
+
+TiledMap::TiledMap(const String& filename)
 {
 	gfx = &Globals::window->getGfx();
 
@@ -258,7 +272,7 @@ bool TiledMap::loadFromFile(const String& filename)
 	if (!file)
 	{
 		utils::logBreak("Cant open file!");
-		return false;
+		InvalidCodePath;
 	}
 
 	file.readTempLine();
@@ -272,15 +286,14 @@ bool TiledMap::loadFromFile(const String& filename)
 		if (!utils::isWordInLine("orthogonal", lineContent))
 		{
 			utils::logBreak("Map has to be orthogonal!");
-			return false;
+			InvalidCodePath;
 		}
 
 		if (!utils::isWordInLine("right-down", lineContent))
 		{
 			utils::logBreak("Maps render-order has to be right-down!");
-			return false;
+			InvalidCodePath;
 		}
-
 
 		mapWidth = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
 		mapHeight = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
@@ -297,27 +310,9 @@ bool TiledMap::loadFromFile(const String& filename)
 		if (!utils::isWordInLine("</map>", lineContent))
 		{
 			utils::logBreak("We should be at the end of the file!");
-			return false;
+			InvalidCodePath;
 		}
 
 		MakeRenderTexture();
-
-		return true;
 	}
-
-	return false;
-}
-
-bool TiledMap::reloadFromFile(const String& filename)
-{
-    texture = RenderTexture();
-
-	MakeRenderTexture();
-
-	return true;
-}
-
-Vector2f TiledMap::getMapSize() const
-{
-    return Vector2f{ (float)mapWidth * tileWidth, (float)mapHeight * tileHeight };
 }

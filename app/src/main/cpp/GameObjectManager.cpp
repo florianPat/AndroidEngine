@@ -7,14 +7,14 @@ GameObjectManager::GameObjectManager() : actors(), destroyActorQueue()
     addActor();
 }
 
-const Actor* GameObjectManager::addActor()
+Actor* GameObjectManager::addActor()
 {
 	actors.push_back(Actor(actors.size(), DEFAULT_COMPONENT_SIZE));
 
 	return &actors.back();
 }
 
-const Actor* GameObjectManager::addActor(uint32_t componentsSize)
+Actor* GameObjectManager::addActor(uint32_t componentsSize)
 {
 	actors.push_back(Actor(actors.size(), componentsSize));
 
