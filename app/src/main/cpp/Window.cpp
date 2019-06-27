@@ -6,6 +6,7 @@
 #include "Ifstream.h"
 #include "Font.h"
 #include "Globals.h"
+#include "JNIUtils.h"
 
 void Window::AppEventCallback(android_app * app, int32_t command)
 {
@@ -91,8 +92,6 @@ Window::Window(android_app * app, int width, int height, View::ViewportType view
                                                                                                   gfx(width, height, viewportType)
 {
     Globals::window = this;
-
-    Ifstream::setAassetManager(app->activity->assetManager);
 
     app->userData = this;
     app->onAppCmd = AppEventCallback;
@@ -260,6 +259,15 @@ void Window::processAppEvent(int32_t command)
         }
         case APP_CMD_START:
         {
+            assert(app->activity != nullptr);
+            assert(app->activity->env != nullptr);
+            assert(app->activity->clazz != nullptr);
+            assert(app->activity->assetManager != nullptr);
+            jniUtils::jniEnv = app->activity->env;
+            jniUtils::activity = app->activity->clazz;
+            Ifstream::setAassetManager(app->activity->assetManager);
+            //TODO: Use app->activity->internalDataPath for saving?? and vm for creating threads that need to work with JNI
+
             //first create or recreate if there is something in the save state
             recreating = (bool) app->stateSaved;
             break;
@@ -267,6 +275,11 @@ void Window::processAppEvent(int32_t command)
         case APP_CMD_STOP:
         {
             //Now the app really is not visible!
+
+            //TODO: Do I really have to do this?
+            jniUtils::jniEnv = nullptr;
+            jniUtils::activity = nullptr;
+            Ifstream::setAassetManager(nullptr);
             break;
         }
         case APP_CMD_TERM_WINDOW:

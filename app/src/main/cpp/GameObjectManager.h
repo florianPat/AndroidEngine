@@ -28,7 +28,7 @@ template<typename T, typename... Args>
 inline void GameObjectManager::addUpdateComponent(Args&&... args)
 {
 	Actor& actor = actors.back();
-	const T* component = actor.addComponent<T>(std::forward<Args>(args)...);
+	actor.addComponent<T>(std::forward<Args>(args)...);
 }
 
 template<typename T, typename... Args>
