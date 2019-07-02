@@ -17,6 +17,7 @@
 #include "IndexBuffer.cpp"
 #include "InkscapeAnimation.cpp"
 #include "InscapeAnimationElement.cpp"
+#include "JNIUtils.cpp"
 #include "Level.cpp"
 #include "Physics.cpp"
 #include "RectangleShape.cpp"

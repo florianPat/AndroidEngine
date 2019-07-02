@@ -2,12 +2,21 @@
 
 #include <jni.h>
 #include "Utils.h"
+#include "String.h"
 
-namespace jniUtils
+struct jniUtils
 {
-    inline static JNIEnv* jniEnv = nullptr;
-    inline static jobject activity = nullptr;
-}
+    static JNIEnv* jniEnv;
+    static jobject activity;
+    static JavaVM* vm;
+    static struct ClassLoader
+    {
+        jobject object = nullptr;
+        jmethodID findClassMethod = nullptr;
+    } classLoader;
+public:
+    static jclass findClass(const String& clazz);
+};
 
 class JNIString
 {

@@ -33,7 +33,7 @@ static void callbackReadTransform(png_structp ptr, png_row_infop rowInfo, png_by
     }
 }
 
-bool Texture::reloadFromFile(const String& filename)
+void Texture::reloadFromFile(const String& filename)
 {
 	if (texture != 0)
 	{

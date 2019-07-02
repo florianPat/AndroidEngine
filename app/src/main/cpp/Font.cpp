@@ -236,7 +236,7 @@ Font::Font(const String& filename, int size) : size(size)
 {
     library = Globals::window->getFontLibrary();
     gfx = &Globals::window->getGfx();
-    assert(library != nullptr && opts->size != 0 && gfx != nullptr);
+    assert(library != nullptr && size != 0 && gfx != nullptr);
 
     FT_Face face = nullptr;
 

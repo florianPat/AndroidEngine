@@ -40,7 +40,6 @@ inline void VariableComponentVector::push_back(Args&&... args)
     offsetToEnd += sizeof(uint32_t);
 
     T* pPtr = (T*) &vector[offsetToEnd];
-    new (pPtr) T(std::forward<Args>(args)...);
-
     offsetToEnd = newOffsetToEnd;
+    new (pPtr) T(std::forward<Args>(args)...);
 }

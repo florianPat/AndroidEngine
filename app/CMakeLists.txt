@@ -65,6 +65,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/IndexBuffer.cpp
              src/main/cpp/InkscapeAnimation.cpp
              src/main/cpp/InscapeAnimationElement.cpp
+             src/main/cpp/JNIUtils.cpp
              src/main/cpp/Level.cpp
              src/main/cpp/main.cpp
              src/main/cpp/MainLevel.cpp

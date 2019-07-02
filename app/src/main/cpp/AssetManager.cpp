@@ -58,10 +58,7 @@ void AssetManager::reloadAllRes()
 		{
 		    for(auto assetIt = it->second.begin(); assetIt != it->second.end(); ++assetIt)
             {
-                if(!assetLoader.reloadFromFile(assetIt->assetP, assetIt->filename))
-                {
-                    utils::logBreak("Could not reload asset!");
-                }
+                assetLoader.reloadFromFile(assetIt->assetP, assetIt->filename);
             }
 		}
 	}

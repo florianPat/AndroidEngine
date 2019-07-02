@@ -17,7 +17,7 @@ private:
 	int32_t width = 0;
 	int32_t height = 0;
 public:
-	bool reloadFromFile(const String& filename);
+	void reloadFromFile(const String& filename);
 public:
 	Texture() = default;
 	Texture(const String& filename);

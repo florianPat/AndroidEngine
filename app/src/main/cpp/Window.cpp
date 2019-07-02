@@ -214,6 +214,9 @@ void Window::processAppEvent(int32_t command)
         }
         case APP_CMD_DESTROY:
         {
+            jniUtils::jniEnv->DeleteGlobalRef(jniUtils::classLoader.object);
+            jniUtils::vm->DetachCurrentThread();
+
             running = false;
             break;
         }
@@ -263,10 +266,25 @@ void Window::processAppEvent(int32_t command)
             assert(app->activity->env != nullptr);
             assert(app->activity->clazz != nullptr);
             assert(app->activity->assetManager != nullptr);
-            jniUtils::jniEnv = app->activity->env;
             jniUtils::activity = app->activity->clazz;
             Ifstream::setAassetManager(app->activity->assetManager);
             //TODO: Use app->activity->internalDataPath for saving?? and vm for creating threads that need to work with JNI
+
+            jniUtils::vm = app->activity->vm;
+            jniUtils::vm->AttachCurrentThreadAsDaemon(&jniUtils::jniEnv, nullptr);
+
+            jclass activityClass = jniUtils::jniEnv->FindClass("android/app/NativeActivity");
+            assert(activityClass);
+            jmethodID getClassLoader = jniUtils::jniEnv->GetMethodID(activityClass,"getClassLoader", "()Ljava/lang/ClassLoader;");
+            assert(getClassLoader);
+            jobject classLoaderObject = jniUtils::jniEnv->CallObjectMethod(jniUtils::activity, getClassLoader);
+            assert(classLoaderObject);
+            jniUtils::classLoader.object = jniUtils::jniEnv->NewGlobalRef(classLoaderObject);
+            jclass classLoaderClass = jniUtils::jniEnv->FindClass("java/lang/ClassLoader");
+            assert(classLoaderClass);
+            jmethodID findClassMethod = jniUtils::jniEnv->GetMethodID(classLoaderClass, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+            jniUtils::classLoader.findClassMethod = findClassMethod;
+            assert(jniUtils::classLoader.findClassMethod);
 
             //first create or recreate if there is something in the save state
             recreating = (bool) app->stateSaved;
@@ -275,11 +293,6 @@ void Window::processAppEvent(int32_t command)
         case APP_CMD_STOP:
         {
             //Now the app really is not visible!
-
-            //TODO: Do I really have to do this?
-            jniUtils::jniEnv = nullptr;
-            jniUtils::activity = nullptr;
-            Ifstream::setAassetManager(nullptr);
             break;
         }
         case APP_CMD_TERM_WINDOW:

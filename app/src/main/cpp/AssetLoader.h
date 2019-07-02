@@ -4,7 +4,7 @@
 
 struct AssetLoader
 {
-	bool(*reloadFromFile)(int8_t* thiz, const String& filename);
+	void(*reloadFromFile)(int8_t* thiz, const String& filename);
 	uint64_t(*getSize)(int8_t* thiz);
 	void(*destruct)(int8_t* thiz);
 	bool isGpu;
@@ -16,7 +16,7 @@ public:
 		AssetLoader result = { 0 };
 
 		if constexpr (isGpuIn)
-		    result.reloadFromFile = [](int8_t* thiz, const String& filename) {return ((T*)thiz)->reloadFromFile(filename); };
+		    result.reloadFromFile = [](int8_t* thiz, const String& filename) { ((T*)thiz)->reloadFromFile(filename); };
 
 		result.getSize = [](int8_t* thiz) {return ((T*)thiz)->getSize(); };
 		result.destruct = [](int8_t* thiz) {((T*)thiz)->~T(); };
