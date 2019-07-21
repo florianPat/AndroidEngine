@@ -436,33 +436,6 @@ void String::swap(String & other)
 	*this = std::move(temp);
 }
 
-String String::operator+(const String & rhs) const
-{
-	String lhs(*this);
-
-	lhs += rhs;
-
-	return lhs;
-}
-
-String String::operator+(const char * rhs) const
-{
-	String lhs(*this);
-
-	lhs += rhs;
-
-	return lhs;
-}
-
-String String::operator+(char c) const
-{
-	String lhs(*this);
-
-	lhs += c;
-
-	return lhs;
-}
-
 bool String::operator==(const String & rhs) const
 {
 	return operator==(rhs.c_str());
@@ -489,6 +462,14 @@ bool String::operator!=(const char * rhs) const
 	return !(this->operator==(rhs));
 }
 
+String operator+(const String& lhsIn, const String& rhs)
+{
+	String lhs(lhsIn);
+	lhs += rhs;
+
+	return lhs;
+}
+
 String operator+(const char * lhs, const String & rhsIn)
 {
 	String rhs(rhsIn);
@@ -508,6 +489,70 @@ String operator+(char lhs, const String & rhsIn)
 String operator+(String && lhs, const String & rhs)
 {
 	return lhs += rhs;
+}
+
+String operator+(const String& lhsIn, const char* rhs)
+{
+	String lhs(lhsIn);
+	lhs += rhs;
+
+	return lhs;
+}
+
+String operator+(const String& lhsIn, char rhs)
+{
+	String lhs(lhsIn);
+	lhs += rhs;
+
+	return lhs;
+}
+
+String operator+(const String& lhs, String&& rhsIn)
+{
+	String rhs(std::move(rhsIn));
+	rhs += lhs;
+
+	return rhs;
+}
+
+String operator+(String&& lhsIn, String&& rhs)
+{
+	String lhs(std::move(lhsIn));
+	lhs += rhs;
+
+	return lhs;
+}
+
+String operator+(String&& lhsIn, const char* rhs)
+{
+	String lhs(std::move(lhsIn));
+	lhs += rhs;
+
+	return lhs;
+}
+
+String operator+(String&& lhsIn, char rhs)
+{
+	String lhs(std::move(lhsIn));
+	lhs += rhs;
+
+	return lhs;
+}
+
+String operator+(const char* lhs, String&& rhsIn)
+{
+	String rhs(std::move(rhsIn));
+	rhs += lhs;
+
+	return rhs;
+}
+
+String operator+(char lhs, String&& rhsIn)
+{
+	String rhs(std::move(rhsIn));
+	rhs += lhs;
+
+	return rhs;
 }
 
 bool operator==(const char * lhs, const String & rhs)
@@ -577,6 +622,26 @@ String::String(const String& other, bool shortRepIn) : shortRep(shortRepIn), str
 		else
 			new (&stringUnion.stringArrayLong) Vector<char>(other.stringUnion.stringArrayLong);
 	}
+}
+
+String String::createIneffectivlyFrom(const char* s)
+{
+    int i = 0;
+    for(; s[i] != '\0'; ++i);
+    ++i;
+
+    if(i <= SHORT_STRING_SIZE)
+    {
+        ShortString result;
+        result.append(s);
+        return result;
+    }
+    else
+    {
+        LongString result;
+        result.append(s);
+        return result;
+    }
 }
 
 bool utils::isWordInLine(const String & word, const String & lineContent)

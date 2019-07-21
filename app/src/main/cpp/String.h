@@ -36,6 +36,7 @@ public:
 	String(uint32_t count, char c);
 	template <uint32_t N>
 	String(const char(&s)[N], bool shortRepIn = (N <= SHORT_STRING_SIZE));
+	static String createIneffectivlyFrom(const char* s);
 	String(const String& other);
 	String(String&& other);
 	String& operator=(const String& rhs);
@@ -106,12 +107,18 @@ public:
 
 	void swap(String& other);
 
-	String operator+(const String& rhs) const;
-	String operator+(const char* rhs) const;
-	String operator+(char c) const;
+	friend String operator+(const String& lhs, const String& rhs);
+	friend String operator+(const String& lhs, const char* rhs);
+	friend String operator+(const String& lhs, char rhs);
 	friend String operator+(const char* lhs, const String& rhs);
 	friend String operator+(char lhs, const String& rhs);
 	friend String operator+(String&& lhs, const String& rhs);
+	friend String operator+(const String& lhs, String&& rhs);
+	friend String operator+(String&& lhs, String&& rhs);
+	friend String operator+(String&& lhs, const char* rhs);
+	friend String operator+(String&& lhs, char rhs);
+	friend String operator+(const char* lhs, String&& rhs);
+	friend String operator+(char lhs, String&& rhs);
 
 	bool operator==(const String& rhs) const;
 	bool operator==(const char* rhs) const;

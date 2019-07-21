@@ -21,17 +21,20 @@ void Actor::update(float dt)
 
 int32_t Actor::getComponentIndex(uint32_t componentId) const
 {
+	int32_t result = -1;
+
 	for(auto it = components.begin(); it != components.end();)
 	{
 		uint32_t compSize = *((uint32_t*) it);
 		it += sizeof(uint32_t);
 
 		if(((Component*)(it))->getId() == componentId)
-			return (int)(it - components.begin());
+			result = (int32_t)(it - components.begin());
 
 		it += compSize;
 	}
 
-	InvalidCodePath;
-	return -1;
+	assert(result != -1);
+
+	return result;
 }

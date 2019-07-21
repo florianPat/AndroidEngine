@@ -27,7 +27,7 @@ float RectangleShape::getHeight() const
 
 void RectangleShape::setToFloatRect(const FloatRect& rect)
 {
-	pos = { rect.left, rect.top };
+	pos = { rect.left, rect.bottom };
 	size = { rect.width, rect.height };
 }
 

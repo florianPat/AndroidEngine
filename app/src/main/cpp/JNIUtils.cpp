@@ -10,3 +10,15 @@ jclass jniUtils::findClass(const String& clazz)
     return ((jclass) jniUtils::jniEnv->CallObjectMethod(jniUtils::classLoader.object,
             jniUtils::classLoader.findClassMethod, JNIString::create(clazz)));
 }
+
+void jniUtils::checkException()
+{
+#ifdef DEBUG
+    if(jniEnv->ExceptionCheck())
+    {
+        jniEnv->ExceptionDescribe();
+        jniEnv->ExceptionClear();
+        InvalidCodePath;
+    }
+#endif
+}

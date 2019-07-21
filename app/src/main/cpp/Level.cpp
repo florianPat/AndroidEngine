@@ -1,16 +1,25 @@
 #include "Level.h"
 #include "Physics.h"
 #include "Globals.h"
+#include "EventChangeLevel.h"
 
-/*void Level::eventLevelReloadHandler(EventData* eventData)
+void Level::eventChangeLevelHandler(EventData* eventData)
 {
-	newLevel = std::make_unique<Level>(window);
+	EventChangeLevel* eventChangeLevel = (EventChangeLevel*) eventData;
+
+	newLevel = std::move(eventChangeLevel->newLevel);
 	endLevel = true;
-}*/
+}
 
 Level::Level()
 	:	window(*Globals::window), clock(window.getClock()), physics(), eventManager(), gom(),
 		gfx(window.getGfx())
+{
+}
+
+Level::Level(uint32_t gomRenderActorSize)
+		:	window(*Globals::window), clock(window.getClock()), physics(), eventManager(), gom(gomRenderActorSize),
+			 gfx(window.getGfx())
 {
 }
 
@@ -41,5 +50,6 @@ void Level::Go()
 void Level::setup()
 {
 	Globals::eventManager = &eventManager;
+	eventManager.addListener(EventChangeLevel::eventId, Delegate<void(EventData*)>::from<Level, &Level::eventChangeLevelHandler>(this));
 	init();
 }

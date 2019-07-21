@@ -78,10 +78,10 @@ void Physics::Collider::getPointsAxis(Vector2f * points, Vector2f * axis) const
 		{
 			FloatRect bodyRect = collider.rect;
 
-			points[0] = { bodyRect.left, bodyRect.top };
-			points[1] = { bodyRect.left + bodyRect.width, bodyRect.top };
-			points[2] = { bodyRect.left + bodyRect.width, bodyRect.top + bodyRect.height };
-			points[3] = { bodyRect.left, bodyRect.top + bodyRect.height };
+			points[0] = { bodyRect.left, bodyRect.bottom };
+			points[1] = { bodyRect.left + bodyRect.width, bodyRect.bottom };
+			points[2] = { bodyRect.left + bodyRect.width, bodyRect.bottom + bodyRect.height };
+			points[3] = { bodyRect.left, bodyRect.bottom + bodyRect.height };
 
 			axis[0] = { 1.0f, 0.0f };
 			axis[1] = { 0.0f, 1.0f };
@@ -124,7 +124,7 @@ Vector2f Physics::Collider::getProjectionMinMax(const Vector2f * points, const V
 	else
 	{
 		//TODO: Also, the circle goes a bit into the obb... (It happens because I just throw out the four corner points, but thats not really good for 
-		// for example top left...
+		// for example bottom left...
 		//TODO: Use vohoo regions (or how its called) to make "corner collision" nicer
 		float proj = (points[0].x + (isXAxis ? collider.circle.radius : 0)) * axis.x + (points[0].y + (isXAxis ? 0 : collider.circle.radius)) * axis.y;
 		
@@ -211,7 +211,7 @@ void Physics::debugRenderBodies(Graphics& gfx) const
 				FloatRect colliderRect = collider.collider.rect;
 
 				body.size = Vector2f(colliderRect.width, colliderRect.height);
-				body.pos = Vector2f(colliderRect.left, colliderRect.top);
+				body.pos = Vector2f(colliderRect.left, colliderRect.bottom);
 				body.fillColor = Colors::Yellow;
 
 				gfx.draw(body);
@@ -322,7 +322,7 @@ void Physics::applySpriteToBoundingBox(const Sprite & sprite, Collider & boundin
 	assert(boundingBox.type == Collider::Type::rect);
 
 	boundingBox.collider.rect.left = sprite.getGlobalBounds().left;
-	boundingBox.collider.rect.top = sprite.getGlobalBounds().top;
+	boundingBox.collider.rect.bottom = sprite.getGlobalBounds().bottom;
 	boundingBox.collider.rect.width = (float)sprite.getGlobalBounds().width;
 	boundingBox.collider.rect.height = (float)sprite.getGlobalBounds().height;
 }
@@ -445,7 +445,7 @@ Physics::Collider::Collider() : type(Type::rect), collider{ {} }
 {
 }
 
-Physics::Collider::Collider(FloatRect & rect) : type(Type::rect), collider{ {rect.left, rect.top, rect.width, rect.height} }
+Physics::Collider::Collider(FloatRect & rect) : type(Type::rect), collider{ {rect.left, rect.bottom, rect.width, rect.height} }
 {
 }
 
@@ -530,8 +530,8 @@ bool Physics::Collider::collide(const Collider & other, Vector2f *minTransVec) c
 			*minTransVec = { rect.left - (otherRect.left + otherRect.width), 0 };
 			Vector2f corners[3];
 			corners[0] = Vector2f{ (rect.left + rect.width) - otherRect.left, 0 };
-			corners[1] = Vector2f{ 0, rect.top - (otherRect.top + otherRect.height) };
-			corners[2] = Vector2f{ 0, (rect.top + rect.height) - otherRect.top };
+			corners[1] = Vector2f{ 0, rect.bottom - (otherRect.bottom + otherRect.height) };
+			corners[2] = Vector2f{ 0, (rect.bottom + rect.height) - otherRect.bottom };
 
 			for (int32_t i = 0; i < arrayCount(corners); ++i)
 			{

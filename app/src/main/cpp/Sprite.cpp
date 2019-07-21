@@ -26,9 +26,9 @@ void Sprite::setTexture(const Texture* textureIn, bool resetRect)
 void Sprite::setTextureRect(const IntRect & rectIn)
 {
 	assert(rectIn.left >= 0);
-	assert(rectIn.top >= 0);
+	assert(rectIn.bottom >= 0);
 	assert(rectIn.getRight() <= texture->getWidth());
-	assert(rectIn.getBottom() <= texture->getHeight());
+	assert(rectIn.getTop() <= texture->getHeight());
 	rect = rectIn;
 	size = { rect.width, rect.height };
 }
@@ -46,7 +46,7 @@ const IntRect & Sprite::getTextureRect() const
 FloatRect Sprite::getGlobalBounds() const
 {
 	float halfWidth = (rect.getRight() - rect.left) / 2.0f;
-	float halfHeight = (rect.getBottom() - rect.top) / 2.0f;
+	float halfHeight = (rect.getTop() - rect.bottom) / 2.0f;
 
 	auto transform = getTransform();
 

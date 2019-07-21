@@ -76,7 +76,7 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String& inkscapeFileNam
 						else if (lineContent.find("y") != String::npos)
 						{
 							if(lineContent.find("r") == String::npos)
-								rect.top = atoi(utils::getWordBetweenChars(lineContent, '"', '"').c_str());
+								rect.bottom = atoi(utils::getWordBetweenChars(lineContent, '"', '"').c_str());
 						}
 						else if (lineContent.find("width") != String::npos)
 						{
@@ -149,9 +149,9 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String& inkscapeFileNam
 					if (shouldAdd)
 					{
 						rect.left *= scalingVec.x;
-						rect.top *= scalingVec.y;
+						rect.bottom *= scalingVec.y;
 						rect.left += translationVec.x;
-						rect.top += translationVec.y;
+						rect.bottom += translationVec.y;
 						rectMap.emplace(id, rect);
 
 						scalingVec = beforeScalingVec;
@@ -195,18 +195,18 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String& inkscapeFileNam
 						utils::logBreak("Only found \"Base\" element, but there is need for more!");
 					}
 
-					Vector2i baseVec = { base->second.left, base->second.top };
+					Vector2i baseVec = { base->second.left, base->second.bottom };
 					rectMap.erase(base);
 					for (auto it = rectMap.begin(); it != rectMap.end(); ++it)
 					{
 						assert(baseVec.x <= it->second.left);
-						assert(baseVec.y <= it->second.top);
+						assert(baseVec.y <= it->second.bottom);
 
 						it->second.left -= baseVec.x;
-						it->second.top -= baseVec.y;
+						it->second.bottom -= baseVec.y;
 
 						assert(it->second.left <= IMAGE_SIZE && it->second.left >= 0);
-						assert(it->second.top <= IMAGE_SIZE && it->second.top >= 0);
+						assert(it->second.bottom <= IMAGE_SIZE && it->second.bottom >= 0);
 					}
 				}
 				else

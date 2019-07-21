@@ -16,15 +16,22 @@ struct jniUtils
     } classLoader;
 public:
     static jclass findClass(const String& clazz);
+    static void checkException();
 };
 
 class JNIString
 {
-    jstring jString;
+    jstring jString = nullptr;
+    JNIEnv* jniEnv = nullptr;
     const char* cString = nullptr;
 public:
     JNIString(jstring stringIn) : jString(stringIn),
-                                  cString(jniUtils::jniEnv->GetStringUTFChars(jString, nullptr))
+                                  jniEnv(jniUtils::jniEnv),
+                                  cString(jniEnv->GetStringUTFChars(jString, nullptr))
+    {}
+    JNIString(jstring stringIn, JNIEnv* jniEnv) : jString(stringIn),
+                                                  jniEnv(jniEnv),
+                                                  cString(jniEnv->GetStringUTFChars(jString, nullptr))
     {}
 
     static jstring create(const char* cString)
@@ -38,7 +45,7 @@ public:
 
     ~JNIString()
     {
-        jniUtils::jniEnv->ReleaseStringUTFChars(jString, cString);
+        jniEnv->ReleaseStringUTFChars(jString, cString);
     }
 
     const char* getCString() const

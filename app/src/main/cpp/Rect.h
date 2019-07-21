@@ -2,44 +2,43 @@
 
 #include "Vector2.h"
 
-//TODO: Change naming, because it operates bottom up now!
 template <typename T>
 class Rect
 {
 public:
 	inline Rect() = default;
-	inline Rect(T left, T top, T width, T height) : top(top), left(left), width(width), height(height) {}
-	//Rect(const Rect& rect) : top(rect.top), left(rect.left), width(rect.width), height(rect.height) {}
+	inline Rect(T left, T bottom, T width, T height) : bottom(bottom), left(left), width(width), height(height) {}
+	//Rect(const Rect& rect) : bottom(rect.bottom), left(rect.left), width(rect.width), height(rect.height) {}
 	template <typename T2>
 	inline operator Rect<T2>() const
 	{
-		return { (T2)left,(T2)top,(T2)width,(T2)height };
+		return { (T2)left,(T2)bottom,(T2)width,(T2)height };
 	}
 	inline bool intersects(const Rect& rect) const
 	{
-		return top < rect.getBottom() && getBottom() > rect.top &&
-			left < rect.getRight() && getRight() > rect.left;
+		return bottom < rect.getTop() && getTop() > rect.bottom &&
+			   left < rect.getRight() && getRight() > rect.left;
 	}
 	template <typename T2>
 	inline bool contains(Vector2<T2> p) const
 	{
-		return p.y >= top && p.y <= getBottom() && p.x >= left && p.x <= getRight();
+		return p.y >= bottom && p.y <= getTop() && p.x >= left && p.x <= getRight();
 	}
 	template <typename T2>
 	inline bool contains(Rect<T2> p) const
 	{
-		return p.top >= top && p.getBottom() <= getBottom() && p.left >= left && p.getRight() <= getRight();
+		return p.bottom >= bottom && p.getTop() <= getTop() && p.left >= left && p.getRight() <= getRight();
 	}
-	inline T getBottom() const
+	inline T getTop() const
 	{
-		return top + height;
+		return bottom + height;
 	}
 	inline T getRight() const
 	{
 		return left + width;
 	}
 public:
-	T top;
+	T bottom;
 	T left;
 	T width;
 	T height;

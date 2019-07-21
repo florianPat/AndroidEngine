@@ -1,10 +1,10 @@
 #include "GameObjectManager.h"
 #include "Utils.h"
 
-GameObjectManager::GameObjectManager() : actors(), destroyActorQueue()
+GameObjectManager::GameObjectManager(uint32_t renderActorSize) : actors(), destroyActorQueue()
 {
     //NOTE: This is the RenderOnlyActor
-    addActor();
+    addActor(renderActorSize);
 }
 
 Actor* GameObjectManager::addActor()

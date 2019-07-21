@@ -18,8 +18,8 @@ class Font
     };
 private:
     static constexpr int NUM_GLYPHS = '~' - ' ' + 1;
-    int size = 0;
-    int faceHeight = 0;
+    uint32_t size = 0;
+    uint32_t faceHeight = 0;
     RenderTexture renderTexture;
     //NOTE: Stack overflow danger?
     GlyphRegion regions[NUM_GLYPHS];

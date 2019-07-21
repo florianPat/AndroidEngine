@@ -21,8 +21,10 @@ protected:
 	bool endLevel = false;
 private:
 	virtual void init() = 0;
+	void eventChangeLevelHandler(EventData* eventData);
 public:
 	Level();
+	Level(uint32_t gomRenderActorSize);
 	void setup();
 	virtual ~Level() = default;
     std::unique_ptr<Level> getNewLevel();

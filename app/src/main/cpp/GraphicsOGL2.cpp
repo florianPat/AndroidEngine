@@ -46,9 +46,9 @@ void GraphicsOGL2::draw(const Sprite& sprite)
     }
 
     float texRectLeft = ((float)sprite.getTextureRect().left) / texture->getWidth();
-    float texRectTop = ((float)sprite.getTextureRect().top) / texture->getHeight();
+    float texRectTop = ((float)sprite.getTextureRect().bottom) / texture->getHeight();
     float texRectRight = ((float)sprite.getTextureRect().getRight()) / texture->getWidth();
-    float texRectBottom = ((float)sprite.getTextureRect().getBottom()) / texture->getHeight();
+    float texRectBottom = ((float) sprite.getTextureRect().getTop()) / texture->getHeight();
     Vector2f texCoord[4] = { { texRectLeft, texRectTop },
                              { texRectRight, texRectTop },
                              { texRectRight, texRectBottom },

@@ -9,7 +9,19 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
 
     //NOTE: -1 because ' ' does not get rendered!
     uint renderTextureSize = (uint) size * (NUM_GLYPHS - 1);
-    renderTexture.create(renderTextureSize, size);
+
+    int32_t maxTextureSize = 0;
+    uint32_t renderTextureRowSize = size;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+    if(renderTextureSize > maxTextureSize)
+    {
+        uint32_t nRows = (uint32_t)ceil(((float)renderTextureSize) / maxTextureSize);
+        assert((nRows * size) < maxTextureSize);
+        renderTextureSize = (uint32_t)ceil(((float)renderTextureSize) / nRows);
+        renderTextureRowSize = size * nRows;
+    }
+
+    renderTexture.create(renderTextureSize, renderTextureRowSize);
     renderTexture.begin(*gfx);
     gfx->clear();
     uint32_t* pixels = (uint32_t*) malloc(size * size * sizeof(uint));
@@ -56,7 +68,12 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         gfx->flush();
 
         xy.x += texture.getWidth();
-        assert((xy.x + size) <= renderTextureSize);
+        if(xy.x >= renderTextureSize)
+        {
+            xy.x = 0;
+            xy.y += size;
+            assert(xy.y <= renderTextureRowSize);
+        }
     }
 
     renderTexture.end(*gfx);

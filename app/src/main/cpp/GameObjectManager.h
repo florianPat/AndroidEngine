@@ -9,7 +9,7 @@ class GameObjectManager
 	Vector<std::pair<int, int>> layers[4];
 	Vector<int> destroyActorQueue;
 public:
-	GameObjectManager();
+	GameObjectManager(uint32_t renderActorSize = DEFAULT_COMPONENT_SIZE);
 	Actor* addActor();
 	Actor* addActor(uint32_t componentsSize);
 	template <typename T, typename... Args>
