@@ -45,6 +45,17 @@ namespace utils
         InvalidCodePath;
 #endif
     }
-	void log(const char* string);
-	void logBreak(const char* string);
+	inline void log(const char* string)
+	{
+#ifdef DEBUG
+		__android_log_write(ANDROID_LOG_INFO, "utilsLog", string);
+#endif
+	}
+	inline void logBreak(const char* string)
+	{
+#ifdef DEBUG
+		log((string));
+		InvalidCodePath;
+#endif
+	}
 }

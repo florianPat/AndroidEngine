@@ -24,18 +24,3 @@ float utils::radiansToDegrees(float radians)
 	float degrees = _180OverPi * radians;
 	return degrees;
 }
-
-void utils::log(const char * string)
-{
-#ifdef DEBUG
-	__android_log_write(ANDROID_LOG_INFO, "utilsLog", string);
-#endif
-}
-
-void utils::logBreak(const char * string)
-{
-#ifdef DEBUG
-	log((string));
-	InvalidCodePath;
-#endif
-}
