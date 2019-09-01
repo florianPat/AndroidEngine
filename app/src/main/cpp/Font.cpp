@@ -90,6 +90,8 @@ bool Font::reloadFromFile(const String& filename)
 
     FT_Face face = nullptr;
 
+    library = Globals::window->getFontLibrary();
+
     Ifstream file(filename);
     assert(file);
 

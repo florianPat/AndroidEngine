@@ -30,11 +30,14 @@ void EventManager::removeListener(const DelegateFunctionRef& delegateFunctionRef
 
 void EventManager::TriggerEvent(EventData* eventData)
 {
-	assert(eventData->getEventId() < eventListenerMap.size());
-	auto findIt = eventListenerMap.at(eventData->getEventId()).delegateFunctions;
-	for (auto it = findIt.begin(); it != findIt.end(); ++it)
+	if(eventData->getEventId() != -1)
 	{
-		it->second(eventData);
+		assert(eventData->getEventId() < eventListenerMap.size());
+		auto findIt = eventListenerMap.at(eventData->getEventId()).delegateFunctions;
+		for (auto it = findIt.begin(); it != findIt.end(); ++it)
+		{
+			it->second(eventData);
+		}
 	}
 }
 

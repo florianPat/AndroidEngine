@@ -34,21 +34,21 @@ namespace utils
 	void logF(const char* string, Args&&... args)
     {
 #ifdef DEBUG
-        __android_log_print(ANDROID_LOG_INFO, "utilsLog", string, args...);
+        __android_log_print(ANDROID_LOG_DEBUG, "utilsLog", string, args...);
 #endif
     }
     template<typename... Args>
 	void logFBreak(const char* string, Args&&... args)
     {
 #ifdef DEBUG
-        __android_log_print(ANDROID_LOG_INFO, "utilsLog", string, args...);
+        __android_log_print(ANDROID_LOG_DEBUG, "utilsLog", string, args...);
         InvalidCodePath;
 #endif
     }
 	inline void log(const char* string)
 	{
 #ifdef DEBUG
-		__android_log_write(ANDROID_LOG_INFO, "utilsLog", string);
+		__android_log_write(ANDROID_LOG_DEBUG, "utilsLog", string);
 #endif
 	}
 	inline void logBreak(const char* string)

@@ -7,6 +7,10 @@
 #include "Font.h"
 #include "Globals.h"
 #include "JNIUtils.h"
+#include "EventDestroyApp.h"
+#include "EventStopApp.h"
+#include "EventResumeApp.h"
+#include "EventManager.h"
 
 void Window::AppEventCallback(android_app * app, int32_t command)
 {
@@ -207,6 +211,12 @@ void Window::processAppEvent(int32_t command)
             {
                 checkAndRecoverFromContextLoss();
 
+                if(Globals::eventManager != nullptr)
+                {
+                    EventResumeApp eventResumeApp;
+                    Globals::eventManager->TriggerEvent(&eventResumeApp);
+                }
+
                 initFinished = true;
                 clock.restart();
             }
@@ -214,6 +224,10 @@ void Window::processAppEvent(int32_t command)
         }
         case APP_CMD_DESTROY:
         {
+            EventDestroyApp eventDestroyApp;
+            Globals::eventManager->TriggerEvent(&eventDestroyApp);
+
+            assert(Globals::eventManager != nullptr);
             jniUtils::jniEnv->DeleteGlobalRef(jniUtils::classLoader.object);
             jniUtils::vm->DetachCurrentThread();
 
@@ -226,6 +240,12 @@ void Window::processAppEvent(int32_t command)
             if (resumed && validNativeWindow)
             {
                 checkAndRecoverFromContextLoss();
+
+                if(Globals::eventManager != nullptr)
+                {
+                    EventResumeApp eventResumeApp;
+                    Globals::eventManager->TriggerEvent(&eventResumeApp);
+                }
 
                 initFinished = true;
                 clock.restart();
@@ -250,6 +270,12 @@ void Window::processAppEvent(int32_t command)
             if (gainedFocus && validNativeWindow)
             {
                 checkAndRecoverFromContextLoss();
+
+                if(Globals::eventManager != nullptr)
+                {
+                    EventResumeApp eventResumeApp;
+                    Globals::eventManager->TriggerEvent(&eventResumeApp);
+                }
 
                 initFinished = true;
                 clock.restart();
@@ -293,6 +319,10 @@ void Window::processAppEvent(int32_t command)
         case APP_CMD_STOP:
         {
             //Now the app really is not visible!
+            assert(Globals::eventManager != nullptr);
+            EventStopApp eventStopApp;
+            Globals::eventManager->TriggerEvent(&eventStopApp);
+
             break;
         }
         case APP_CMD_TERM_WINDOW:
