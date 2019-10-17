@@ -6,6 +6,7 @@
 #include "EventManager.h"
 #include "Utils.h"
 #include "Clock.h"
+#include "NativeThreadQueue.h"
 
 class Level
 {

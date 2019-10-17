@@ -2,6 +2,7 @@
 
 #include <android/log.h>
 #include "Types.h"
+#include "Delegate.h"
 
 #undef assert
 
@@ -23,6 +24,10 @@ static constexpr float PIf = 3.1415927f;
 
 static constexpr float PiOver180 = PIf / 180;
 static constexpr float _180OverPi = 180 / PIf;
+
+#define GET_DELEGATE_FROM(c, m) Delegate<void(EventData*)>::from<c, m>(this)
+#define GET_DELEGATE_WITH_PARAM_FORM(param, c, m) Delegate<param>::from<c, m>(this)
+#define GET_COMPONENT(actor, componentType) actor->getComponent<componentType>(componentType::ID)
 
 namespace utils
 {

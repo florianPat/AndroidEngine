@@ -3,7 +3,7 @@
 #include "Component.h"
 #include "Window.h"
 #include "Physics.h"
-#include "VariableComponentVector.h"
+#include "VariableVector.h"
 
 class Actor
 {
@@ -11,7 +11,7 @@ class Actor
     friend class GameObjectManager;
 
 	uint32_t id;
-	VariableComponentVector components;
+	VariableVector<Component> components;
 public:
 	Actor(uint32_t id, uint32_t componentsSize);
 	template <typename T, typename... Args>

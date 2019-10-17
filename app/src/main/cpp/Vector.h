@@ -67,6 +67,8 @@ public:
 	Iterator<T> erasePop_back(const Iterator<T>& pos);
 	void push_back(const T& value);
 	void push_back(T&& value);
+	template<typename ...Args>
+	void emplace_back(Args&&... args);
 	void pop_back();
 	void resize(uint32_t count);
 	void resize(uint32_t count, const T& value);
@@ -425,6 +427,15 @@ inline void Vector<T>::push_back(T && value)
 	checkAndExpand(size() + 1);
 
 	vectorArray.push_back(std::move(value));
+}
+
+template<typename T>
+template<typename ...Args>
+inline void Vector<T>::emplace_back(Args&&... args)
+{
+	checkAndExpand(size() + 1);
+
+	vectorArray.emplace_back(std::forward<Args>(args)...);
 }
 
 template<typename T>

@@ -319,6 +319,8 @@ public:
 	Iterator<T> erasePop_back(const Iterator<T>& pos);
 	void push_back(const T& value);
 	void push_back(T&& value);
+	template<typename ...Args>
+	void emplace_back(Args&&... args);
 	void pop_back();
 
 	bool operator==(const Array& rhs) const;
@@ -710,6 +712,17 @@ inline void Array<T, N>::push_back(T && value)
 	assert((arraySize + 1) <= capacity());
 
 	new (&arrayData[arraySize++]) T(std::move(value));
+}
+
+template<typename T, uint32_t N>
+template<typename ...Args>
+inline void Array<T, N>::emplace_back(Args&&... args)
+{
+	DEFINE_ARRAY_DATA;
+
+	assert((arraySize + 1) <= capacity());
+
+	new (&arrayData[arraySize++]) T(std::forward<Args>(args)...);
 }
 
 template <typename T, uint32_t N>

@@ -69,6 +69,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/Level.cpp
              src/main/cpp/main.cpp
              src/main/cpp/MainLevel.cpp
+             src/main/cpp/NativeThread.cpp
+             src/main/cpp/NativeThreadQueue.cpp
              src/main/cpp/Physics.cpp
              src/main/cpp/RectangleShape.cpp
              src/main/cpp/RenderTexture.cpp
@@ -80,7 +82,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/TextureAtlas.cpp
              src/main/cpp/TiledMap.cpp
              src/main/cpp/Utils.cpp
-             src/main/cpp/VariableComponentVector.cpp
              src/main/cpp/Vector.cpp
              src/main/cpp/VertexArray.cpp
              src/main/cpp/VertexBuffer.cpp

@@ -65,8 +65,7 @@ void GraphicsOGL2::draw(const Sprite& sprite)
 
     for(int i = 0; i < 4; ++i)
     {
-        //NOTE: I could also pass the pos, scl, angle in directly and compute the mv in the vertexShader
-        // (But I would pass in one more float; and it is not really that much faster (according to what I saw))
+        //TODO: Think about: pass the pos, scl, angle in directly and compute the mv in the vertexShader
 
         //TODO: Can add the active texture unit this sprite belongs to and batch sprites with different
         // textures!

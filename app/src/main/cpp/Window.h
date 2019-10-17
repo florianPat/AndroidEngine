@@ -10,6 +10,7 @@
 #include FT_FREETYPE_H
 #include "GraphicsOGL2.h"
 #include "TouchInput.h"
+#include "NativeThreadQueue.h"
 
 #define Graphics GraphicsOGL2
 
@@ -29,6 +30,8 @@ class Window
     FT_Library fontLibrary = nullptr;
 
     Graphics gfx;
+
+    NativeThreadQueue nativeThreadQueue;
 
 	SLObjectItf engineObj = 0;
 	SLEngineItf engine = 0;
@@ -51,6 +54,7 @@ public:
 	FT_Library getFontLibrary();
     Graphics& getGfx();
     const TouchInput& getTouchInput() const;
+    NativeThreadQueue& getNativeThreadQueue() const;
 private:
 	void deactivate();
 	void processAppEvent(int32_t command);

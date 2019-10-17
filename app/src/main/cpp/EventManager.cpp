@@ -1,92 +1,121 @@
 #include "EventManager.h"
 #include "Utils.h"
 
-EventManager::EventManager() : eventListenerMap()
+EventManager::EventManager() : eventListenerMap(), nativeThreadQueue(Globals::window->getNativeThreadQueue())
 {
 }
 
 EventManager::DelegateFunctionRef EventManager::addListener(int32_t& eventType, Delegate<void(EventData*)>&& function)
 {
-    Vector<DelegateFunction>* eventListenerList = nullptr;
-
-	if (eventType == -1)
-	{
-		eventType = eventListenerMap.size();
-		eventListenerMap.push_back(EventListenerMapEntry{eventType, Vector<DelegateFunction>()});
-		eventListenerList = &eventListenerMap.back().delegateFunctions;
-	}
-	else
-		eventListenerList = &eventListenerMap.at(eventType).delegateFunctions;
-
-	eventListenerList->push_back(getDelegateFromFunction(std::move(function)));
-
-	return DelegateFunctionRef{ eventType, counter - 1 };
+    eventListenerMap.push_back(Vector<EventListenerMapEntry>());
+    return addListenerForSameThreadType(eventType, std::move(function), eventListenerMap.size() - 1);
 }
 
-void EventManager::removeListener(const DelegateFunctionRef& delegateFunctionRef)
+EventManager::DelegateFunctionRef EventManager::addListenerForSameThreadType(int32_t& eventType,
+		Delegate<void(EventData*)>&& function, uint32_t threadTypeId)
 {
-	eventDeleterMap.push_back(delegateFunctionRef);
+    assert(!nativeThreadQueue.getStartedFlushing());
+
+    if (eventType == -1)
+    {
+        eventType = eventTypeVector.size();
+        eventTypeVector.push_back(EventTypeAndHolderVector{ eventType, VariableVector<EventData>(sizeof(EventData) * 10) });
+    }
+    Vector<EventListenerMapEntry>* eventListenerList = &eventListenerMap[threadTypeId];
+
+    eventListenerList->push_back(EventListenerMapEntry{ eventType, function });
+
+	return DelegateFunctionRef{ threadTypeId, eventListenerList->size() - 1 };
 }
 
-void EventManager::TriggerEvent(EventData* eventData)
+void EventManager::addClearTriggerEventsJob()
 {
-	if(eventData->getEventId() != -1)
-	{
-		assert(eventData->getEventId() < eventListenerMap.size());
-		auto findIt = eventListenerMap.at(eventData->getEventId()).delegateFunctions;
-		for (auto it = findIt.begin(); it != findIt.end(); ++it)
-		{
-			it->second(eventData);
-		}
-	}
+    nativeThreadQueue.addEntry(GET_DELEGATE_WITH_PARAM_FORM(void(uint32_t, float), EventManager,
+            &EventManager::clearTriggerEventsDelegate), 0);
+}
+
+void EventManager::addListenerEventsJobs()
+{
+    for(uint32_t i = 0; i < eventListenerMap.size(); ++i)
+    {
+        nativeThreadQueue.addEntry(GET_DELEGATE_WITH_PARAM_FORM(void(uint32_t, float), EventManager,
+                                                                &EventManager::triggerEventDelegate), i);
+    }
+}
+
+void EventManager::triggerEventDelegate(uint32_t specificArg, float broadArg)
+{
+    Vector<EventListenerMapEntry>* eventListenerList = &eventListenerMap[specificArg];
+
+    for(auto it = eventListenerList->begin(); it != eventListenerList->end(); ++it)
+    {
+        VariableVector<EventData>& dataHolderOffset = eventTypeVector[it->eventType].eventDataHolder;
+        for(auto offsetIt = dataHolderOffset.begin(); offsetIt != dataHolderOffset.end();)
+        {
+            uint eventDataSize = *((uint*)offsetIt);
+            offsetIt += sizeof(uint);
+
+            it->function((EventData*)(offsetIt));
+
+            offsetIt += eventDataSize;
+        }
+    }
+}
+
+void EventManager::clearTriggerEventsDelegate(uint32_t specificArg, float broadArg)
+{
+    for(auto it = eventTypeVector.begin(); it != eventTypeVector.end(); ++it)
+    {
+        it->eventDataHolder.clear();
+    }
 }
 
 EventManager::~EventManager()
 {
-	for(auto it = eventListenerMap.begin(); it != eventListenerMap.end(); ++it)
-	{
-		it->eventType = -1;
-	}
+    for(auto it = eventTypeVector.begin(); it != eventTypeVector.end(); ++it)
+    {
+        it->eventType = -1;
+    }
 
-	counter = 0;
-
-	eventListenerMap.~Vector();
-	eventDeleterMap.~Vector();
+    eventListenerMap.~Vector();
+    eventDeleterMap.~Vector();
+    eventTypeVector.~Vector();
 }
 
-void EventManager::removeListeners()
-{
-	if (!eventDeleterMap.empty())
-	{
-		for (auto it = eventDeleterMap.begin(); it != eventDeleterMap.end(); ++it)
-		{
-			int32_t eventType = it->eventType;
-			uint32_t delegateFunctionId = it->delegateId;
-
-			assert(eventType < eventListenerMap.size());
-			auto foundTuple = eventListenerMap.at(eventType);
-			auto findIt = foundTuple.delegateFunctions;
-			for (auto it = findIt.begin(); it != findIt.end(); ++it)
-			{
-				if (delegateFunctionId == it->first)
-				{
-					findIt.erasePop_back(it);
-					break;
-				}
-			}
-			if (findIt.empty())
-			{
-			    int32_t eventType = foundTuple.eventType;
-                foundTuple.eventType = -1;
-				eventListenerMap.erasePop_back(eventType);
-				eventListenerMap.at(eventType).eventType = eventType;
-			}
-		}
-		eventDeleterMap.clear();
-	}
-}
-
-DelegateFunction EventManager::getDelegateFromFunction(Delegate<void(EventData*)>&& function)
-{
-	return DelegateFunction(std::pair<uint32_t, Delegate<void(EventData*)>>(counter++, std::move(function)));
-}
+//void EventManager::removeListener(const DelegateFunctionRef& delegateFunctionRef)
+//{
+//	eventDeleterMap.push_back(delegateFunctionRef);
+//}
+//
+//void EventManager::removeListeners()
+//{
+//	if (!eventDeleterMap.empty())
+//	{
+//		for (auto it = eventDeleterMap.begin(); it != eventDeleterMap.end(); ++it)
+//		{
+//			int32_t eventType = it->eventType;
+//			uint32_t delegateFunctionId = it->delegateId;
+//
+//			assert(eventType < eventListenerMap.size());
+//			auto foundTuple = eventListenerMap.at(eventType);
+//			auto findIt = foundTuple.delegateFunctions;
+//			//TODO: Optimize this!
+//			for (auto it = findIt.begin(); it != findIt.end(); ++it)
+//			{
+//				if (delegateFunctionId == it->index)
+//				{
+//					findIt.erasePop_back(it);
+//					break;
+//				}
+//			}
+//			if (findIt.empty())
+//			{
+//			    int32_t eventType = foundTuple.eventType;
+//                foundTuple.eventType = -1;
+//				eventListenerMap.erasePop_back(eventType);
+//				eventListenerMap.at(eventType).eventType = eventType;
+//			}
+//		}
+//		eventDeleterMap.clear();
+//	}
+//}

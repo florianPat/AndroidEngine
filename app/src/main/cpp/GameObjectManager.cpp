@@ -1,36 +1,48 @@
 #include "GameObjectManager.h"
 #include "Utils.h"
 
-GameObjectManager::GameObjectManager(uint32_t renderActorSize) : actors(), destroyActorQueue()
+GameObjectManager::GameObjectManager(uint32_t renderActorSize) : actors(), pipelineIndexes(),
+	nativeThreadQueue(Globals::window->getNativeThreadQueue())
 {
     //NOTE: This is the RenderOnlyActor
-    addActor(renderActorSize);
-}
-
-Actor* GameObjectManager::addActor()
-{
-	actors.push_back(Actor(actors.size(), DEFAULT_COMPONENT_SIZE));
-
-	return &actors.back();
+	actors.push_back(Actor(actors.size(), renderActorSize));
 }
 
 Actor* GameObjectManager::addActor(uint32_t componentsSize)
 {
+	assert(!nativeThreadQueue.getStartedFlushing());
+
 	actors.push_back(Actor(actors.size(), componentsSize));
+	nativeThreadQueue.addEntry(GET_DELEGATE_WITH_PARAM_FORM(void(uint32_t, float),
+	        GameObjectManager, &GameObjectManager::actorUpdateDelegate), actors.size() - 1);
 
 	return &actors.back();
 }
 
+void GameObjectManager::endPipeline()
+{
+	assert(!nativeThreadQueue.getStartedFlushing());
+
+	//NOTE: should be - 1 because the first one is reserved for the only draw components
+	// But the first one is reserved for clearing the triggerEventVariableVector (see setup of Level)
+	pipelineIndexes.push_back(actors.size());
+}
+
 void GameObjectManager::destroyActor(uint32_t actorId)
 {
-	destroyActorQueue.push_back(actorId);
+	//NOTE: Needs to be implemented in multithreading
+	InvalidCodePath;
+	//destroyActorQueue.push_back(actorId);
 }
 
 void GameObjectManager::updateAndDrawActors(float dt)
 {
-    //NOTE: ++ because the first one is reserved for the only draw components
-	for (auto it = (++actors.begin()); it != actors.end(); ++it)
-		it->update(dt);
+	nativeThreadQueue.flushToWithAndReset(1, 0.0f);
+	for(auto it = pipelineIndexes.begin(); it != pipelineIndexes.end(); ++it)
+	{
+		nativeThreadQueue.flushToWith(*it, dt);
+	}
+	nativeThreadQueue.flush();
 
 	for(int i = 0; i < arrayCount(layers); ++i)
 	{
@@ -42,19 +54,11 @@ void GameObjectManager::updateAndDrawActors(float dt)
 			actor.getComponent<Component>(it->second)->render();
 		}
 	}
-
-	destroyActors();
 }
 
-void GameObjectManager::destroyActors()
+void GameObjectManager::actorUpdateDelegate(uint32_t specificArg, float broadArg)
 {
-	if (!destroyActorQueue.empty())
-	{
-		for (auto it = destroyActorQueue.begin(); it != destroyActorQueue.end(); ++it)
-		{
-			actors.erasePop_back(*it);
-			actors[*it].id = *it;
-		}
-		destroyActorQueue.clear();
-	}
+	Actor* actor = &actors[specificArg];
+
+	actor->update(broadArg);
 }

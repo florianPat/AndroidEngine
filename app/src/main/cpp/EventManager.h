@@ -4,33 +4,68 @@
 #include "Vector.h"
 #include "Delegate.h"
 #include "Globals.h"
-
-typedef std::pair<uint32_t, Delegate<void(EventData*)>> DelegateFunction;
+#include "VariableVector.h"
 
 class EventManager
 {
     struct EventListenerMapEntry
     {
-        int32_t& eventType;
-        Vector<DelegateFunction> delegateFunctions;
+    	int32_t eventType;
+		Delegate<void(EventData*)> function;
     };
+    struct EventTypeAndHolderVector
+	{
+    	int32_t& eventType;
+		VariableVector<EventData> eventDataHolder;
+	};
 public:
 	struct DelegateFunctionRef
 	{
-		const int32_t& eventType;
+		const uint32_t threadTypeId;
 		const uint32_t delegateId;
 	};
 private:
-	Vector<EventListenerMapEntry> eventListenerMap;
+	Vector<Vector<EventListenerMapEntry>> eventListenerMap;
+	Vector<EventTypeAndHolderVector> eventTypeVector;
 	Vector<DelegateFunctionRef> eventDeleterMap;
-	uint32_t counter = 0;
+	NativeThreadQueue& nativeThreadQueue;
+	int32_t mutex = 0;
 private:
-    DelegateFunction getDelegateFromFunction(Delegate<void(EventData*)>&& function);
+	void triggerEventDelegate(uint32_t specificArg, float broadArg);
+	void clearTriggerEventsDelegate(uint32_t specificArg, float broadArg);
 public:
 	EventManager();
 	~EventManager();
 	DelegateFunctionRef addListener(int32_t& eventType, Delegate<void(EventData*)>&& function);
-	void removeListener(const DelegateFunctionRef& delegateFunctionRef);
-	void TriggerEvent(EventData* eventData);
-	void removeListeners();
+	DelegateFunctionRef addListenerForSameThreadType(int32_t& eventType, Delegate<void(EventData*)>&& function, uint32_t threadTypeId);
+	template <typename T, typename... Args>
+	void TriggerEvent(Args&&... args);
+	void addClearTriggerEventsJob();
+	void addListenerEventsJobs();
 };
+
+template <typename T, typename... Args>
+inline void EventManager::TriggerEvent(Args&&... args)
+{
+	if(T::eventId != -1)
+	{
+		assert(T::eventId < eventTypeVector.size());
+		VariableVector<EventData>& eventDataHolder = eventTypeVector[T::eventId].eventDataHolder;
+
+		bool written;
+		//TODO: Think about a sleep here?!
+		do {
+			written = __sync_bool_compare_and_swap(&mutex, 0, 1);
+		} while(!written);
+
+		eventDataHolder.push_back<T>(std::forward<Args>(args)...);
+
+		__sync_synchronize();
+
+        mutex = 0;
+	}
+	else
+	{
+		utils::log("Event is not registered with any functions yet!");
+	}
+}

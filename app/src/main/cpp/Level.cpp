@@ -18,8 +18,8 @@ Level::Level()
 }
 
 Level::Level(uint32_t gomRenderActorSize)
-		:	window(*Globals::window), clock(window.getClock()), physics(), eventManager(), gom(gomRenderActorSize),
-			 gfx(window.getGfx())
+		:	window(*Globals::window), clock(window.getClock()), physics(), eventManager(),
+			gom(gomRenderActorSize), gfx(window.getGfx())
 {
 }
 
@@ -49,7 +49,15 @@ void Level::Go()
 
 void Level::setup()
 {
+#ifdef DEBUG
+	Globals::window->getNativeThreadQueue().resetStartedFlushing();
+#endif
+	Globals::window->getNativeThreadQueue().setNextWriteIndex(0);
+
 	Globals::eventManager = &eventManager;
-	eventManager.addListener(EventChangeLevel::eventId, Delegate<void(EventData*)>::from<Level, &Level::eventChangeLevelHandler>(this));
+	eventManager.addClearTriggerEventsJob();
 	init();
+	eventManager.addListener(EventChangeLevel::eventId, GET_DELEGATE_FROM(Level, &Level::eventChangeLevelHandler));
+	eventManager.addListenerEventsJobs();
+	clock.restart();
 }

@@ -213,8 +213,7 @@ void Window::processAppEvent(int32_t command)
 
                 if(Globals::eventManager != nullptr)
                 {
-                    EventResumeApp eventResumeApp;
-                    Globals::eventManager->TriggerEvent(&eventResumeApp);
+                    Globals::eventManager->TriggerEvent<EventResumeApp>();
                 }
 
                 initFinished = true;
@@ -222,16 +221,12 @@ void Window::processAppEvent(int32_t command)
             }
             break;
         }
+        //NOTE: This event is NOT guaranteed to be called (if app gets wiped out of memory by system and is in background, this
+        // will not trigger)
         case APP_CMD_DESTROY:
         {
-            EventDestroyApp eventDestroyApp;
-            Globals::eventManager->TriggerEvent(&eventDestroyApp);
-
-            assert(Globals::eventManager != nullptr);
-            jniUtils::jniEnv->DeleteGlobalRef(jniUtils::classLoader.object);
-            jniUtils::vm->DetachCurrentThread();
-
             running = false;
+
             break;
         }
         case APP_CMD_GAINED_FOCUS:
@@ -243,8 +238,7 @@ void Window::processAppEvent(int32_t command)
 
                 if(Globals::eventManager != nullptr)
                 {
-                    EventResumeApp eventResumeApp;
-                    Globals::eventManager->TriggerEvent(&eventResumeApp);
+                    Globals::eventManager->TriggerEvent<EventResumeApp>();
                 }
 
                 initFinished = true;
@@ -273,8 +267,7 @@ void Window::processAppEvent(int32_t command)
 
                 if(Globals::eventManager != nullptr)
                 {
-                    EventResumeApp eventResumeApp;
-                    Globals::eventManager->TriggerEvent(&eventResumeApp);
+                    Globals::eventManager->TriggerEvent<EventResumeApp>();
                 }
 
                 initFinished = true;
@@ -294,7 +287,7 @@ void Window::processAppEvent(int32_t command)
             assert(app->activity->assetManager != nullptr);
             jniUtils::activity = app->activity->clazz;
             Ifstream::setAassetManager(app->activity->assetManager);
-            //TODO: Use app->activity->internalDataPath for saving?? and vm for creating threads that need to work with JNI
+            //TODO: Use app->activity->internalDataPath for saving??
 
             jniUtils::vm = app->activity->vm;
             jniUtils::vm->AttachCurrentThreadAsDaemon(&jniUtils::jniEnv, nullptr);
@@ -312,6 +305,8 @@ void Window::processAppEvent(int32_t command)
             jniUtils::classLoader.findClassMethod = findClassMethod;
             assert(jniUtils::classLoader.findClassMethod);
 
+            nativeThreadQueue.startThreads();
+
             //first create or recreate if there is something in the save state
             recreating = (bool) app->stateSaved;
             break;
@@ -320,8 +315,12 @@ void Window::processAppEvent(int32_t command)
         {
             //Now the app really is not visible!
             assert(Globals::eventManager != nullptr);
-            EventStopApp eventStopApp;
-            Globals::eventManager->TriggerEvent(&eventStopApp);
+            Globals::eventManager->TriggerEvent<EventStopApp>();
+
+            jniUtils::jniEnv->DeleteGlobalRef(jniUtils::classLoader.object);
+            jniUtils::vm->DetachCurrentThread();
+
+            nativeThreadQueue.endThreads();
 
             break;
         }
@@ -521,4 +520,9 @@ void Window::checkAndRecoverFromContextLoss()
 const TouchInput& Window::getTouchInput() const
 {
     return touchInput;
+}
+
+NativeThreadQueue& Window::getNativeThreadQueue() const
+{
+    return (NativeThreadQueue&) nativeThreadQueue;
 }

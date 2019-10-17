@@ -634,13 +634,13 @@ String String::createIneffectivlyFrom(const char* s)
     {
         ShortString result;
         result.append(s);
-        return result;
+        return std::move(result);
     }
     else
     {
         LongString result;
         result.append(s);
-        return result;
+        return std::move(result);
     }
 }
 

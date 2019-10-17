@@ -18,7 +18,7 @@ class AssetManager
     struct RessourceCacheAssetVector
     {
         const String& filename;
-        int8_t* assetP;
+		int8_t* assetP;
     };
 private:
 	static constexpr uint64_t maxSize = Gigabyte(1);
