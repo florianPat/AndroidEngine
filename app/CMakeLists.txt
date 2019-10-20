@@ -25,6 +25,16 @@ set_target_properties(libpng
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/libpng/build/${ANDROID_ABI}/liblibpng.a )
 include_directories( libs/libpng )
 
+add_library(oboe
+            STATIC
+            IMPORTED )
+set_target_properties(oboe
+
+        PROPERTIES IMPORTED_LOCATION
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/oboe/build/${ANDROID_ABI}/liboboe.a )
+include_directories( libs/oboe/include )
+
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -71,6 +81,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/MainLevel.cpp
              src/main/cpp/NativeThread.cpp
              src/main/cpp/NativeThreadQueue.cpp
+        src/main/cpp/Audio.cpp
              src/main/cpp/Physics.cpp
              src/main/cpp/RectangleShape.cpp
              src/main/cpp/RenderTexture.cpp
@@ -100,8 +111,9 @@ target_link_libraries( # Specifies the target library.
                        android
                        EGL
                        GLESv2
-                       OpenSLES
                        libpng
                        freetype2
+                       OpenSLES
+                       oboe
                        #NOTE: For building the static lib
                        androidEngine )

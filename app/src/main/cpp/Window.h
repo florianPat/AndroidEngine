@@ -3,14 +3,13 @@
 #include "android_native_app_glue.h"
 #include "Clock.h"
 #include "AssetManager.h"
-#include <SLES/OpenSLES.h>
-#include <SLES/OpenSLES_Android.h>
 #include "Sound.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "GraphicsOGL2.h"
 #include "TouchInput.h"
 #include "NativeThreadQueue.h"
+#include "Audio.h"
 
 #define Graphics GraphicsOGL2
 
@@ -33,12 +32,7 @@ class Window
 
     NativeThreadQueue nativeThreadQueue;
 
-	SLObjectItf engineObj = 0;
-	SLEngineItf engine = 0;
-	SLObjectItf outputMix = 0;
-	SLObjectItf playerObj = 0;
-	SLPlayItf player = 0;
-	SLAndroidSimpleBufferQueueItf playerBuffer = 0;
+    Audio audio;
 public:
 	Window(android_app* app, int width, int height, View::ViewportType viewportType);
 	Window(const Window& other) = delete;
@@ -50,11 +44,11 @@ public:
 	void close();
 	AssetManager* getAssetManager();
 	Clock& getClock();
-	void play(const Sound* snd);
 	FT_Library getFontLibrary();
     Graphics& getGfx();
     const TouchInput& getTouchInput() const;
-    NativeThreadQueue& getNativeThreadQueue() const;
+    NativeThreadQueue& getNativeThreadQueue();
+    Audio& getAudio();
 private:
 	void deactivate();
 	void processAppEvent(int32_t command);
@@ -62,9 +56,9 @@ private:
 	int processInputEvent(AInputEvent* event);
 	static int InputEventCallback(android_app* app, AInputEvent* event);
 	void getAndSetTouchInputPos(AInputEvent* event, int pointerId, uint pointerIndex);
-	bool startSnd();
-	void stopSnd();
 	bool startFont();
 	void stopFont();
 	void checkAndRecoverFromContextLoss();
+	void finishInit();
+	void finishDeinit();
 };

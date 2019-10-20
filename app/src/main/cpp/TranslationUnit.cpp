@@ -21,6 +21,7 @@
 #include "Level.cpp"
 #include "NativeThread.cpp"
 #include "NativeThreadQueue.cpp"
+#include "Audio.cpp"
 #include "Physics.cpp"
 #include "RectangleShape.cpp"
 #include "RenderTexture.cpp"

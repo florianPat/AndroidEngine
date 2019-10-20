@@ -1,26 +1,17 @@
 #include "Sound.h"
 #include "Ifstream.h"
 #include "Utils.h"
+#include "Globals.h"
 #include <memory>
-
-const Vector<Vector<short>>& Sound::getSamples() const
-{
-	return samples;
-}
-
-const int32_t Sound::getNSamples() const
-{
-	return nSamples;
-}
 
 uint64_t Sound::getSize() const
 {
-	return (getNSamples() * sizeof(short) + sizeof(Sound));
+	return (nSamples * sizeof(short) + sizeof(Sound));
 }
 
 const short * Sound::getBuffer() const
 {
-	return samples.data()->data();
+	return samples.data();
 }
 
 Sound::operator bool() const
@@ -61,7 +52,7 @@ Sound::Sound(const String& filename)
 				nChannels = fmt->nChannles;
 
 				assert(fmt->wFormatTag == 1); //NOTE: Only PCM music!
-				assert(fmt->nSamplesPerSecond == 48000);
+				assert(fmt->nSamplesPerSecond == SAMPLE_RATE);
 				assert(fmt->wBitsPerSample == 16);
 				assert(fmt->nBlockAlign == (sizeof(short)*fmt->nChannles));
 				break;
@@ -78,33 +69,23 @@ Sound::Sound(const String& filename)
 	assert(nChannels && sampleData && sampleDataSize);
 
 	nSamples = sampleDataSize / (nChannels * sizeof(short));
+	samples.reserve((uint32_t)nSamples);
 
 	nChannels = 1;
+	assert(nChannels == 1 || nChannels == 2);
 
-	if (nChannels == 1)
+	for (int32_t i = 0; i < nSamples; ++i)
 	{
-		samples.push_back(Vector<short>((uint32_t)nSamples));
-
-		for (int32_t i = 0; i < nSamples; ++i)
-		{
-			samples[0][i] = sampleData[i];
-		}
+		samples[i] = sampleData[i];
 	}
-	else if (nChannels == 2)
+}
+
+Sound::~Sound()
+{
+	if(audioIndex != -1)
 	{
-		samples.push_back(Vector<short>(nSamples / 2));
-		samples.push_back(Vector<short>(nSamples / 2));
-
-		for (int32_t i = 0; i < nSamples;)
-		{
-			samples[0][i] = sampleData[i];
-			++i;
-			samples[1][i] = sampleData[i];
-			++i;
-		}
+		Globals::window->getAudio().dequeue(this);
 	}
-	else
-		utils::logBreak("Invalid channel count!");
 }
 
 Sound::RiffIt::RiffIt(void * at, void* stop) : at(reinterpret_cast<uint8_t*>(at)), stop(reinterpret_cast<uint8_t*>(stop))

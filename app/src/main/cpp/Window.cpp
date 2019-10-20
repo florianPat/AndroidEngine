@@ -144,29 +144,11 @@ Clock & Window::getClock()
     return clock;
 }
 
-void callback_sound(SLAndroidSimpleBufferQueueItf playerBuffer, void* context)
-{
-    utils::log("Sound finished!");
-}
-
-void Window::play(const Sound* snd)
-{
-    (*playerBuffer)->Clear(playerBuffer);
-
-    //NOTE: Only call this if the buffer is stopped!
-    /*assert((*player)->SetCallbackEventsMask(player, SL_PLAYEVENT_HEADATEND) == SL_RESULT_SUCCESS);
-    assert((*playerBuffer)->RegisterCallback(playerBuffer, callback_sound, nullptr) == SL_RESULT_SUCCESS);*/
-
-    assert((*playerBuffer)->Enqueue(playerBuffer, (void*)snd->getBuffer(), (uint) snd->getNSamples()) == SL_RESULT_SUCCESS);
-}
-
 void Window::deactivate()
 {
     gfx.stopGfx();
-    stopSnd();
+    audio.stopSnd();
     stopFont();
-
-    initFinished = false;
 }
 
 void Window::processAppEvent(int32_t command)
@@ -197,7 +179,7 @@ void Window::processAppEvent(int32_t command)
             assert(app->window != nullptr);
             assert(!initFinished);
 
-            if (gfx.startGfx(app->window) && startSnd() && startFont())
+            if (gfx.startGfx(app->window) && audio.startSnd() && startFont())
                 gfx.setupGfxGpu();
             else
             {
@@ -209,15 +191,7 @@ void Window::processAppEvent(int32_t command)
             validNativeWindow = true;
             if (resumed && gainedFocus)
             {
-                checkAndRecoverFromContextLoss();
-
-                if(Globals::eventManager != nullptr)
-                {
-                    Globals::eventManager->TriggerEvent<EventResumeApp>();
-                }
-
-                initFinished = true;
-                clock.restart();
+                finishInit();
             }
             break;
         }
@@ -234,44 +208,37 @@ void Window::processAppEvent(int32_t command)
             gainedFocus = true;
             if (resumed && validNativeWindow)
             {
-                checkAndRecoverFromContextLoss();
-
-                if(Globals::eventManager != nullptr)
-                {
-                    Globals::eventManager->TriggerEvent<EventResumeApp>();
-                }
-
-                initFinished = true;
-                clock.restart();
+                finishInit();
             }
             break;
         }
         case APP_CMD_LOST_FOCUS:
         {
+            if(initFinished)
+            {
+                finishDeinit();
+            }
+
             gainedFocus = false;
-            initFinished = false;
             break;
         }
         case APP_CMD_PAUSE:
         {
+            if(initFinished)
+            {
+                finishDeinit();
+            }
+
             resumed = false;
-            initFinished = false;
             break;
         }
         case APP_CMD_RESUME:
         {
             resumed = true;
+
             if (gainedFocus && validNativeWindow)
             {
-                checkAndRecoverFromContextLoss();
-
-                if(Globals::eventManager != nullptr)
-                {
-                    Globals::eventManager->TriggerEvent<EventResumeApp>();
-                }
-
-                initFinished = true;
-                clock.restart();
+                finishInit();
             }
             break;
         }
@@ -317,18 +284,22 @@ void Window::processAppEvent(int32_t command)
             assert(Globals::eventManager != nullptr);
             Globals::eventManager->TriggerEvent<EventStopApp>();
 
+            nativeThreadQueue.endThreads();
+
             jniUtils::jniEnv->DeleteGlobalRef(jniUtils::classLoader.object);
             jniUtils::vm->DetachCurrentThread();
-
-            nativeThreadQueue.endThreads();
 
             break;
         }
         case APP_CMD_TERM_WINDOW:
         {
+            if(initFinished)
+            {
+                finishDeinit();
+            }
+
             deactivate();
             validNativeWindow = false;
-            initFinished = false;
             break;
         }
         default:
@@ -350,127 +321,6 @@ void Window::getAndSetTouchInputPos(AInputEvent* event, int pointerId, uint poin
     y = y / gfx.screenHeight * viewportSize.y;
 
     touchInput.inputs[pointerId].touchPos = { x, y };
-}
-
-bool Window::startSnd()
-{
-    const SLuint32 engineMixIfCount = 1;
-    const SLInterfaceID engineMixIfs[] = { SL_IID_ENGINE };
-    const SLboolean engineMixIfsReq[] = { SL_BOOLEAN_TRUE };
-
-    const SLuint32 outputMixIfCount = 0;
-    const SLInterfaceID outputMixIfs[] = {};
-    const SLboolean outputMixIfsReq[] = {};
-
-    if(slCreateEngine(&engineObj, 0, nullptr, engineMixIfCount, engineMixIfs, engineMixIfsReq) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("slCreateEngine failed!");
-        return false;
-    }
-
-    if((*engineObj)->Realize(engineObj, SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("Realize failed!");
-        return false;
-    }
-
-    if((*engineObj)->GetInterface(engineObj, SL_IID_ENGINE, &engine) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("GetInterface failed!");
-        return false;
-    }
-
-    if ((*engine)->CreateOutputMix(engine, &outputMix, outputMixIfCount, outputMixIfs, outputMixIfsReq) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("CreateOutputMix failed!");
-        return false;
-    }
-
-    if((*outputMix)->Realize(outputMix, SL_BOOLEAN_FALSE))
-    {
-        utils::logBreak("Realize failed!");
-        return false;
-    }
-
-    SLDataLocator_AndroidSimpleBufferQueue dataLocatorIn = { 0 };
-    dataLocatorIn.locatorType = SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE;
-    dataLocatorIn.numBuffers = 1;
-
-    SLDataFormat_PCM dataFormat = { 0 };
-    dataFormat.formatType = SL_DATAFORMAT_PCM;
-    dataFormat.numChannels = 1;
-    dataFormat.samplesPerSec = SL_SAMPLINGRATE_44_1;
-    dataFormat.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
-    dataFormat.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-    dataFormat.channelMask = SL_SPEAKER_FRONT_CENTER;
-    dataFormat.endianness = SL_BYTEORDER_LITTLEENDIAN;
-
-    SLDataSource dataSource = { 0 };
-    dataSource.pLocator = &dataLocatorIn;
-    dataSource.pFormat = &dataFormat;
-
-    SLDataLocator_OutputMix dataLocatorOut = { 0 };
-    dataLocatorOut.locatorType = SL_DATALOCATOR_OUTPUTMIX;
-    dataLocatorOut.outputMix = outputMix;
-
-    SLDataSink dataSink = { 0 };
-    dataSink.pLocator = &dataLocatorOut;
-    dataSink.pFormat = nullptr;
-
-    const SLuint32 soundPlayerIIdCount = 2;
-    const SLInterfaceID soundPlayerIIds[] = { SL_IID_PLAY, SL_IID_ANDROIDSIMPLEBUFFERQUEUE };
-    const SLboolean soundPlayerReqs[] = { SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE };
-
-    if ((*engine)->CreateAudioPlayer(engine, &playerObj, &dataSource, &dataSink,
-                                     soundPlayerIIdCount, soundPlayerIIds, soundPlayerReqs) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("CreateAudioPlayer failed!");
-        InvalidCodePath;
-    }
-
-    if ((*playerObj)->Realize(playerObj, SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("Realize failed!");
-        InvalidCodePath;
-    }
-
-    if ((*playerObj)->GetInterface(playerObj, SL_IID_PLAY, &player) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("GetInterface failed!");
-        InvalidCodePath;
-    }
-
-    if ((*playerObj)->GetInterface(playerObj, SL_IID_BUFFERQUEUE, &playerBuffer) != SL_RESULT_SUCCESS)
-    {
-        utils::logBreak("GetInterface failed!");
-        InvalidCodePath;
-    }
-
-    assert((*player)->SetPlayState(player, SL_PLAYSTATE_PLAYING) == SL_RESULT_SUCCESS);
-
-    return true;
-}
-
-void Window::stopSnd()
-{
-    if (playerObj != nullptr)
-    {
-        (*playerObj)->Destroy(playerObj);
-        playerObj = nullptr;
-    }
-
-    if (outputMix != nullptr)
-    {
-        (*outputMix)->Destroy(outputMix);
-        outputMix = nullptr;
-    }
-
-    if (engineObj != nullptr)
-    {
-        (*engineObj)->Destroy(engineObj);
-        engineObj = nullptr;
-        engine = nullptr;
-    }
 }
 
 bool Window::startFont()
@@ -522,7 +372,34 @@ const TouchInput& Window::getTouchInput() const
     return touchInput;
 }
 
-NativeThreadQueue& Window::getNativeThreadQueue() const
+NativeThreadQueue& Window::getNativeThreadQueue()
 {
-    return (NativeThreadQueue&) nativeThreadQueue;
+    return nativeThreadQueue;
+}
+
+Audio& Window::getAudio()
+{
+    return audio;
+}
+
+void Window::finishInit()
+{
+    checkAndRecoverFromContextLoss();
+
+    if(Globals::eventManager != nullptr)
+    {
+        Globals::eventManager->TriggerEvent<EventResumeApp>();
+    }
+
+    audio.startStream();
+
+    initFinished = true;
+    clock.restart();
+}
+
+void Window::finishDeinit()
+{
+    audio.stopStream();
+
+    initFinished = false;
 }

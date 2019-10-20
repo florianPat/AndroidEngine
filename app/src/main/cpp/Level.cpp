@@ -53,6 +53,7 @@ void Level::setup()
 	Globals::window->getNativeThreadQueue().resetStartedFlushing();
 #endif
 	Globals::window->getNativeThreadQueue().setNextWriteIndex(0);
+	Globals::window->getAudio().clear();
 
 	Globals::eventManager = &eventManager;
 	eventManager.addClearTriggerEventsJob();

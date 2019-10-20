@@ -5,6 +5,8 @@
 
 class Sound
 {
+	friend class Audio;
+
 #define RIFF_CODE(a, b, c, d) ((a) | ((b) << 8) | ((c) << 16) | ((d) << 24))
 
 	enum class ChunkId
@@ -56,14 +58,17 @@ class Sound
 		uint32_t getType() const;
 		uint32_t getChunkDataSize() const;
 	};
+public:
+	static constexpr uint32_t SAMPLE_RATE = 48000;
 private:
-	Vector<Vector<int16_t>> samples;
+	Vector<int16_t> samples;
 	int32_t nChannels = 0;
 	int32_t nSamples = 0;
+	int32_t audioIndex = -1;
+	int32_t playIndex = 0;
 public:
 	Sound(const String& filename);
-	const Vector<Vector<int16_t>>& getSamples() const;
-	const int32_t getNSamples() const;
+	~Sound();
 	uint64_t getSize() const;
 	const int16_t* getBuffer() const;
 	explicit operator bool() const;

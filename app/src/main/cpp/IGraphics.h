@@ -14,8 +14,8 @@ public:
     {}
     IGraphics(const IGraphics& other) = delete;
     IGraphics& operator=(const IGraphics& rhs) = delete;
-    IGraphics(IGraphics&& other) = default;
-    IGraphics& operator=(IGraphics&& rhs) = default;
+    IGraphics(IGraphics&& other) = delete;
+    IGraphics& operator=(IGraphics&& rhs) = delete;
 
     //NOTE: This is a blueprint to implement.
     // But not through virtual function calls, just by deriving and making the methods
