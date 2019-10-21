@@ -11,6 +11,7 @@
 #include "EventStopApp.h"
 #include "EventResumeApp.h"
 #include "EventManager.h"
+#include "DirWalker.h"
 
 void Window::AppEventCallback(android_app * app, int32_t command)
 {
@@ -254,6 +255,7 @@ void Window::processAppEvent(int32_t command)
             assert(app->activity->assetManager != nullptr);
             jniUtils::activity = app->activity->clazz;
             Ifstream::setAassetManager(app->activity->assetManager);
+            DirWalker::setAassetManager(app->activity->assetManager);
             //TODO: Use app->activity->internalDataPath for saving??
 
             jniUtils::vm = app->activity->vm;

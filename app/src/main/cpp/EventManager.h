@@ -53,7 +53,6 @@ inline void EventManager::TriggerEvent(Args&&... args)
 		VariableVector<EventData>& eventDataHolder = eventTypeVector[T::eventId].eventDataHolder;
 
 		bool written;
-		//TODO: Think about a sleep here?!
 		do {
 			written = __sync_bool_compare_and_swap(&mutex, 0, 1);
 		} while(!written);

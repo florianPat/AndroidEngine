@@ -9,10 +9,6 @@ Ifstream::Ifstream(const String & filename)
 	open(filename);
 }
 
-Ifstream::Ifstream()
-{
-}
-
 Ifstream::Ifstream(Ifstream && other) : asset(std::exchange(other.asset, nullptr)),
 										good(std::exchange(other.good, false))
 {
@@ -78,10 +74,9 @@ void Ifstream::open(const String & filename)
 {
 	asset = AAssetManager_open(aassetManager, filename.c_str(), AASSET_MODE_UNKNOWN);
 
-	if (!asset)
+	if (asset)
 	{
-		good = false;
-		return;
+		good = true;
 	}
 }
 
@@ -98,6 +93,7 @@ void Ifstream::close()
 	{
 		AAsset_close(asset);
 		asset = nullptr;
+		good = false;
 	}
 }
 

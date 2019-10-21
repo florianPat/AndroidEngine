@@ -6,6 +6,7 @@
 #include "Benchmark.cpp"
 #include "CircleShape.cpp"
 #include "Clock.cpp"
+#include "DirWalker.cpp"
 #include "EventManager.cpp"
 #include "Font.cpp"
 #include "GameObjectManager.cpp"

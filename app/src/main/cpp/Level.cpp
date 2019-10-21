@@ -27,7 +27,7 @@ std::unique_ptr<Level> Level::getNewLevel()
 {
     endLevel = false;
     gfx.getDefaultView().setCenter(gfx.getDefaultView().getSize().x / 2.0f, gfx.getDefaultView().getSize().y / 2.0f);
-    //TODO: Set zoom and rotation of defaultView to default!
+    //TODO: Set zoom and rotation of defaultView to default (if that is implemented ;))!
 	return std::move(newLevel);
 }
 

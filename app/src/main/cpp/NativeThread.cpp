@@ -54,7 +54,6 @@ void NativeThread::stop()
 {
     assert(thread != 0);
 
-    //TODO: Think about waiting for the thread to finish?
     threadParameter.running = false;
     pthread_detach(thread);
     thread = 0;

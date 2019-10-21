@@ -10,10 +10,10 @@ public:
 private:
 	AAsset* asset = nullptr;
 	static AAssetManager* aassetManager;
-	bool good = true;
+	bool good = false;
 public:
 	Ifstream(const String& filename);
-	Ifstream();
+	Ifstream() = default;
 	Ifstream(const Ifstream& other) = delete;
 	Ifstream(Ifstream&& other);
 	Ifstream& operator=(const Ifstream& rhs) = delete;
