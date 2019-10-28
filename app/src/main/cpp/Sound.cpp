@@ -84,8 +84,18 @@ Sound::~Sound()
 {
 	if(audioIndex != -1)
 	{
-		Globals::window->getAudio().dequeue(this);
+		Globals::window->getAudio().stop(this);
 	}
+}
+
+void Sound::resume()
+{
+	resumed = true;
+}
+
+void Sound::pause()
+{
+	resumed = false;
 }
 
 Sound::RiffIt::RiffIt(void * at, void* stop) : at(reinterpret_cast<uint8_t*>(at)), stop(reinterpret_cast<uint8_t*>(stop))

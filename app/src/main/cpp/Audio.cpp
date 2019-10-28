@@ -16,17 +16,22 @@ Audio::onAudioReady(oboe::AudioStream* audioStream, void* audioData, int32_t num
         {
             for(auto it = sounds.begin(); it != sounds.end();)
             {
-                assert((*it)->playIndex <= (*it)->nSamples);
-                if((*it)->playIndex == (*it)->nSamples)
+                if((*it)->resumed)
                 {
-                    (*it)->playIndex = 0;
-                    assert((*it)->audioIndex != -1 && (*it)->audioIndex < sounds.size());
-                    it = sounds.erasePop_back((*it)->audioIndex);
-                    continue;
+                    assert((*it)->playIndex <= (*it)->nSamples);
+                    if((*it)->playIndex == (*it)->nSamples)
+                    {
+                        (*it)->playIndex = 0;
+                        assert((*it)->audioIndex != -1 && (*it)->audioIndex < sounds.size());
+                        it = sounds.erasePop_back((*it)->audioIndex);
+                        continue;
+                    }
+
+                    sampleValue += (*it)->getBuffer()[(*it)->playIndex++];
+                    ++it;
                 }
-                sampleValue += (*it)->getBuffer()[(*it)->playIndex++];
-                ++it;
             }
+
             outputData[i] = sampleValue;
             sampleValue = 0;
         }
@@ -94,17 +99,18 @@ void Audio::stopStream()
     audioStream->requestStop();
 }
 
-void Audio::enqueue(Sound* sound)
+void Audio::start(Sound* sound)
 {
     assert(sounds.size() < sounds.capacity());
     sounds.push_back(sound);
     sound->audioIndex = sounds.size() - 1;
 }
 
-void Audio::dequeue(Sound* sound)
+void Audio::stop(Sound* sound)
 {
     assert(sound->audioIndex != -1 && sound->audioIndex < sounds.size());
     sounds.erasePop_back(sound->audioIndex);
+    sound->audioIndex = -1;
 }
 
 void Audio::clear()

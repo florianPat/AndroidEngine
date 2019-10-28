@@ -23,8 +23,8 @@ public:
     void startStream();
     void stopStream();
     //TODO: Think about doing this thread safe!
-    void enqueue(Sound* sound);
-    void dequeue(Sound* sound);
+    void start(Sound* sound);
+    void stop(Sound* sound);
     void clear();
     oboe::DataCallbackResult onAudioReady(oboe::AudioStream* audioStream, void* audioData, int32_t numFrames) override;
 };

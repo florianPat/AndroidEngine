@@ -66,10 +66,13 @@ private:
 	int32_t nSamples = 0;
 	int32_t audioIndex = -1;
 	int32_t playIndex = 0;
+	bool resumed = true;
 public:
 	Sound(const String& filename);
 	~Sound();
 	uint64_t getSize() const;
 	const int16_t* getBuffer() const;
 	explicit operator bool() const;
+	void resume();
+	void pause();
 };
