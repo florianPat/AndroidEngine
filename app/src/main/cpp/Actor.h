@@ -21,7 +21,7 @@ public:
 
 	template <typename T> T* getComponent(int32_t componentIndex);
 
-	int32_t getId() const { return id; };
+	uint32_t getId() const { return id; }
 	void update(float dt);
 };
 

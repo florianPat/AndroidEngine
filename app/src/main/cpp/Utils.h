@@ -12,7 +12,7 @@
 #define assert(exp)
 #endif
 
-#define InvalidCodePath static_assert("InvalidCodePath")
+#define InvalidCodePath assert(!"InvalidCodePath")
 
 #define arrayCount(x) sizeof(x) / sizeof(x[0])
 

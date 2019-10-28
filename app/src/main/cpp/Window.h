@@ -31,6 +31,7 @@ class Window
     Graphics gfx;
 
     NativeThreadQueue nativeThreadQueue;
+    uint32_t threadQueueEventBeginning = 0;
 
     Audio audio;
 public:
@@ -49,6 +50,7 @@ public:
     const TouchInput& getTouchInput() const;
     NativeThreadQueue& getNativeThreadQueue();
     Audio& getAudio();
+    void callToGetEventJobsBeginning();
 private:
 	void deactivate();
 	void processAppEvent(int32_t command);

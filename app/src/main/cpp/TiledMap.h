@@ -45,6 +45,7 @@ public:
 	void draw();
 	uint64_t getSize() const { return sizeof(TiledMap); }
 	Vector2f getMapSize() const;
+	const Texture* getTexture() const;
 private:
 	uint32_t getEndOfWord(const String& word, const String& lineContent, bool* result);
 	String getLineContentBetween(String& lineContent, const String& endOfFirst, char secound);

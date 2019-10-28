@@ -56,5 +56,4 @@ private:
 	static constexpr int32_t FILE_HEADER_LINE_SIZE = 5;
 	static constexpr int32_t FILE_LINES_PER_REGION = 7;
 	FileHeader fileHeader;
-	AssetManager* assetManager = nullptr;
 };

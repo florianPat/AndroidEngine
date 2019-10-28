@@ -61,6 +61,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/Animation.cpp
              src/main/cpp/Array.cpp
              src/main/cpp/AssetManager.cpp
+             src/main/cpp/Audio.cpp
              src/main/cpp/Benchmark.cpp
              src/main/cpp/CircleShape.cpp
              src/main/cpp/Clock.cpp
@@ -82,7 +83,6 @@ add_library( # Sets the name of the library.
              src/main/cpp/MainLevel.cpp
              src/main/cpp/NativeThread.cpp
              src/main/cpp/NativeThreadQueue.cpp
-             src/main/cpp/Audio.cpp
              src/main/cpp/Physics.cpp
              src/main/cpp/RectangleShape.cpp
              src/main/cpp/RenderTexture.cpp

@@ -3,7 +3,7 @@
 
 GraphicsOGL2::GraphicsOGL2(int renderWidth, int renderHeight, View::ViewportType viewportType)
         : GraphicsOGLIniter(renderWidth, renderHeight, viewportType, DISPLAY_ATTRIBS),
-          orhtoProj(), vertices(std::make_unique<Vertex[]>(NUM_VERTICES_TO_BATCH))
+          orhtoProj(), vertices(makeUnique<Vertex[]>(NUM_VERTICES_TO_BATCH))
 {
     Vector2f spriteVertices[] = { {0.0f, 0.0f},
                                   {1.0f, 0.0f},

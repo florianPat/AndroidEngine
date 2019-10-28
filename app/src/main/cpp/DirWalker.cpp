@@ -9,7 +9,7 @@ DirIterator::DirIterator(AAssetDir* assetDir) : assetDir(assetDir)
 
 DirIterator& DirIterator::operator++()
 {
-    if(assetDir)
+    if(assetDir != nullptr)
     {
         dirname.clear();
         const char* nextDirname = AAssetDir_getNextFileName(assetDir);
@@ -22,6 +22,8 @@ DirIterator& DirIterator::operator++()
             assetDir = nullptr;
         }
     }
+
+    return *this;
 }
 
 DirIterator::operator bool() const
@@ -79,8 +81,11 @@ void DirWalker::open(const String& filename)
 
 void DirWalker::close()
 {
-    AAssetDir_close(assetDir);
-    good = false;
+    if(good)
+    {
+        AAssetDir_close(assetDir);
+        good = false;
+    }
 }
 
 void DirWalker::setAassetManager(AAssetManager* aassetManagerIn)

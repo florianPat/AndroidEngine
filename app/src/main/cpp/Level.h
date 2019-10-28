@@ -18,7 +18,7 @@ protected:
     GameObjectManager gom;
     Graphics& gfx;
 
-	std::unique_ptr<Level> newLevel = nullptr;
+	UniquePtr<Level> newLevel = nullptr;
 	bool endLevel = false;
 private:
 	virtual void init() = 0;
@@ -28,7 +28,7 @@ public:
 	Level(uint32_t gomRenderActorSize);
 	void setup();
 	virtual ~Level() = default;
-    std::unique_ptr<Level> getNewLevel();
+    UniquePtr<Level> getNewLevel();
     bool shouldEndLevel() const;
 	void Go();
 };

@@ -16,7 +16,7 @@ void android_main(android_app* app)
 	Window window(app, 900, 600, View::ViewportType::EXTEND);
 	registerAssetLoaders(window.getAssetManager());
 
-	std::unique_ptr<Level> currentLevel = std::make_unique<MainLevel>("testLevel.tmx");
+	UniquePtr<Level> currentLevel = makeUnique<MainLevel>("testLevel.tmx");
 	currentLevel->setup();
 
 	while (window.processEvents())

@@ -6,7 +6,7 @@
 
 struct jniUtils
 {
-    static JNIEnv* jniEnv;
+    __thread static JNIEnv* jniEnv;
     static jobject activity;
     static JavaVM* vm;
     static struct ClassLoader

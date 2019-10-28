@@ -285,6 +285,7 @@ void Window::processAppEvent(int32_t command)
             //Now the app really is not visible!
             assert(Globals::eventManager != nullptr);
             Globals::eventManager->TriggerEvent<EventStopApp>();
+            nativeThreadQueue.flushFrom(threadQueueEventBeginning);
 
             nativeThreadQueue.endThreads();
 
@@ -391,6 +392,7 @@ void Window::finishInit()
     if(Globals::eventManager != nullptr)
     {
         Globals::eventManager->TriggerEvent<EventResumeApp>();
+        nativeThreadQueue.flushFrom(threadQueueEventBeginning);
     }
 
     audio.startStream();
@@ -404,4 +406,9 @@ void Window::finishDeinit()
     audio.stopStream();
 
     initFinished = false;
+}
+
+void Window::callToGetEventJobsBeginning()
+{
+    threadQueueEventBeginning = nativeThreadQueue.getSize();
 }

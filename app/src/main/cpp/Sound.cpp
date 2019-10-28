@@ -2,7 +2,7 @@
 #include "Ifstream.h"
 #include "Utils.h"
 #include "Globals.h"
-#include <memory>
+#include "UniquePtr.h"
 
 uint64_t Sound::getSize() const
 {
@@ -31,7 +31,7 @@ Sound::Sound(const String& filename)
 
 	uint32_t fileSize = (uint32_t)file.getSize();
 
-	std::unique_ptr<int8_t[]> fileContents = std::make_unique<int8_t[]>(fileSize);
+	UniquePtr<int8_t[]> fileContents = makeUnique<int8_t[]>(fileSize);
 	file.read(fileContents.get(), fileSize);
 
 	FileHeader* fileHeader = (FileHeader*)fileContents.get();

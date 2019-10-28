@@ -33,9 +33,11 @@ public:
     NativeThreadQueue& operator=(NativeThreadQueue&& rhs) = delete;
     void addEntry(Delegate<void(uint32_t, float)>&& delegate, uint32_t param);
     void setNextWriteIndex(uint32_t newWriteIndex);
-    void flush();
-    void flushToWithAndReset(uint32_t index, float arg);
-    void flushToWith(uint32_t index, float arg);
+    void flush(float arg = 0.0f);
+    void flushToWithAndReset(uint32_t index, float arg = 0.0f);
+    void flushToWith(uint32_t index, float arg = 0.0f);
+    void flushFrom(uint32_t index, float arg = 0.0f);
+    uint32_t getSize() const;
 #ifdef DEBUG
     bool getStartedFlushing() const;
     void resetStartedFlushing();

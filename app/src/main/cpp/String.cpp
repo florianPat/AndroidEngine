@@ -470,20 +470,12 @@ String operator+(const String& lhsIn, const String& rhs)
 	return lhs;
 }
 
-String operator+(const char * lhs, const String & rhsIn)
+String operator+(char lhsIn, const String & rhs)
 {
-	String rhs(rhsIn);
-	rhs += lhs;
+	String lhs(1, lhsIn, (rhs.capacity() + 1) < String::SHORT_STRING_SIZE);
+	lhs += rhs;
 
-	return rhs;
-}
-
-String operator+(char lhs, const String & rhsIn)
-{
-	String rhs(rhsIn);
-	rhs += lhs;
-
-	return rhs;
+	return lhs;
 }
 
 String operator+(String && lhs, const String & rhs)
@@ -507,12 +499,12 @@ String operator+(const String& lhsIn, char rhs)
 	return lhs;
 }
 
-String operator+(const String& lhs, String&& rhsIn)
+String operator+(const String& lhsIn, String&& rhs)
 {
-	String rhs(std::move(rhsIn));
-	rhs += lhs;
+	String lhs(lhsIn);
+	lhs += rhs;
 
-	return rhs;
+	return lhs;
 }
 
 String operator+(String&& lhsIn, String&& rhs)
@@ -539,20 +531,12 @@ String operator+(String&& lhsIn, char rhs)
 	return lhs;
 }
 
-String operator+(const char* lhs, String&& rhsIn)
+String operator+(char lhsIn, String&& rhs)
 {
-	String rhs(std::move(rhsIn));
-	rhs += lhs;
+	String lhs(1, lhsIn, (rhs.capacity() + 1) < String::SHORT_STRING_SIZE);
+	lhs += rhs;
 
-	return rhs;
-}
-
-String operator+(char lhs, String&& rhsIn)
-{
-	String rhs(std::move(rhsIn));
-	rhs += lhs;
-
-	return rhs;
+	return lhs;
 }
 
 bool operator==(const char * lhs, const String & rhs)

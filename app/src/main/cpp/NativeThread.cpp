@@ -21,10 +21,11 @@ static void* startRoutine(void* args)
 	javaVmAttachArgs.name = "NativeThread";
 	javaVmAttachArgs.group = nullptr;
 
-	//TODO: Fix that this jniEnv needs to get used!!
 	JNIEnv* jniEnv;
 	jint result = threadParameter->javaVm->AttachCurrentThreadAsDaemon(&jniEnv, &javaVmAttachArgs);
 	assert(result == JNI_OK);
+	//NOTE: This works because the var is thread_local, determined by the __thread keyword
+	jniUtils::jniEnv = jniEnv;
 
 	threadParameter->threadFunc(threadParameter->running, threadParameter->arg);
 

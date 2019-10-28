@@ -316,3 +316,8 @@ TiledMap::TiledMap(const String& filename)
 		MakeRenderTexture();
 	}
 }
+
+const Texture* TiledMap::getTexture() const
+{
+    return &texture.getTexture();
+}

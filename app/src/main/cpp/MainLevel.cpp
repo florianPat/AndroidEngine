@@ -5,7 +5,7 @@
 
 void MainLevel::eventLevelReloadHandler(EventData * eventData)
 {
-	newLevel = std::make_unique<MainLevel>(tiledMapName);
+	newLevel = makeUnique<MainLevel>(tiledMapName);
 	endLevel = true;
 }
 

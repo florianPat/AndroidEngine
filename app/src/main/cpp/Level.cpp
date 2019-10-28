@@ -23,7 +23,7 @@ Level::Level(uint32_t gomRenderActorSize)
 {
 }
 
-std::unique_ptr<Level> Level::getNewLevel()
+UniquePtr<Level> Level::getNewLevel()
 {
     endLevel = false;
     gfx.getDefaultView().setCenter(gfx.getDefaultView().getSize().x / 2.0f, gfx.getDefaultView().getSize().y / 2.0f);
@@ -59,6 +59,7 @@ void Level::setup()
 	eventManager.addClearTriggerEventsJob();
 	init();
 	eventManager.addListener(EventChangeLevel::eventId, GET_DELEGATE_FROM(Level, &Level::eventChangeLevelHandler));
+	window.callToGetEventJobsBeginning();
 	eventManager.addListenerEventsJobs();
 	clock.restart();
 }

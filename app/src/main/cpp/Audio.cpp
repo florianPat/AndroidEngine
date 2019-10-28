@@ -35,7 +35,7 @@ Audio::onAudioReady(oboe::AudioStream* audioStream, void* audioData, int32_t num
     return oboe::DataCallbackResult::Continue;
 }
 
-Audio::Audio() : sounds{ 0 }
+Audio::Audio() : sounds{}
 {
     audioBuilder.setDirection(oboe::Direction::Output);
     audioBuilder.setPerformanceMode(oboe::PerformanceMode::None);

@@ -16,7 +16,7 @@ void NativeThreadQueue::startThreads()
     for(uint32_t i = 0; i < nThreads; ++i)
     {
         nativeThreads.emplace_back(GET_DELEGATE_WITH_PARAM_FORM(void(volatile bool&, void*),
-                                                                NativeThreadQueue, &NativeThreadQueue::threadFunc), this);
+                                                                NativeThreadQueue, &NativeThreadQueue::threadFunc), nullptr);
     }
 }
 
@@ -37,17 +37,16 @@ void NativeThreadQueue::endThreads()
 
 void NativeThreadQueue::threadFunc(volatile bool& running, void* arg)
 {
-    NativeThreadQueue* queue = (NativeThreadQueue*) arg;
     while(running)
     {
-        uint32_t originalNextEntryIndex = queue->nextEntryIndex;
-        if(originalNextEntryIndex < queue->size)
+        uint32_t originalNextEntryIndex = nextEntryIndex;
+        if(originalNextEntryIndex < size)
         {
-            bool written = __sync_bool_compare_and_swap(&queue->nextEntryIndex, originalNextEntryIndex, originalNextEntryIndex + 1);
+            bool written = __sync_bool_compare_and_swap(&nextEntryIndex, originalNextEntryIndex, originalNextEntryIndex + 1);
             if(written)
             {
-                Entry entry = queue->entries[originalNextEntryIndex];
-                entry.delegate(entry.data, queue->flushArg);
+                Entry entry = entries[originalNextEntryIndex];
+                entry.delegate(entry.data, flushArg);
             }
         }
         else
@@ -82,8 +81,8 @@ void NativeThreadQueue::flushToWithAndReset(uint32_t index, float arg)
 
     __sync_synchronize();
 
-    size = index;
     nextEntryIndex = 0;
+    size = index;
 
     __sync_synchronize();
 
@@ -131,17 +130,48 @@ void NativeThreadQueue::flushToWith(uint32_t index, float arg)
     while(getAndCompleteNextEntry());
 }
 
-void NativeThreadQueue::flush()
+void NativeThreadQueue::flush(float arg)
 {
 #ifdef DEBUG
     if(!startedFlushing)
         startedFlushing = true;
 #endif
 
-    flushArg = 0.0f;
+    flushArg = arg;
 
     __sync_synchronize();
 
+    size = entryCount;
+
+    __sync_synchronize();
+
+    uint32_t nEntriesToDo = size - nextEntryIndex;
+    int32_t result = 0;
+    if(nEntriesToDo > 1)
+    {
+        nEntriesToDo = (nEntriesToDo > nThreads) ? nThreads : nEntriesToDo;
+        for(uint32_t i = 0; i < nEntriesToDo; ++i)
+        {
+            result = sem_post(&semaphore);
+            assert(result == 0);
+        }
+    }
+    while(getAndCompleteNextEntry());
+}
+
+void NativeThreadQueue::flushFrom(uint32_t index, float arg)
+{
+#ifdef DEBUG
+    if(!startedFlushing)
+        startedFlushing = true;
+#endif
+
+    assert(index <= entryCount);
+    flushArg = arg;
+
+    __sync_synchronize();
+
+    nextEntryIndex = index;
     size = entryCount;
 
     __sync_synchronize();
@@ -196,4 +226,9 @@ bool NativeThreadQueue::getAndCompleteNextEntry()
     }
 
     return result;
+}
+
+uint32_t NativeThreadQueue::getSize() const
+{
+    return entryCount;
 }

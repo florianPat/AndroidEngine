@@ -1,6 +1,6 @@
 #include "JNIUtils.h"
 
-JNIEnv* jniUtils::jniEnv = nullptr;
+__thread JNIEnv* jniUtils::jniEnv = nullptr;
 jobject jniUtils::activity = nullptr;
 JavaVM* jniUtils::vm = nullptr;
 jniUtils::ClassLoader jniUtils::classLoader = { 0 };

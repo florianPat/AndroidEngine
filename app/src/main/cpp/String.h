@@ -110,14 +110,16 @@ public:
 	friend String operator+(const String& lhs, const String& rhs);
 	friend String operator+(const String& lhs, const char* rhs);
 	friend String operator+(const String& lhs, char rhs);
-	friend String operator+(const char* lhs, const String& rhs);
+	template<uint32_t N>
+	friend String operator+(const char(&lhs)[N], const String& rhs);
 	friend String operator+(char lhs, const String& rhs);
 	friend String operator+(String&& lhs, const String& rhs);
 	friend String operator+(const String& lhs, String&& rhs);
 	friend String operator+(String&& lhs, String&& rhs);
 	friend String operator+(String&& lhs, const char* rhs);
 	friend String operator+(String&& lhs, char rhs);
-	friend String operator+(const char* lhs, String&& rhs);
+	template<uint32_t N>
+	friend String operator+(const char (&lhs)[N], String&& rhs);
 	friend String operator+(char lhs, String&& rhs);
 
 	bool operator==(const String& rhs) const;
@@ -163,6 +165,22 @@ inline uint32_t String::find(const char (&str)[N], uint32_t pos) const
 	return find(str, pos, N - 1);
 }
 
+template<uint32_t N>
+inline String operator+(const char (&lhsIn)[N], const String& rhs)
+{
+	String lhs(lhsIn);
+	lhs += rhs;
+	return lhs;
+}
+
+template<uint32_t N>
+inline String operator+(const char (&lhsIn)[N], String&& rhs)
+{
+	String lhs(lhsIn);
+	lhs += rhs;
+	return lhs;
+}
+
 struct ShortString : public String
 {
 	ShortString();
@@ -187,13 +205,13 @@ struct LongString : public String
 
 #include <string>
 
+//TODO: Import a HashMap implementation and replace unordered_map
 namespace std {
 	template<>
 	struct hash<String> {
 	public:
 		uint32_t operator()(const String &s) const
 		{
-			//TODO: Build own hasher!
 			return (uint32_t)std::hash<std::string>()(s.c_str());
 		}
 	};
@@ -203,7 +221,6 @@ namespace std {
 	public:
 		uint32_t operator()(const ShortString &s) const
 		{
-			//TODO: Build own hasher!
 			return (uint32_t)std::hash<std::string>()(s.c_str());
 		}
 	};
@@ -213,7 +230,6 @@ namespace std {
 	public:
 		uint32_t operator()(const LongString &s) const
 		{
-			//TODO: Build own hasher!
 			return (uint32_t)std::hash<std::string>()(s.c_str());
 		}
 	};

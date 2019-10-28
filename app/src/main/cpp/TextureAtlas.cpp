@@ -4,7 +4,7 @@
 #include "Rect.h"
 #include <cstdlib>
 
-TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) : textureAtlas(), fileHeader{}, assetManager(assetManager)
+TextureAtlas::TextureAtlas(const String& filepath, AssetManager* assetManager) : textureAtlas(), fileHeader{}
 {
 	LongString dirsToAdd = utils::getDirPathToFile(filepath);
 

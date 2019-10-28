@@ -10,7 +10,7 @@
 #include "Mat4x4.h"
 #include "RectangleShape.h"
 #include "CircleShape.h"
-#include <memory>
+#include "UniquePtr.h"
 #include "GraphicsOGLIniter.h"
 
 class GraphicsOGL2 : public GraphicsOGLIniter
@@ -33,7 +33,7 @@ private:
     static constexpr int NUM_SPRITES_TO_BATCH = 32;
     static constexpr int NUM_VERTICES_TO_BATCH = NUM_SPRITES_TO_BATCH * 4;
     int nSpritesBatched = 0;
-    std::unique_ptr<Vertex[]> vertices;
+    UniquePtr<Vertex[]> vertices;
     bool isFastRectDrawing = false;
 
     static constexpr EGLint DISPLAY_ATTRIBS[] = {
