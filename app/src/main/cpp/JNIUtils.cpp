@@ -13,7 +13,7 @@ jclass jniUtils::findClass(const String& clazz)
 
 void jniUtils::checkException()
 {
-#ifdef DEBUG
+#ifdef _DEBUG
     if(jniEnv->ExceptionCheck())
     {
         jniEnv->ExceptionDescribe();

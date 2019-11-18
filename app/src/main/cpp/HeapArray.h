@@ -10,18 +10,21 @@ struct HeapArray : public Array<T, 0>
 	HeapArray(uint32_t count, const T& value);
 	HeapArray(uint32_t count, uint32_t plusCount, const T& value);
 	HeapArray(const HeapArray& other);
-	HeapArray(HeapArray&& other);
+	HeapArray(HeapArray&& other) noexcept;
 	HeapArray(const HeapArray& other, uint32_t sizeIn);
 	HeapArray(HeapArray&& other, uint32_t sizeIn);
 	HeapArray& operator=(const HeapArray& other);
-	HeapArray& operator=(HeapArray&& other);
+	HeapArray& operator=(HeapArray&& other) noexcept;
 };
 
 template <typename T>
-inline HeapArray<T>::HeapArray(uint32_t size) : Array<T, 0>{ { .heapArray.p = (T*)malloc(sizeof(T) * size), .heapArray.capacity = size } }
+inline HeapArray<T>::HeapArray(uint32_t size) : Array<T, 0>()
 {
+	this->arrayUnion.heapArray.p = (T*)malloc(sizeof(T) * size);
+	this->arrayUnion.heapArray.capacity = size;
+
     uint8_t* charPtr = (uint8_t*)this->arrayUnion.heapArray.p;
-	for(int32_t i = 0; i < sizeof(T) * size; ++i)
+	for(uint32_t i = 0; i < (sizeof(T) * size); ++i)
     {
 		charPtr[i] = 0;
     }
@@ -55,9 +58,11 @@ inline HeapArray<T>::HeapArray(const HeapArray & other) : HeapArray(other.arrayU
 }
 
 template <typename T>
-inline HeapArray<T>::HeapArray(HeapArray && other) : Array<T, 0>{ { .heapArray.p = std::exchange(other.arrayUnion.heapArray.p, nullptr), 
-													 .heapArray.capacity = std::exchange(other.arrayUnion.heapArray.capacity, 0) }, std::exchange(other.arraySize, 0) }
+inline HeapArray<T>::HeapArray(HeapArray&& other) noexcept
 {
+	this->arrayUnion.heapArray.p = std::exchange(other.arrayUnion.heapArray.p, nullptr);
+	this->arrayUnion.heapArray.capacity = std::exchange(other.arrayUnion.heapArray.capacity, 0);
+	this->arraySize = std::exchange(other.arraySize, 0);
 }
 
 template <typename T>
@@ -112,7 +117,7 @@ inline HeapArray<T>::HeapArray(HeapArray && other, uint32_t capacityIn) : HeapAr
 template <typename T>
 inline HeapArray<T> & HeapArray<T>::operator=(const HeapArray<T> & other)
 {
-	this->~Array<T, 0>();
+	this->~HeapArray<T>();
 
 	new (this) HeapArray(other);
 
@@ -120,12 +125,11 @@ inline HeapArray<T> & HeapArray<T>::operator=(const HeapArray<T> & other)
 }
 
 template <typename T>
-inline HeapArray<T> & HeapArray<T>::operator=(HeapArray<T> && other)
+inline HeapArray<T> & HeapArray<T>::operator=(HeapArray<T> && other) noexcept
 {
-	this->~Array<T, 0>();
+	this->~HeapArray<T>();
 
 	new (this) HeapArray(std::move(other));
 
 	return *this;
 }
-

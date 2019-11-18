@@ -77,11 +77,6 @@ void VertexArray::bind() const
 	ib->bind();
 }
 
-void VertexArray::unbind() const
-{
-	CallGL(glBindVertexArray(0));
-}
-
 int32_t VertexArray::getIboCount() const
 {
 	return ib->getCount();

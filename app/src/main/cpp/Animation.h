@@ -18,7 +18,7 @@ public:
 protected:
 	uint32_t keyFrameIt;
 	uint32_t keyFrameItReverse;
-	int64_t currentTime = 0;
+	uint64_t currentTime = 0;
 	PlayMode playMode;
 	Clock clock;
 	bool paused = false;
@@ -27,7 +27,7 @@ public:
 	uint64_t frameDuration;
 public:
 	Animation(Vector<TextureRegion>& keyFrames, uint64_t frameDuration, PlayMode type);
-	Animation(const Vector<ShortString>& regionNames, const TextureAtlas& atlas, uint64_t frameDuration = (uint64_t)Time::seconds(0.2f).asMicroseconds(), PlayMode type = PlayMode::LOOPED);
+	Animation(const Vector<ShortString>& regionNames, const TextureAtlas& atlas, uint64_t frameDuration = Time::seconds(0.2f).asMicroseconds(), PlayMode type = PlayMode::LOOPED);
 	PlayMode getPlayMode() const;
 	//NOTE: animation goes on if you call this (and this is maybe not want I want)
 	bool isAnimationFinished();

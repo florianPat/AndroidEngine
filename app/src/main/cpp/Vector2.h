@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math.h>
+#include "Types.h"
 
 template <typename T>
 struct Vector2
@@ -123,4 +124,5 @@ public:
 };
 
 typedef Vector2<float> Vector2f;
-typedef Vector2<int> Vector2i;
+typedef Vector2<int32_t> Vector2i;
+typedef Vector2<uint32_t> Vector2ui;

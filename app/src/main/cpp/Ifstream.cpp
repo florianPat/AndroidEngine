@@ -110,9 +110,9 @@ char Ifstream::get()
 	return c;
 }
 
-std::streampos Ifstream::tellg()
+uint64_t Ifstream::tellg()
 {
-	return std::streampos(getSize() - AAsset_getRemainingLength64(asset));
+	return getSize() - AAsset_getRemainingLength64(asset);
 }
 
 void Ifstream::seekg(uint32_t pos)

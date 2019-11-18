@@ -5,6 +5,7 @@
 #include "Delegate.h"
 #include "Globals.h"
 #include "VariableVector.h"
+#include "NativeThreadQueue.h"
 
 class EventManager
 {
@@ -29,7 +30,7 @@ private:
 	Vector<EventTypeAndHolderVector> eventTypeVector;
 	Vector<DelegateFunctionRef> eventDeleterMap;
 	NativeThreadQueue& nativeThreadQueue;
-	int32_t mutex = 0;
+	volatile uint32_t mutex = 0;
 private:
 	void triggerEventDelegate(uint32_t specificArg, float broadArg);
 	void clearTriggerEventsDelegate(uint32_t specificArg, float broadArg);
@@ -49,7 +50,7 @@ inline void EventManager::TriggerEvent(Args&&... args)
 {
 	if(T::eventId != -1)
 	{
-		assert(T::eventId < eventTypeVector.size());
+		assert((uint32_t)T::eventId < eventTypeVector.size());
 		VariableVector<EventData>& eventDataHolder = eventTypeVector[T::eventId].eventDataHolder;
 
 		bool written;

@@ -49,7 +49,7 @@ void Level::Go()
 
 void Level::setup()
 {
-#ifdef DEBUG
+#ifdef _DEBUG
 	Globals::window->getNativeThreadQueue().resetStartedFlushing();
 #endif
 	Globals::window->getNativeThreadQueue().setNextWriteIndex(0);

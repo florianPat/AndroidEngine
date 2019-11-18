@@ -10,7 +10,7 @@ android {
         versionName "1.0"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++17 -Wall -lm -lz"
+                cppFlags "-std=c++17 -Wall -lm -lz -DGL_GRAPHICS=1"
                 // For not stl: -DANDROID_STL=none
             }
         }
@@ -24,7 +24,7 @@ android {
             jniDebuggable = true
             externalNativeBuild {
                 cmake {
-                    cppFlags += "-DDEBUG=1"
+                    cppFlags += "-D_DEBUG=1"
                 }
             }
         }
@@ -32,6 +32,16 @@ android {
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs {
+                // Gradle includes libraries in the following path as dependencies
+                // of your CMake or ndk-build project so that they are packaged in
+                // your app’s APK.
+                srcDir "C:/Users/Florian/AppData/Local/Android/Sdk/ndk-bundle/sources/third_party/vulkan/src/build-android/jniLibs"
+            }
         }
     }
 }

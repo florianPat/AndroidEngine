@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "Globals.h"
 #include "UniquePtr.h"
+#include "Window.h"
 
 uint64_t Sound::getSize() const
 {
@@ -36,8 +37,8 @@ Sound::Sound(const String& filename)
 
 	FileHeader* fileHeader = (FileHeader*)fileContents.get();
 
-	assert(fileHeader->riffId == (uint)ChunkId::RIFF);
-	assert(fileHeader->waveId == (uint)ChunkId::WAVE);
+	assert(fileHeader->riffId == (uint32_t)ChunkId::RIFF);
+	assert(fileHeader->waveId == (uint32_t)ChunkId::WAVE);
 
 	short* sampleData = nullptr;
 	uint32_t sampleDataSize = 0;

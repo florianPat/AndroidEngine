@@ -3,14 +3,14 @@
 #include "Vector2.h"
 #include "Vector.h"
 #include "Rect.h"
-#include "Window.h"
+#include "Graphics.h"
 
 class Physics
 {
 public:
 	struct FloatCircle
 	{
-		float radius;
+		float radius = 0.0f;
 		Vector2f center;
 	public:
 		FloatCircle(Vector2f&& center, float radius);
@@ -23,10 +23,10 @@ public:
 	private:
 		friend class Physics;
 
-		float angle;
+		float angle = 0.0f;
 		Vector2f xAxis, yAxis;
 	public:
-		float width, height;
+		float width = 0.0f, height = 0.0f;
 		Vector2f pos;
 		Vector2f origin;
 	public:
@@ -110,13 +110,13 @@ public:
 		TriggerInformation triggerInformation = {};
 		ShortString id;
 		Vector<Collider> physicsElements;
-		Vector<int> collisionLayers;
+		Vector<int32_t> collisionLayers;
 	public:
 		Vector2f pos;
 		Vector2f vel = { 0.0f, 0.0f };
 	public:
 		//Should be called, if the object is moving
-		Body(Vector2f&& pos, const ShortString& name, Collider&& collider, Vector<int>&& collideLayers,
+		Body(Vector2f&& pos, const ShortString& name, Collider&& collider, Vector<int32_t>&& collideLayers,
 				bool isTrigger = false, bool isStatic = false);
 		//Should be called if the object, is a static one
 		Body(const ShortString& name, Collider&& collider, bool isTrigger = false, bool isStatic = true);
@@ -139,7 +139,7 @@ private:
 	Vector<Body> bodies;
 	int32_t collisionLayers[NUM_LAYERS];
 	//TODO: Can I get rid of this?
-	Vector<int> bodyIndices;
+	Vector<int32_t> bodyIndices;
 private:
 	void handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int32_t bodyIndex);
 public:

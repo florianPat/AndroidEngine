@@ -6,7 +6,7 @@
 
 #undef assert
 
-#ifdef DEBUG
+#ifdef _DEBUG
 #define assert(exp) if(!((exp) && true)) __android_log_assert(nullptr, "ASSERT", #exp);
 #else
 #define assert(exp)
@@ -38,27 +38,27 @@ namespace utils
 	template<typename... Args>
 	void logF(const char* string, Args&&... args)
     {
-#ifdef DEBUG
+#ifdef _DEBUG
         __android_log_print(ANDROID_LOG_DEBUG, "utilsLog", string, args...);
 #endif
     }
     template<typename... Args>
 	void logFBreak(const char* string, Args&&... args)
     {
-#ifdef DEBUG
+#ifdef _DEBUG
         __android_log_print(ANDROID_LOG_DEBUG, "utilsLog", string, args...);
         InvalidCodePath;
 #endif
     }
 	inline void log(const char* string)
 	{
-#ifdef DEBUG
+#ifdef _DEBUG
 		__android_log_write(ANDROID_LOG_DEBUG, "utilsLog", string);
 #endif
 	}
 	inline void logBreak(const char* string)
 	{
-#ifdef DEBUG
+#ifdef _DEBUG
 		log((string));
 		InvalidCodePath;
 #endif

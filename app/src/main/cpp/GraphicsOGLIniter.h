@@ -18,7 +18,7 @@ private:
     bool initSurface(EGLConfig& config, ANativeWindow* nativeWindow);
     bool initContext(EGLConfig& config);
 public:
-    GraphicsOGLIniter(int renderWidth, int renderHeight, View::ViewportType viewportType, const EGLint* displayAttribs);
+    GraphicsOGLIniter(uint32_t renderWidth, uint32_t renderHeight, View::ViewportType viewportType, const EGLint* displayAttribs);
 
     bool startGfx(ANativeWindow* nativeWindow);
     void stopGfx();

@@ -44,7 +44,7 @@ void GameObjectManager::updateAndDrawActors(float dt)
 	}
 	nativeThreadQueue.flush();
 
-	for(int i = 0; i < arrayCount(layers); ++i)
+	for(int32_t i = 0; i < arrayCount(layers); ++i)
 	{
 		auto& layer = layers[i];
 

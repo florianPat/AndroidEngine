@@ -33,11 +33,6 @@ void IndexBuffer::bind() const
 	CallGL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererId));
 }
 
-void IndexBuffer::unbind() const
-{
-	CallGL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-}
-
 int32_t IndexBuffer::getCount() const
 {
 	return count;

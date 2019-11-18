@@ -1,56 +1,30 @@
-#include "Texture.h"
+#include "OGLTexture.h"
 //NOTE: In pngrutil.c I made a note!
 #include <png.h>
 #include "Utils.h"
 #include "Ifstream.h"
 #include "GLUtils.h"
 #include "Types.h"
+#include "PNGReadCallback.h"
 
-static void callbackReadPng(png_structp pngStruct, png_bytep data, png_size_t size) {
-	Ifstream* asset = ((Ifstream*)png_get_io_ptr(pngStruct));
-	asset->read(data, (uint32_t)size);
-}
-
-static void callbackReadTransform(png_structp ptr, png_row_infop rowInfo, png_bytep data)
-{
-    assert(rowInfo->bit_depth == 8); // 1 byte, uchar
-    assert(rowInfo->rowbytes == (rowInfo->width * sizeof(uint32_t)));
-    assert(rowInfo->color_type == PNG_COLOR_TYPE_RGB || rowInfo->color_type == PNG_COLOR_TYPE_RGBA);
-
-    if(rowInfo->color_type == PNG_COLOR_TYPE_RGBA)
-    {
-        assert(rowInfo->channels == 4); //RGBA
-        assert(rowInfo->pixel_depth == (4 * 8));
-
-        for(int32_t i = 0; i < rowInfo->rowbytes; i += 4)
-        {
-            float alpha = data[i + 3] / 255.0f;
-
-            data[i + 0] = (uint8_t) (data[i + 0] / 255.0f * alpha * 255.0f);
-            data[i + 1] = (uint8_t) (data[i + 1] / 255.0f * alpha * 255.0f);
-            data[i + 2] = (uint8_t) (data[i + 2] / 255.0f * alpha * 255.0f);
-        }
-    }
-}
-
-void Texture::reloadFromFile(const String& filename)
+void OGLTexture::reloadFromFile(const String& filename)
 {
 	if (texture != 0)
 	{
 		CallGL(glDeleteTextures(1, &texture));
 	}
 
-	new (this) Texture(filename);
+	new (this) OGLTexture(filename);
 }
 
-Texture::Texture(Texture && other) : texture(std::exchange(other.texture, 0)), width(std::exchange(other.width, 0)),
+OGLTexture::OGLTexture(OGLTexture && other) : texture(std::exchange(other.texture, 0)), width(std::exchange(other.width, 0)),
 									 height(std::exchange(other.height, 0))
 {
 }
 
-Texture & Texture::operator=(Texture && rhs)
+OGLTexture & OGLTexture::operator=(OGLTexture && rhs)
 {
-	this->~Texture();
+	this->~OGLTexture();
 
 	texture = std::exchange(rhs.texture, 0);
 	width = std::exchange(rhs.width, 0);
@@ -59,41 +33,29 @@ Texture & Texture::operator=(Texture && rhs)
 	return *this;
 }
 
-Texture::~Texture()
+OGLTexture::~OGLTexture()
 {
     CallGL(glDeleteTextures(1, &texture));
     width = 0;
 }
 
-Texture::operator bool() const
+OGLTexture::operator bool() const
 {
 	return (width != 0);
 }
 
-void Texture::bind(int32_t slot) const
+void OGLTexture::bind(int32_t slot) const
 {
 	CallGL(glActiveTexture(GL_TEXTURE0 + slot));
 	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
 }
 
-Texture::Texture(const void* buffer, int32_t width, int32_t height, GLint internalFormat)
+OGLTexture::OGLTexture(const void* buffer, uint32_t width, uint32_t height, GLint internalFormat)
 {
-	CallGL(glGenTextures(1, &texture));
-	CallGL(glActiveTexture(GL_TEXTURE0));
-	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
-
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-
-	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, buffer));
-
-	this->width = width;
-	this->height = height;
+    createGpuTexture(buffer, width, height, internalFormat);
 }
 
-Texture::Texture(const String& filename)
+OGLTexture::OGLTexture(const String& filename)
 {
 	Ifstream asset;
 	asset.open(filename);
@@ -205,19 +167,24 @@ Texture::Texture(const String& filename)
 	delete[] rowPtrs;
 	asset.close();
 
-	CallGL(glGenTextures(1, &texture));
-	CallGL(glActiveTexture(GL_TEXTURE0));
-	CallGL(glBindTexture(GL_TEXTURE_2D, texture));
-
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-	CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-
-	CallGL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image));
+	createGpuTexture(image, width, height, format);
 
 	delete[] image;
+}
 
-	this->width = width;
-	this->height = height;
+void OGLTexture::createGpuTexture(const void* buffer, int32_t width, int32_t height, GLint internalFormat)
+{
+    CallGL(glGenTextures(1, &texture));
+    CallGL(glActiveTexture(GL_TEXTURE0));
+    CallGL(glBindTexture(GL_TEXTURE_2D, texture));
+
+    CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
+    CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, pixeld ? GL_NEAREST : GL_LINEAR));
+    CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    CallGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+    CallGL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, buffer));
+
+    this->width = width;
+    this->height = height;
 }

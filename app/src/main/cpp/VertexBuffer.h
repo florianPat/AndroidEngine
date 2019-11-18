@@ -16,6 +16,5 @@ public:
 	explicit operator bool() const;
 	~VertexBuffer();
 	void bind() const;
-	void unbind() const;
 	void subData(int32_t offset, int32_t size, const void* data);
 };

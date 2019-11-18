@@ -2,17 +2,24 @@
 #include "Ifstream.h"
 #include "Globals.h"
 #include FT_IMAGE_H
+#include "Sprite.h"
+#include "Window.h"
 
 bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
 {
     assert(gfx != nullptr);
 
     //NOTE: -1 because ' ' does not get rendered!
-    uint renderTextureSize = (uint) size * (NUM_GLYPHS - 1);
+    uint32_t renderTextureSize = (uint32_t) size * (NUM_GLYPHS - 1);
 
     int32_t maxTextureSize = 0;
     uint32_t renderTextureRowSize = size;
+#ifdef GL_GRAPHICS
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+#endif
+#ifdef VK_GRAPHICS
+    maxTextureSize = 2048;
+#endif
     if(renderTextureSize > maxTextureSize)
     {
         uint32_t nRows = (uint32_t)ceil(((float)renderTextureSize) / maxTextureSize);
@@ -21,12 +28,12 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         renderTextureRowSize = size * nRows;
     }
 
-    renderTexture.create(renderTextureSize, renderTextureRowSize);
-    renderTexture.begin(*gfx);
+    renderTexture.create(renderTextureSize, renderTextureRowSize, gfx);
+    renderTexture.begin();
     gfx->clear();
-    uint32_t* pixels = (uint32_t*) malloc(size * size * sizeof(uint));
+    uint32_t* pixels = (uint32_t*) malloc(size * size * sizeof(uint32_t));
 
-    Vector2i xy = { 0, 0 };
+    Vector2ui xy = { 0, 0 };
     Texture texture;
     Sprite sprite;
 
@@ -39,7 +46,7 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         if(!loadGlyphIntoMap(c, glyphRegion, face, xy))
             return false;
 
-        int error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+        int32_t error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
         if(error)
         {
             utils::log("could not render char from face");
@@ -49,9 +56,9 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         }
 
         uint16_t numGrayLevels = face->glyph->bitmap.num_grays;
-        for(int y = 0, pixelY = glyphRegion.size.y - 1; y < glyphRegion.size.y; ++y, --pixelY)
+        for(uint32_t y = 0, pixelY = glyphRegion.size.y - 1; y < glyphRegion.size.y; ++y, --pixelY)
         {
-            for(int x = 0; x < glyphRegion.size.x; ++x)
+            for(uint32_t x = 0; x < glyphRegion.size.x; ++x)
             {
                 uint8_t currentPixelGrayLevel = face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x];
                 //NOTE: Premultiplied alpha for free ;)
@@ -61,7 +68,7 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
             }
         }
 
-        texture = Texture(pixels, face->glyph->bitmap.pitch, glyphRegion.size.y);
+        texture = Texture(pixels, (uint32_t)face->glyph->bitmap.pitch, glyphRegion.size.y);
         sprite.setTexture(&texture, true);
         sprite.pos = (Vector2f) xy;
         gfx->draw(sprite);
@@ -76,7 +83,7 @@ bool Font::createGlyphRenderTextureAndMap(FT_Face& face)
         }
     }
 
-    renderTexture.end(*gfx);
+    renderTexture.end();
     free(pixels);
     destructFace(face);
 
@@ -101,7 +108,7 @@ bool Font::reloadFromFile(const String& filename)
     return createGlyphRenderTextureAndMap(face);
 }
 
-void Font::drawText(const String& text, const Vector2f& pos, int pixelSize, Color color)
+void Font::drawText(const String& text, const Vector2f& pos, int32_t pixelSize, Color color)
 {
     Vector2f pen = { 0.0f, 0.0f };
     float scale = (float)pixelSize / size;
@@ -109,7 +116,7 @@ void Font::drawText(const String& text, const Vector2f& pos, int pixelSize, Colo
     sprite.color = color;
     sprite.setScale(scale);
 
-    for(int i = 0; i < text.size(); ++i)
+    for(uint32_t i = 0; i < text.size(); ++i)
     {
         char c = text[i];
 
@@ -140,7 +147,7 @@ void Font::drawText(const String& text, const Vector2f& pos, int pixelSize, Colo
     }
 }
 
-Font::Font(Font&& other) : size(std::exchange(other.size, 0)), faceHeight(std::exchange(other.faceHeight, 0)),
+Font::Font(Font&& other) noexcept : size(std::exchange(other.size, 0)), faceHeight(std::exchange(other.faceHeight, 0)),
                            renderTexture(std::exchange(other.renderTexture, RenderTexture())),
                            library(std::exchange(other.library, nullptr)), gfx(std::exchange(other.gfx, nullptr))
 {
@@ -150,7 +157,7 @@ Font::Font(Font&& other) : size(std::exchange(other.size, 0)), faceHeight(std::e
     }
 }
 
-Font& Font::operator=(Font&& rhs)
+Font& Font::operator=(Font&& rhs) noexcept
 {
     this->~Font();
 
@@ -170,7 +177,7 @@ Font& Font::operator=(Font&& rhs)
 
 bool Font::loadFaceFromLibrary(const void* fileBuffer, uint64_t fileSize, FT_Face& face)
 {
-    int error = FT_New_Memory_Face(library, (const uint8_t*) fileBuffer, fileSize, 0, &face);
+    int32_t error = FT_New_Memory_Face(library, (const uint8_t*) fileBuffer, (FT_Long)fileSize, 0, &face);
     if(error)
     {
         utils::log("could not create face");
@@ -186,7 +193,7 @@ bool Font::loadFaceFromLibrary(const void* fileBuffer, uint64_t fileSize, FT_Fac
         return false;
     }
 
-    faceHeight = (uint) face->size->metrics.height >> 6u;
+    faceHeight = (uint32_t) face->size->metrics.height >> 6u;
 
     if(face->charmap == nullptr)
     {
@@ -219,10 +226,10 @@ void Font::destructFace(FT_Face& face)
     FT_Done_Face(face);
 }
 
-bool Font::loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vector2i& xy)
+bool Font::loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vector2ui& xy)
 {
-    uint glyphIndex = FT_Get_Char_Index(face, c);
-    int error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+    uint32_t glyphIndex = FT_Get_Char_Index(face, c);
+    int32_t error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
     if(error)
     {
         utils::log("could not load char from face");
@@ -233,11 +240,11 @@ bool Font::loadGlyphIntoMap(char c, GlyphRegion& glyphRegion, FT_Face& face, Vec
     else
     {
         glyphRegion.xy = xy;
-        glyphRegion.size = {(int) face->glyph->bitmap.width,
-                            (int) face->glyph->bitmap.rows};
-        glyphRegion.bitmapTopLeft.x = face->glyph->bitmap_left;
-        glyphRegion.bitmapTopLeft.y = (face->glyph->bitmap_top - glyphRegion.size.y);
-        glyphRegion.advanceX = ((uint) face->glyph->advance.x) >> 6u;
+        glyphRegion.size = {(uint32_t) face->glyph->bitmap.width,
+                            (uint32_t) face->glyph->bitmap.rows};
+        glyphRegion.bitmapTopLeft.x = (float)face->glyph->bitmap_left;
+        glyphRegion.bitmapTopLeft.y = (float)(face->glyph->bitmap_top - ((int32_t)glyphRegion.size.y));
+        glyphRegion.advanceX = ((uint32_t) face->glyph->advance.x) >> 6u;
 
         assert(face->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
         assert(glyphRegion.size.x <= size && glyphRegion.size.y <= size);
@@ -251,7 +258,7 @@ void Font::drawText(const String& text, const Vector2f& pos, Color color)
     drawText(text, pos, size, color);
 }
 
-Font::Font(const String& filename, int size) : size(size)
+Font::Font(const String& filename, int32_t size) : size(size)
 {
     library = Globals::window->getFontLibrary();
     gfx = &Globals::window->getGfx();

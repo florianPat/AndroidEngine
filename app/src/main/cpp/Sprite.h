@@ -1,20 +1,20 @@
 #pragma once
 
-#include "Texture.h"
 #include "Vector2.h"
 #include "Rect.h"
 #include "Mat4x4.h"
 #include "Color.h"
+#include "Texture.h"
 
 class Sprite
 {
 	const Texture* texture = nullptr;
-	IntRect rect;
+	IntRect rect = IntRect(0, 0, 0, 0);
 public:
     //NOTE: Origin in texture widht/height "space". Not 0 - 1 space!!
 	Vector2f pos = { 0.0f, 0.0f }, org = { 0.0f, 0.0f };
 	Vector2f scl = { 1.0f, 1.0f };
-	Vector2i size = { 0, 0 };
+	Vector2ui size = { 0, 0 };
 	float rot = 0.0f;
 	Color color = Colors::White;
 public:

@@ -1,6 +1,6 @@
 #include "View.h"
 
-View::View(int32_t renderWidth, int32_t renderHeight, int32_t screenWidth, int32_t screenHeight, View::ViewportType viewportType)
+View::View(uint32_t renderWidth, uint32_t renderHeight, uint32_t screenWidth, uint32_t screenHeight, View::ViewportType viewportType)
     : width(renderWidth), height(renderHeight)
 {
 	//NOTE: For ViewportType::FIT, but also needed for extend!
@@ -21,13 +21,13 @@ View::View(int32_t renderWidth, int32_t renderHeight, int32_t screenWidth, int32
 	{
 		if (viewportWidth == screenWidth)
 		{
-			float remainingSpace = screenHeight - viewportHeight;
+			float remainingSpace = (float)screenHeight - viewportHeight;
 			height += (int) (remainingSpace * ((float)renderHeight / (float)viewportHeight));
 			viewportHeight = screenHeight;
 		}
 		else if (viewportHeight == screenHeight)
 		{
-			float remainingSpace = screenWidth - viewportWidth;
+			float remainingSpace = (float)screenWidth - viewportWidth;
 			width += (int) (remainingSpace * ((float)renderWidth / (float)viewportWidth));
 			viewportWidth = screenWidth;
 		}
@@ -57,14 +57,14 @@ void View::setSize(const Vector2i & size)
 	shouldUpdate = true;
 }
 
-void View::setSize(int32_t widthIn, int32_t heightIn)
+void View::setSize(uint32_t widthIn, uint32_t heightIn)
 {
 	width = widthIn;
 	height = heightIn;
 	shouldUpdate = true;
 }
 
-Vector2i View::getSize() const
+Vector2ui View::getSize() const
 {
 	return { width, height };
 }
@@ -80,7 +80,12 @@ Mat4x4 View::getOrthoProj(const Vector2f scale) const
 
 	float halfWidth = width / 2.0f;
 	float halfHeight = height / 2.0f;
-	Mat4x4 result = Mat4x4::orthoProj(-1.0f, 1.0f, center.x - halfWidth, center.y - halfHeight, center.x + halfWidth, center.y + halfHeight);
+#ifdef VK_GRAPHICS
+	Mat4x4 result = Mat4x4::orthoProjVK(center.x - halfWidth, center.y - halfHeight, center.x + halfWidth, center.y + halfHeight);
+#endif
+#ifdef GL_GRAPHICS
+	Mat4x4 result = Mat4x4::orthoProjOGL(center.x - halfWidth, center.y - halfHeight, center.x + halfWidth, center.y + halfHeight);
+#endif
 	result.scale(scale);
 	return result;
 }
@@ -92,7 +97,7 @@ bool View::updated()
 	return result;
 }
 
-Vector2i View::getViewportSize() const
+Vector2ui View::getViewportSize() const
 {
     return { viewportWidth, viewportHeight };
 }

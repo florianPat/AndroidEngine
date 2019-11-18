@@ -28,7 +28,7 @@
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "threaded_app", __VA_ARGS__))
 
 /* For debug builds, always enable the debug traces in this library */
-#ifndef DEBUG
+#ifndef _DEBUG
 #  define LOGV(...)  ((void)__android_log_print(ANDROID_LOG_VERBOSE, "threaded_app", __VA_ARGS__))
 #else
 #  define LOGV(...)  ((void)0)

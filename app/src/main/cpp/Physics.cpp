@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "RectangleShape.h"
 #include "CircleShape.h"
+#undef max
 #include <limits>
 
 void Physics::handleCollision(Body& itBody, Body& collideElementBody, const Collider & bodyCollider, const Collider& elementCollider, int32_t bodyIndex)
@@ -145,7 +146,7 @@ Vector2f Physics::Collider::getProjectionMinMax(const Vector2f * points, const V
 	return result;
 }
 
-Physics::Physics() : bodies()
+Physics::Physics() : bodies(), collisionLayers()
 {
 	for(int32_t i = 0; i < NUM_LAYERS; ++i)
 		collisionLayers[i] = 0;
@@ -196,8 +197,7 @@ void Physics::update(float dt)
 
 void Physics::debugRenderBodies(Graphics& gfx) const
 {
-    gfx.startFastRectDrawing();
-
+#if 0
 	for (auto it = bodies.begin(); it != bodies.end(); ++it)
 	{
 		const Collider& collider = it->physicsElements[0];
@@ -271,8 +271,7 @@ void Physics::debugRenderBodies(Graphics& gfx) const
 			}
 		}
 	}
-
-	gfx.stopFastRectDrawing();
+#endif
 }
 
 int32_t Physics::addElementPointer(Body&& body, int32_t layer)
@@ -287,7 +286,7 @@ int32_t Physics::addElementPointer(Body&& body, int32_t layer)
     }
 
 	bodies.insert(index, std::move(body));
-	for(int32_t i = 0; i < bodyIndices.size(); ++i)
+	for(uint32_t i = 0; i < bodyIndices.size(); ++i)
 	{
 		if(bodyIndices[i] >= index)
 			++bodyIndices[i];
@@ -308,7 +307,7 @@ void Physics::addElementValue(Body&& body, int32_t layer)
 	}
 
 	bodies.insert(index, std::move(body));
-	for(int32_t i = 0; i < bodyIndices.size(); ++i)
+	for(uint32_t i = 0; i < bodyIndices.size(); ++i)
 	{
 		if(bodyIndices[i] > index)
 			++bodyIndices[i];
@@ -360,27 +359,27 @@ Vector<ShortString> Physics::getAllCollisionIdsWhichContain(const ShortString & 
 	return result;
 }
 
-Physics::Body* Physics::getBodyFromRealIndex(int realIndex)
+Physics::Body* Physics::getBodyFromRealIndex(int32_t realIndex)
 {
-    assert(realIndex < bodies.size() && realIndex >= 0);
+    assert(realIndex >= 0 && (uint32_t)realIndex < bodies.size());
 
     return &bodies[realIndex];
 }
 
 int32_t Physics::getRealIndex(int32_t index) const
 {
-	assert(index < bodyIndices.size() && index >= 0);
+	assert(index >= 0 && (uint32_t)index < bodyIndices.size());
 
 	return bodyIndices[index];
 }
 
-Physics::Body::Body(Vector2f&& pos, const ShortString& name, Collider&& collider, Vector<int>&& collideLayers,
+Physics::Body::Body(Vector2f&& pos, const ShortString& name, Collider&& collider, Vector<int32_t>&& collideLayers,
 		bool isTrigger, bool isStatic)
 	: isStatic(isStatic), isTrigger(isTrigger), id(name), physicsElements{}, collisionLayers(collideLayers), pos(pos)
 {
 	this->physicsElements.push_back(collider);
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	checkCollideLayers();
 #endif
 }
@@ -418,7 +417,7 @@ void Physics::Body::checkCollideLayers()
 {
 	if(!collisionLayers.empty())
 	{
-		for(int32_t i = 0;i < this->collisionLayers.size() - 1;++i)
+		for(uint32_t i = 0; i < this->collisionLayers.size() - 1;++i)
 		{
 			assert(this->collisionLayers[i] < this->collisionLayers[i + 1]);
 		}

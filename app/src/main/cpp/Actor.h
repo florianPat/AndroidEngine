@@ -10,40 +10,40 @@ class Actor
     //Needs to happen because it has to change the id if an Actor gets deleted!
     friend class GameObjectManager;
 
-	uint32_t id;
-	VariableVector<Component> components;
+    uint32_t id;
+    VariableVector<Component> components;
 public:
-	Actor(uint32_t id, uint32_t componentsSize);
-	template <typename T, typename... Args>
-	const T* addComponent(Args&&... args);
-	//NOTE: This method takes O(n) (because of the linear search). Do not call this function often.
-	int32_t getComponentIndex(uint32_t componentId) const;
+    Actor(uint32_t id, uint32_t componentsSize);
+    template <typename T, typename... Args>
+    const T* addComponent(Args&&... args);
+    //NOTE: This method takes O(n) (because of the linear search). Do not call this function often.
+    uint32_t getComponentIndex(uint32_t componentId) const;
 
-	template <typename T> T* getComponent(int32_t componentIndex);
+    template <typename T> T* getComponent(uint32_t componentIndex);
 
-	uint32_t getId() const { return id; }
-	void update(float dt);
+    uint32_t getId() const { return id; }
+    void update(float dt);
 };
 
 template<typename T>
-inline T* Actor::getComponent(int32_t componentIndex)
+inline T* Actor::getComponent(uint32_t componentIndex)
 {
-	assert(componentIndex < components.getOffsetToEnd());
-	Component* componentPtr = (Component*) (components.begin() + componentIndex);
+    assert(componentIndex < components.getOffsetToEnd());
+    Component* componentPtr = (Component*) (components.begin() + componentIndex);
 
-	//NOTE: Only used to really verify that it is ok what I am doing. RTTI should be switched off in release mode
-	//assert(typeid((*componentPtr)) == typeid(T));
-	assert(dynamic_cast<T*>(componentPtr) != nullptr);
+    //NOTE: Only used to really verify that it is ok what I am doing. RTTI should be switched off in release mode
+    //assert(typeid((*componentPtr)) == typeid(T));
+    assert(dynamic_cast<T*>(componentPtr) != nullptr);
 
-	return (T*) componentPtr;
+    return (T*) componentPtr;
 }
 
 template<typename T, typename... Args>
 inline const T* Actor::addComponent(Args&&... args)
 {
-	uint32_t lastOffsetToEnd = components.getOffsetToEnd();
+    uint32_t lastOffsetToEnd = components.getOffsetToEnd();
 
-	components.push_back<T>(std::forward<Args>(args)...);
+    components.push_back<T>(std::forward<Args>(args)...);
 
-	return (T*)(components.begin() + lastOffsetToEnd + 4);
+    return (T*)(components.begin() + lastOffsetToEnd + 4);
 }

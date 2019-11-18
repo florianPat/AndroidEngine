@@ -31,7 +31,6 @@ public:
 	void setIndexBuffer(const IndexBuffer* ib);
 	void addAttribute(GLint32_t size, GLenum type);
 	void bind() const;
-	void unbind() const;
 	int32_t getIboCount() const;
 };
 #endif

@@ -1,5 +1,6 @@
 #include "EventManager.h"
 #include "Utils.h"
+#include "Window.h"
 
 EventManager::EventManager() : eventListenerMap(), nativeThreadQueue(Globals::window->getNativeThreadQueue())
 {
@@ -52,8 +53,8 @@ void EventManager::triggerEventDelegate(uint32_t specificArg, float broadArg)
         VariableVector<EventData>& dataHolderOffset = eventTypeVector[it->eventType].eventDataHolder;
         for(auto offsetIt = dataHolderOffset.begin(); offsetIt != dataHolderOffset.end();)
         {
-            uint eventDataSize = *((uint*)offsetIt);
-            offsetIt += sizeof(uint);
+            uint32_t eventDataSize = *((uint32_t*)offsetIt);
+            offsetIt += sizeof(uint32_t);
 
             it->function((EventData*)(offsetIt));
 

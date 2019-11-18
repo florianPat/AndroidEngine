@@ -17,7 +17,6 @@ public:
 	IndexBuffer& operator=(IndexBuffer&& rhs);
 	~IndexBuffer();
 	void bind() const;
-	void unbind() const;
 	int32_t getCount() const;
 	explicit operator bool() const;
 };

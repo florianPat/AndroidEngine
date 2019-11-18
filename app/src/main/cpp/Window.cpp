@@ -24,21 +24,21 @@ int Window::processInputEvent(AInputEvent * event)
     if (!initFinished)
         return 0;
 
-    int eventType = AInputEvent_getType(event);
+    int32_t eventType = AInputEvent_getType(event);
     switch (eventType)
     {
         case AINPUT_EVENT_TYPE_MOTION:
         {
-            int source = AInputEvent_getSource(event);
+            int32_t source = AInputEvent_getSource(event);
             switch (source)
             {
                 case AINPUT_SOURCE_TOUCHSCREEN:
                 {
-                    int combined = AMotionEvent_getAction(event);
+                    int32_t combined = AMotionEvent_getAction(event);
                     uint action = ((uint)combined & AMOTION_EVENT_ACTION_MASK);
                     uint pointerIndex = (((uint)combined) & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
 
-                    int pointerId = AMotionEvent_getPointerId(event, pointerIndex);
+                    int32_t pointerId = AMotionEvent_getPointerId(event, pointerIndex);
 
                     touchInput.inputs[pointerId].move = false;
                     touchInput.inputs[pointerId].down = false;
@@ -91,7 +91,7 @@ int Window::InputEventCallback(android_app * app, AInputEvent * event)
     return window.processInputEvent(event);
 }
 
-Window::Window(android_app * app, int width, int height, View::ViewportType viewportType) : app(app),
+Window::Window(android_app * app, int32_t width, int32_t height, View::ViewportType viewportType) : app(app),
                                                                                                   clock(),
                                                                                                   assetManager(),
                                                                                                   gfx(width, height, viewportType)
@@ -147,6 +147,7 @@ Clock & Window::getClock()
 
 void Window::deactivate()
 {
+    gfx.freeGfxGpu();
     gfx.stopGfx();
     audio.stopSnd();
     stopFont();
@@ -312,13 +313,13 @@ void Window::processAppEvent(int32_t command)
     }
 }
 
-void Window::getAndSetTouchInputPos(AInputEvent* event, int pointerId, uint pointerIndex)
+void Window::getAndSetTouchInputPos(AInputEvent* event, int32_t pointerId, uint pointerIndex)
 {
     //Needs conversion because coord system is from topLeft, but game uses bottomLeft and other window dimensions
     float x = AMotionEvent_getX(event, pointerIndex);
     float y = gfx.screenHeight - AMotionEvent_getY(event, pointerIndex);
 
-    const Vector2i& viewportSize = gfx.getDefaultView().getSize();
+    const Vector2ui& viewportSize = gfx.getDefaultView().getSize();
 
     x = x / gfx.screenWidth * viewportSize.x;
     y = y / gfx.screenHeight * viewportSize.y;
@@ -328,7 +329,7 @@ void Window::getAndSetTouchInputPos(AInputEvent* event, int pointerId, uint poin
 
 bool Window::startFont()
 {
-    int error = FT_Init_FreeType(&fontLibrary);
+    int32_t error = FT_Init_FreeType(&fontLibrary);
     if(error)
         utils::log("could not init freetype library");
 
@@ -353,8 +354,6 @@ Graphics& Window::getGfx()
 
 void Window::checkAndRecoverFromContextLoss()
 {
-    gfx.clear();
-
     if(gfx.checkIfToRecover())
     {
         while(!gfx.isRecovered())

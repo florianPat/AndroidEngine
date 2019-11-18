@@ -123,7 +123,6 @@ void TiledMap::ParseLayer(Ifstream & file, String& lineContent)
 
 void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 {
-	//ObjectGroup
 	while (utils::isWordInLine("<objectgroup", lineContent))
 	{
 		String objectGroupName = getLineContentBetween(lineContent, "name", '"');
@@ -154,39 +153,35 @@ void TiledMap::ParseObjectGroups(Ifstream & file, String & lineContent)
 
 void TiledMap::MakeRenderTexture()
 {
-	if (texture.create(mapWidth*tileWidth, mapHeight*tileHeight))
+	assert(gfx != nullptr);
+	texture.create(mapWidth*tileWidth, mapHeight*tileHeight, gfx);
+	assert(texture);
+
+	texture.begin();
+	gfx->clear();
+
+	for (auto it = layers.begin(); it != layers.end(); ++it)
 	{
-		assert(gfx != nullptr);
-
-		texture.begin(*gfx);
-		gfx->clear();
-
-		for (auto it = layers.begin(); it != layers.end(); ++it)
+		//NOTE: posY is needed here, because renderTexture 0 is bottom, but here it is top...
+		for (int32_t y = 0, posY = mapHeight - 1; y < mapHeight; ++y, --posY)
 		{
-			//NOTE: posY is needed here, because renderTexture 0 is bottom, but here it is top...
-			for (int32_t y = 0, posY = mapHeight - 1; y < mapHeight; ++y, --posY)
+			for (int32_t x = 0; x < mapWidth; ++x)
 			{
-				for (int32_t x = 0; x < mapWidth; ++x)
-				{
-					Layer& currentLayer = *it;
-					Texture* source = currentLayer.tiles.at(mapWidth * y + x).source;
-					if (source == nullptr)
-						continue;
-					Sprite sprite(source);
-					sprite.pos = Vector2f((float)x * tileWidth, (float)posY * tileHeight);
+				Layer& currentLayer = *it;
+				Texture* source = currentLayer.tiles.at(mapWidth * y + x).source;
+				if (source == nullptr)
+					continue;
+				Sprite sprite(source);
+				sprite.pos = Vector2f((float)x * tileWidth, (float)posY * tileHeight);
 
-					gfx->draw(sprite);
-				}
+				gfx->draw(sprite);
 			}
 		}
-		texture.end(*gfx);
+	}
+	texture.end();
+	texture.changeToShaderReadMode();
 
-		textureSprite = Sprite(&texture.getTexture());
-	}
-	else
-	{
-		utils::logBreak("Could not create Render Texture");
-	}
+	textureSprite = Sprite(&texture.getTexture());
 }
 
 String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager, const String& filename)
@@ -234,7 +229,7 @@ String TiledMap::ParseTiles(Ifstream & file, AssetManager* assetManager, const S
 			int32_t width = atoi(getLineContentBetween(lineContent, "width", '"').c_str());
 			int32_t height = atoi(getLineContentBetween(lineContent, "height", '"').c_str());
 			String source = getLineContentBetween(lineContent, "source", '"');
-			assert(tiles.size() == id);
+			assert(tiles.size() == (uint32_t)id);
 			tiles.push_back(Tile{ id, width, height, assetManager->getOrAddRes<Texture>(dirsToAdd + source) });
 
 			file.getline(lineContent); //</tile>

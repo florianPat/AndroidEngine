@@ -26,13 +26,13 @@ private:
     Shader shaderSprite;
     Shader shaderRectShape;
     Mat4x4 orhtoProj;
-    int nTextureUnits = 0;
+    int32_t nTextureUnits = 0;
     IndexBuffer ib;
     VertexBuffer vb;
-    GLuint currentBoundTexture = -1;
-    static constexpr int NUM_SPRITES_TO_BATCH = 32;
-    static constexpr int NUM_VERTICES_TO_BATCH = NUM_SPRITES_TO_BATCH * 4;
-    int nSpritesBatched = 0;
+    GLuint currentBoundTexture = (GLuint)-1;
+    static constexpr int32_t NUM_SPRITES_TO_BATCH = 32;
+    static constexpr int32_t NUM_VERTICES_TO_BATCH = NUM_SPRITES_TO_BATCH * 4;
+    int32_t nSpritesBatched = 0;
     UniquePtr<Vertex[]> vertices;
     bool isFastRectDrawing = false;
 
@@ -47,11 +47,12 @@ private:
     };
 private:
     void setupSpriteRendering();
-    int nVerticesBatched() const;
+    int32_t nVerticesBatched() const;
 public:
-    GraphicsOGL2(int renderWidth, int renderHeight, View::ViewportType viewportType);
+    GraphicsOGL2(int32_t renderWidth, int32_t renderHeight, View::ViewportType viewportType);
 
     void setupGfxGpu();
+    void freeGfxGpu();
 
     void clear();
     void bindOtherOrthoProj(const Mat4x4& otherOrthoProj);

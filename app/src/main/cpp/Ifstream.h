@@ -26,7 +26,7 @@ public:
 	void readTempLine();
 	void read(void* s, uint32_t n);
 	char get();
-	std::streampos tellg();
+	uint64_t tellg();
 	void seekg(uint32_t pos);
 	void seekg(uint32_t off, SeekDir way);
 	uint64_t getSize();

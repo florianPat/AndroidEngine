@@ -99,28 +99,42 @@ public:
 			float cosA = cosf(utils::degreesToRadians(rot));
 			float sinA = sinf(utils::degreesToRadians(rot));
 
-			Mat4x4 rot = identity();
-			rot.matrix[0 * 4 + 0] = cosA;
-			rot.matrix[1 * 4 + 0] = sinA;
-			rot.matrix[0 * 4 + 1] = -sinA;
-			rot.matrix[1 * 4 + 1] = cosA;
+			Mat4x4 rotM = identity();
+			rotM.matrix[0 * 4 + 0] = cosA;
+			rotM.matrix[1 * 4 + 0] = sinA;
+			rotM.matrix[0 * 4 + 1] = -sinA;
+			rotM.matrix[1 * 4 + 1] = cosA;
 
-			result *= rot;
+			result *= rotM;
 		}
 
 		return result;
 	}
 
-	static Mat4x4 orthoProj(float nearPlane, float farPlane, float left, float bottom, float right, float top)
+	static Mat4x4 orthoProjVK(float left, float bottom, float right, float top)
+	{
+		Mat4x4 result = identity();
+
+		result.matrix[0 * 4 + 0] = 2 / (right - left);
+		result.matrix[1 * 4 + 1] = -2 / (top - bottom);
+		result.matrix[2 * 4 + 2] = 0.0f;
+		result.matrix[3 * 4 + 0] = -(right + left) / (right - left);
+		result.matrix[3 * 4 + 1] = (top + bottom) / (top - bottom);
+		result.matrix[3 * 4 + 2] = 0.0f;
+
+		return result;
+	}
+
+	static Mat4x4 orthoProjOGL(float left, float bottom, float right, float top)
 	{
 		Mat4x4 result = identity();
 
 		result.matrix[0 * 4 + 0] = 2 / (right - left);
 		result.matrix[1 * 4 + 1] = 2 / (top - bottom);
-		result.matrix[2 * 4 + 2] = -(2 / (farPlane - nearPlane));
+		result.matrix[2 * 4 + 2] = 0.0f;
 		result.matrix[3 * 4 + 0] = -(right + left) / (right - left);
 		result.matrix[3 * 4 + 1] = -(top + bottom) / (top - bottom);
-		result.matrix[3 * 4 + 2] = -((farPlane + nearPlane) / (farPlane - nearPlane));
+		result.matrix[3 * 4 + 2] = 0.0f;
 
 		return result;
 	}

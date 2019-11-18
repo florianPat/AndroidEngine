@@ -71,7 +71,7 @@ void NativeThreadQueue::addEntry(Delegate<void(uint32_t, float)>&& delegate, uin
 
 void NativeThreadQueue::flushToWithAndReset(uint32_t index, float arg)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
     if(!startedFlushing)
         startedFlushing = true;
 #endif
@@ -102,7 +102,7 @@ void NativeThreadQueue::flushToWithAndReset(uint32_t index, float arg)
 
 void NativeThreadQueue::flushToWith(uint32_t index, float arg)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
     if(!startedFlushing)
         startedFlushing = true;
 #endif
@@ -132,7 +132,7 @@ void NativeThreadQueue::flushToWith(uint32_t index, float arg)
 
 void NativeThreadQueue::flush(float arg)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
     if(!startedFlushing)
         startedFlushing = true;
 #endif
@@ -161,7 +161,7 @@ void NativeThreadQueue::flush(float arg)
 
 void NativeThreadQueue::flushFrom(uint32_t index, float arg)
 {
-#ifdef DEBUG
+#ifdef _DEBUG
     if(!startedFlushing)
         startedFlushing = true;
 #endif
@@ -197,7 +197,7 @@ void NativeThreadQueue::setNextWriteIndex(uint32_t newWriteIndex)
     entryCount = newWriteIndex;
 }
 
-#ifdef DEBUG
+#ifdef _DEBUG
 bool NativeThreadQueue::getStartedFlushing() const
 {
     return startedFlushing;

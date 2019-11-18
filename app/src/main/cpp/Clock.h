@@ -4,21 +4,21 @@
 
 struct Time
 {
-	int64_t nanosecondss;
+	uint64_t nanosecondss;
 
-	inline int64_t asNanoseconds()
+	inline uint64_t asNanoseconds()
 	{
 		return nanosecondss;
 	}
 
-	inline int64_t asMicroseconds()
+	inline uint64_t asMicroseconds()
 	{
 		return nanosecondss / 1000;
 	}
 
-	inline int32_t asMilliseconds()
+	inline uint32_t asMilliseconds()
 	{
-		return (int32_t)(nanosecondss / 1000000.0);
+		return (uint32_t)(nanosecondss / 1000000.0);
 	}
 
 	inline float asSeconds()
@@ -28,20 +28,20 @@ struct Time
 
 	static Time seconds(float seconds)
 	{
-		return Time { (int64_t)(seconds * 1000000000.0) };
+		return Time { (uint64_t)(seconds * 1000000000.0) };
 	}
 
 	static Time milliseconds(int32_t milliseconds)
 	{
-		return Time { (int64_t)(milliseconds * 1000000) };
+		return Time { (uint64_t)(milliseconds * 1000000.0) };
 	}
 
-	static Time microseconds(int64_t microseconds)
+	static Time microseconds(uint64_t microseconds)
 	{
 		return Time{ microseconds * 1000 };
 	}
 
-	static Time nanoseconds(int64_t nanoseconds)
+	static Time nanoseconds(uint64_t nanoseconds)
 	{
 		return Time{ nanoseconds };
 	}
@@ -56,12 +56,12 @@ public:
 	Time getTime();
 
 	Time getElapsedTimeTotal();
-	static int64_t now();
+	static uint64_t now();
 private:
 	void update();
 private:
-	int64_t firstTime = 0;
-	int64_t lastTime = 0;
-	int64_t elapsed = 0;
-	int64_t elapsedTotal = 0;
+	uint64_t firstTime = 0;
+	uint64_t lastTime = 0;
+	uint64_t elapsed = 0;
+	uint64_t elapsedTotal = 0;
 };

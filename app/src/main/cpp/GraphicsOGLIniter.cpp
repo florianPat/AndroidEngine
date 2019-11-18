@@ -29,7 +29,7 @@ void GraphicsOGLIniter::recover(ANativeWindow* nativeWindow)
     }
 
     if (!eglMakeCurrent(display, surface, surface, context) ||
-        !eglQuerySurface(display, surface, EGL_WIDTH, &screenWidth) || !eglQuerySurface(display, surface, EGL_HEIGHT, &screenHeight) ||
+        !eglQuerySurface(display, surface, EGL_WIDTH, (EGLint*)&screenWidth) || !eglQuerySurface(display, surface, EGL_HEIGHT, (EGLint*)&screenHeight) ||
         (screenWidth <= 0) || (screenHeight <= 0))
     {
         utils::logBreak("eglMakeCurrent failed!");
@@ -206,7 +206,7 @@ bool GraphicsOGLIniter::startGfx(ANativeWindow* nativeWindow)
         return false;
 
     if (!eglMakeCurrent(display, surface, surface, context) ||
-        !eglQuerySurface(display, surface, EGL_WIDTH, &screenWidth) || !eglQuerySurface(display, surface, EGL_HEIGHT, &screenHeight) ||
+        !eglQuerySurface(display, surface, EGL_WIDTH, (GLint*)&screenWidth) || !eglQuerySurface(display, surface, EGL_HEIGHT, (EGLint*)&screenHeight) ||
         (screenWidth <= 0) || (screenHeight <= 0))
     {
         utils::logBreak("eglMakeCurrent failed!");
@@ -230,7 +230,7 @@ bool GraphicsOGLIniter::startGfx(ANativeWindow* nativeWindow)
     return true;
 }
 
-GraphicsOGLIniter::GraphicsOGLIniter(int renderWidth, int renderHeight,
+GraphicsOGLIniter::GraphicsOGLIniter(uint32_t renderWidth, uint32_t renderHeight,
                                      View::ViewportType viewportType,
                                      const EGLint* displayAttribs) : IGraphics(renderWidth, renderHeight),
                                                                      displayAttribs(displayAttribs),

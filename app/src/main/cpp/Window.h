@@ -6,12 +6,10 @@
 #include "Sound.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include "GraphicsOGL2.h"
 #include "TouchInput.h"
 #include "NativeThreadQueue.h"
 #include "Audio.h"
-
-#define Graphics GraphicsOGL2
+#include "Graphics.h"
 
 class Window
 {
@@ -35,7 +33,7 @@ class Window
 
     Audio audio;
 public:
-	Window(android_app* app, int width, int height, View::ViewportType viewportType);
+	Window(android_app* app, int32_t width, int32_t height, View::ViewportType viewportType);
 	Window(const Window& other) = delete;
 	Window(Window&& other) = delete;
 	Window& operator=(const Window& rhs) = delete;
@@ -56,8 +54,8 @@ private:
 	void processAppEvent(int32_t command);
 	static void AppEventCallback(android_app* app, int32_t command);
 	int processInputEvent(AInputEvent* event);
-	static int InputEventCallback(android_app* app, AInputEvent* event);
-	void getAndSetTouchInputPos(AInputEvent* event, int pointerId, uint pointerIndex);
+	static int32_t InputEventCallback(android_app* app, AInputEvent* event);
+	void getAndSetTouchInputPos(AInputEvent* event, int32_t pointerId, uint pointerIndex);
 	bool startFont();
 	void stopFont();
 	void checkAndRecoverFromContextLoss();

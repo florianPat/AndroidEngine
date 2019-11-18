@@ -44,5 +44,5 @@ public:
 	T height;
 };
 
-typedef Rect<int> IntRect;
+typedef Rect<int32_t> IntRect;
 typedef Rect<float> FloatRect;

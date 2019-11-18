@@ -6,11 +6,11 @@ class IGraphics
 {
 public:
     //NOTE: These a really just meant to be use by the TouchInput.
-    int renderWidth = 0, renderHeight = 0;
+    uint32_t renderWidth = 0, renderHeight = 0;
     //NOTE: This is just meant to be modified by the Window (but friend setters... I do not know)
-    int screenWidth = 0, screenHeight = 0;
+    uint32_t screenWidth = 0, screenHeight = 0;
 public:
-    IGraphics(int renderWidth, int renderHeight) : renderWidth(renderWidth), renderHeight(renderHeight)
+    IGraphics(uint32_t renderWidth, uint32_t renderHeight) : renderWidth(renderWidth), renderHeight(renderHeight)
     {}
     IGraphics(const IGraphics& other) = delete;
     IGraphics& operator=(const IGraphics& rhs) = delete;
@@ -36,7 +36,7 @@ public:
     void flush();
     void render();
     View& getDefaultView();
-    int getWidth();
-    int getHeight();
+    int32_t getWidth();
+    int32_t getHeight();
      */
 };

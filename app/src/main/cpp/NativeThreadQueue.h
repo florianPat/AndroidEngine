@@ -2,6 +2,7 @@
 
 #include <semaphore.h>
 #include "NativeThread.h"
+#include "Vector.h"
 
 class NativeThreadQueue
 {
@@ -20,7 +21,7 @@ class NativeThreadQueue
     sem_t semaphore;
     static const int32_t nThreads;
     HeapArray<NativeThread> nativeThreads;
-#ifdef DEBUG
+#ifdef _DEBUG
     bool startedFlushing = false;
 #endif
 public:
@@ -38,7 +39,7 @@ public:
     void flushToWith(uint32_t index, float arg = 0.0f);
     void flushFrom(uint32_t index, float arg = 0.0f);
     uint32_t getSize() const;
-#ifdef DEBUG
+#ifdef _DEBUG
     bool getStartedFlushing() const;
     void resetStartedFlushing();
 #endif

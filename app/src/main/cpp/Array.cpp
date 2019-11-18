@@ -6,12 +6,12 @@ void ArrayTestSuit::runTestSuit()
 {
 	UnitTester::test([]()
 	{
-		HeapArray<int> vec(2);
+		HeapArray<int32_t> vec(2);
 		unitAssert(vec.capacity() == 2);
 		unitAssert(vec.empty());
 		unitAssert(vec.size() == 0);
 		unitAssert(vec.begin() == vec.end());
-		HeapArray<int> otherVec(4, 3);
+		HeapArray<int32_t> otherVec(4, 3);
 		unitAssert(otherVec.capacity() == 4);
 		unitAssert(otherVec.size() == 4);
 		unitAssert((*(otherVec.begin())) == 3);
@@ -29,12 +29,12 @@ void ArrayTestSuit::runTestSuit()
 		unitAssert(vec.erase(0, 2).operator*() == 3);
 		unitAssert(vec.capacity() == 4);
 		unitAssert(vec.size() == 1);
-		HeapArray<int> oOtherVec = std::move(vec);
+		HeapArray<int32_t> oOtherVec = std::move(vec);
 		unitAssert(vec.size() == 0);
 		oOtherVec.insert(1, 3, 1);
 		unitAssert(oOtherVec.size() == 4);
 
-		HeapArray<int> thisVector(7);
+		HeapArray<int32_t> thisVector(7);
 		thisVector.insert(thisVector.size(), 2, 0);
 		thisVector.erase(0, 2);
 		thisVector.insert(thisVector.size(), 2, 0);

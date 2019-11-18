@@ -30,19 +30,19 @@ Time Clock::getElapsedTimeTotal()
 	return Time{ elapsedTotal };
 }
 
-int64_t Clock::now()
+uint64_t Clock::now()
 {
 	timespec timeVal = { 0 };
 	if (clock_gettime(CLOCK_REALTIME, &timeVal) != 0)
 	{
 		utils::logBreak("clock_gettime error!");
 	}
-	return timeVal.tv_sec * 1000000000ll + timeVal.tv_nsec;
+	return (uint64_t)timeVal.tv_sec * 1000000000ll + timeVal.tv_nsec;
 }
 
 void Clock::update()
 {
-	int64_t currentTime = now();
+	uint64_t currentTime = now();
 	elapsed = currentTime - lastTime;
 	elapsedTotal = currentTime - firstTime;
 	lastTime = currentTime;

@@ -1,7 +1,8 @@
 #include "GraphicsOGL2.h"
 #include "GLUtils.h"
+#include "OGLTexture.h"
 
-GraphicsOGL2::GraphicsOGL2(int renderWidth, int renderHeight, View::ViewportType viewportType)
+GraphicsOGL2::GraphicsOGL2(int32_t renderWidth, int32_t renderHeight, View::ViewportType viewportType)
         : GraphicsOGLIniter(renderWidth, renderHeight, viewportType, DISPLAY_ATTRIBS),
           orhtoProj(), vertices(makeUnique<Vertex[]>(NUM_VERTICES_TO_BATCH))
 {
@@ -29,7 +30,7 @@ void GraphicsOGL2::draw(const Sprite& sprite)
     assert(!isFastRectDrawing);
     assert(vb);
 
-    const Texture* texture = sprite.getTexture();
+    const OGLTexture* texture = (const OGLTexture*)sprite.getTexture();
     assert(*texture);
 
     if(currentBoundTexture != texture->getTextureId())
@@ -61,7 +62,7 @@ void GraphicsOGL2::draw(const Sprite& sprite)
 
     Mat4x4 mv = sprite.getTransform();
 
-    int plusI = nVerticesBatched();
+    int32_t plusI = nVerticesBatched();
 
     for(int i = 0; i < 4; ++i)
     {
@@ -102,7 +103,7 @@ void GraphicsOGL2::draw(const RectangleShape& rect)
 
     Mat4x4 mv = rect.getTransform();
 
-    int plusI = nVerticesBatched();
+    int32_t plusI = nVerticesBatched();
 
     for(int i = 0; i < 4; ++i)
     {
@@ -174,6 +175,15 @@ void GraphicsOGL2::setupGfxGpu()
     va.set();
 }
 
+void GraphicsOGL2::freeGfxGpu()
+{
+    shaderSprite.~Shader();
+    shaderRectShape.~Shader();
+
+    ib.~IndexBuffer();
+    vb.~VertexBuffer();
+}
+
 void GraphicsOGL2::bindOtherOrthoProj(const Mat4x4& otherOrthoProj)
 {
     assert(shaderSprite);
@@ -205,7 +215,7 @@ void GraphicsOGL2::flush()
     nSpritesBatched = 0;
 }
 
-int GraphicsOGL2::nVerticesBatched() const
+int32_t GraphicsOGL2::nVerticesBatched() const
 {
     return (nSpritesBatched * 4);
 }

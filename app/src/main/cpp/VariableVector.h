@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Types.h"
-#include "Component.h"
 
 template <typename T>
 class VariableVector
@@ -18,11 +17,11 @@ public:
     ~VariableVector();
 
     inline uint8_t* begin() { return vector; }
-    inline uint8_t* end() { return begin() + getOffsetToEnd(); }
+    inline uint8_t* end() { return begin() + offsetToEnd; }
     inline const uint8_t* begin() const { return vector; }
-    inline const uint8_t* end() const { return begin() + getOffsetToEnd(); }
+    inline const uint8_t* end() const { return begin() + offsetToEnd; }
 
-    inline void clear() { offsetToEnd = 0; }
+    void clear();
 
     inline uint32_t getOffsetToEnd() const { return offsetToEnd; }
 
@@ -34,7 +33,7 @@ template <typename T>
 template <typename Class, typename... Args>
 inline void VariableVector<T>::push_back(Args&&... args)
 {
-    uint32_t newOffsetToEnd = offsetToEnd + sizeof(uint) + sizeof(Class);
+    uint32_t newOffsetToEnd = offsetToEnd + sizeof(uint32_t) + sizeof(Class);
     assert(newOffsetToEnd <= size);
 
     uint32_t* pSize = (uint32_t*) &vector[offsetToEnd];
@@ -50,18 +49,21 @@ inline void VariableVector<T>::push_back(Args&&... args)
 template <typename T>
 inline VariableVector<T>::~VariableVector()
 {
-    for (auto it = begin(); it != end();)
+    if (vector != nullptr)
     {
-        uint compSize = *((uint*) it);
-        it += sizeof(uint);
+        for (auto it = begin(); it != end();)
+        {
+            uint32_t size = *((uint32_t*)it);
+            it += sizeof(uint32_t);
 
-        ((T*)(it))->~T();
+            ((T*)(it))->~T();
 
-        it += compSize;
+            it += size;
+        }
+
+        free(vector);
+        vector = nullptr;
     }
-
-    free(vector);
-    vector = nullptr;
 }
 
 template <typename T>
@@ -85,4 +87,20 @@ inline VariableVector<T>& VariableVector<T>::operator=(VariableVector&& rhs)
     offsetToEnd = std::exchange(rhs.offsetToEnd, 0);
 
     return *this;
+}
+
+template<typename T>
+inline void VariableVector<T>::clear()
+{
+    for (auto it = begin(); it != end();)
+    {
+        uint32_t size = *((uint32_t*)it);
+        it += sizeof(uint32_t);
+
+        ((T*)(it))->~T();
+
+        it += size;
+    }
+
+    offsetToEnd = 0;
 }

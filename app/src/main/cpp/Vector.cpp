@@ -5,12 +5,12 @@ void VectorTestSuit::runVectorUnitTest()
 {
 	UnitTester::test([]()
 	{
-		Vector<int> vec;
+		Vector<int32_t> vec;
 		unitAssert(vec.capacity() == 2);
 		unitAssert(vec.empty());
 		unitAssert(vec.size() == 0);
 		unitAssert(vec.begin() == vec.end());
-		Vector<int> otherVec(4, 3);
+		Vector<int32_t> otherVec(4, 3);
 		unitAssert(otherVec.capacity() == 8);
 		unitAssert(otherVec.size() == 4);
 		unitAssert((*(otherVec.begin())) == 3);
@@ -40,13 +40,13 @@ void VectorTestSuit::runVectorUnitTest()
 		vec.resize(1, 4);
 		vec.resize(5);
 		unitAssert(vec.back() == 0);
-		Vector<int> oOtherVec = std::move(vec);
+		Vector<int32_t> oOtherVec = std::move(vec);
 		unitAssert(vec.size() == 0);
 		oOtherVec.insert(3, 3, 1);
 		unitAssert(oOtherVec.size() == 8);
 
 		unitAssert(oOtherVec != vec);
-		Vector<int> thisVector(1, 7);
+		Vector<int32_t> thisVector(1, 7);
 		thisVector.insert(thisVector.size() - 1, 2, 0);
 		thisVector.erase(0, 2);
 		thisVector.insert(thisVector.size(), 2, 0);
@@ -76,12 +76,12 @@ void VectorTestSuit::runStdVectorTest()
 
 	UnitTester::test([]()
 	{
-		std::vector<int> vec;
+		std::vector<int32_t> vec;
 		unitAssert(vec.capacity() == 0);
 		unitAssert(vec.empty());
 		unitAssert(vec.size() == 0);
 		unitAssert(vec.begin() == vec.end());
-		std::vector<int> otherVec(4, 3);
+		std::vector<int32_t> otherVec(4, 3);
 		unitAssert(otherVec.capacity() == 4);
 		unitAssert(otherVec.size() == 4);
 		unitAssert((*(otherVec.begin())) == 3);
@@ -111,13 +111,13 @@ void VectorTestSuit::runStdVectorTest()
 		vec.resize(1, 4);
 		vec.resize(5);
 		unitAssert(vec.back() == 0);
-		std::vector<int> oOtherVec = std::move(vec);
+		std::vector<int32_t> oOtherVec = std::move(vec);
 		unitAssert(vec.size() == 0);
 		oOtherVec.insert(oOtherVec.begin() + 3, 3, 1);
 		unitAssert(oOtherVec.size() == 8);
 
 		unitAssert(oOtherVec != vec);
-		std::vector<int> thisVector(1, 7);
+		std::vector<int32_t> thisVector(1, 7);
 		thisVector.insert(thisVector.end() - 1, 2, 0);
 		thisVector.erase(thisVector.begin(), thisVector.begin() + 2);
 		thisVector.insert(thisVector.end(), 2, 0);

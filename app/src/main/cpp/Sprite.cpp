@@ -18,7 +18,7 @@ void Sprite::setTexture(const Texture* textureIn, bool resetRect)
 	texture = textureIn;
 	if (resetRect)
 	{
-		rect = { 0, 0, texture->getWidth(), texture->getHeight() };
+		rect = { 0, 0, (int32_t)texture->getWidth(), (int32_t)texture->getHeight() };
 	}
 	size = { texture->getWidth(), texture->getHeight() };
 }
@@ -27,10 +27,10 @@ void Sprite::setTextureRect(const IntRect & rectIn)
 {
 	assert(rectIn.left >= 0);
 	assert(rectIn.bottom >= 0);
-	assert(rectIn.getRight() <= texture->getWidth());
-	assert(rectIn.getTop() <= texture->getHeight());
+	assert(rectIn.getRight() > 0 && (uint32_t)rectIn.getRight() <= texture->getWidth());
+	assert(rectIn.getTop() > 0 && (uint32_t)rectIn.getTop() <= texture->getHeight());
 	rect = rectIn;
-	size = { rect.width, rect.height };
+	size = { (uint32_t)rect.width, (uint32_t)rect.height };
 }
 
 const Texture * Sprite::getTexture() const

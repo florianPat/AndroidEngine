@@ -7,7 +7,7 @@ class GameObjectManager
 {
 	static constexpr uint32_t DEFAULT_COMPONENT_SIZE = 512;
 	Vector<Actor> actors;
-	Vector<std::pair<int, int>> layers[4];
+	Vector<std::pair<int32_t, int32_t>> layers[4];
 	Vector<uint32_t> pipelineIndexes;
 	NativeThreadQueue& nativeThreadQueue;
 public:
@@ -17,9 +17,9 @@ public:
 	template <typename T, typename... Args>
 	void addUpdateComponent(Args&&... args);
 	template <typename T, typename... Args>
-	void addComponent(uint renderLayer, Args&&... args);
+	void addComponent(uint32_t renderLayer, Args&&... args);
 	template <typename T, typename... Args>
-	void addRenderComponent(uint renderLayer, Args&&... args);
+	void addRenderComponent(uint32_t renderLayer, Args&&... args);
 	void destroyActor(uint32_t actorId);
 	void updateAndDrawActors(float dt);
 private:
@@ -36,7 +36,7 @@ inline void GameObjectManager::addUpdateComponent(Args&&... args)
 }
 
 template<typename T, typename... Args>
-inline void GameObjectManager::addComponent(uint renderLayer, Args&&... args)
+inline void GameObjectManager::addComponent(uint32_t renderLayer, Args&&... args)
 {
 	assert(!nativeThreadQueue.getStartedFlushing());
 
@@ -47,7 +47,7 @@ inline void GameObjectManager::addComponent(uint renderLayer, Args&&... args)
 }
 
 template<typename T, typename... Args>
-inline void GameObjectManager::addRenderComponent(uint renderLayer, Args&&... args)
+inline void GameObjectManager::addRenderComponent(uint32_t renderLayer, Args&&... args)
 {
 	assert(!nativeThreadQueue.getStartedFlushing());
 

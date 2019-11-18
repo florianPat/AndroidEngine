@@ -65,6 +65,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/Benchmark.cpp
              src/main/cpp/CircleShape.cpp
              src/main/cpp/Clock.cpp
+             src/main/cpp/CommandBuffer.cpp
              src/main/cpp/DirWalker.cpp
              src/main/cpp/EventManager.cpp
              src/main/cpp/Font.cpp
@@ -73,6 +74,8 @@ add_library( # Sets the name of the library.
              src/main/cpp/GLUtils.cpp
              src/main/cpp/GraphicsOGL2.cpp
              src/main/cpp/GraphicsOGLIniter.cpp
+             src/main/cpp/GraphicsVK.cpp
+             src/main/cpp/GraphicsVKIniter.cpp
              src/main/cpp/Ifstream.cpp
              src/main/cpp/IndexBuffer.cpp
              src/main/cpp/InkscapeAnimation.cpp
@@ -84,13 +87,14 @@ add_library( # Sets the name of the library.
              src/main/cpp/NativeThread.cpp
              src/main/cpp/NativeThreadQueue.cpp
              src/main/cpp/Physics.cpp
+             src/main/cpp/PNGReadCallback.cpp
              src/main/cpp/RectangleShape.cpp
-             src/main/cpp/RenderTexture.cpp
+             src/main/cpp/OGLRenderTexture.cpp
              src/main/cpp/Shader.cpp
              src/main/cpp/Sound.cpp
              src/main/cpp/Sprite.cpp
              src/main/cpp/String.cpp
-             src/main/cpp/Texture.cpp
+             src/main/cpp/OGLTexture.cpp
              src/main/cpp/TextureAtlas.cpp
              src/main/cpp/TiledMap.cpp
              src/main/cpp/Utils.cpp
@@ -99,6 +103,15 @@ add_library( # Sets the name of the library.
              src/main/cpp/VertexBuffer.cpp
              src/main/cpp/VertexLayout.cpp
              src/main/cpp/View.cpp
+             src/main/cpp/VulkanBuffer.cpp
+             src/main/cpp/VulkanDescriptorSet.cpp
+             src/main/cpp/VulkanDescriptorSetLayout.cpp
+             src/main/cpp/VulkanFence.cpp
+             src/main/cpp/VulkanRenderTexture.cpp
+             src/main/cpp/VulkanShader.cpp
+             src/main/cpp/VulkanTexture.cpp
+             src/main/cpp/VulkanVertexLayout.cpp
+             src/main/cpp/vulkan_wrapper.cpp
              src/main/cpp/Window.cpp )
 
 # Specifies libraries CMake should link to your target library. You

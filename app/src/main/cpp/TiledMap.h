@@ -1,12 +1,13 @@
 #pragma once
 
 #include <unordered_map>
-#include "Texture.h"
 #include "Physics.h"
 #include "GameObjectManager.h"
-#include "RenderTexture.h"
 #include "AssetManager.h"
 #include "Ifstream.h"
+#include "Graphics.h"
+#include "Sprite.h"
+#include "RenderTexture.h"
 
 class TiledMap
 {

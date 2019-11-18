@@ -60,7 +60,7 @@ InkscapeAnimationElement::InkscapeAnimationElement(const String& inkscapeFileNam
 				else if (lineContent.find("<rect") != String::npos)
 				{
 					ShortString id;
-					IntRect rect;
+					IntRect rect(0, 0, 0, 0);
 					bool shouldAdd = true;
 					bool addWidth = false;
 

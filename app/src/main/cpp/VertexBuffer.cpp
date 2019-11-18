@@ -37,11 +37,6 @@ void VertexBuffer::bind() const
 	CallGL(glBindBuffer(GL_ARRAY_BUFFER, rendererId));
 }
 
-void VertexBuffer::unbind() const
-{
-	CallGL(glBindBuffer(GL_ARRAY_BUFFER, rendererId));
-}
-
 void VertexBuffer::subData(int32_t offset, int32_t size, const void* data)
 {
 	CallGL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));

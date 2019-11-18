@@ -2,7 +2,6 @@
 
 #include "Vector.h"
 #include "String.h"
-#include "Texture.h"
 #include <unordered_map>
 #include "Vector2.h"
 #include "Sprite.h"
@@ -12,7 +11,7 @@ class TextureRegion
 {
 	friend class TextureAtlas;
 
-	const LongString* textureAtlasFileName;
+	const LongString* textureAtlasFileName = nullptr;
 	ShortString filename;
 	Vector2i xy;
 	Vector2i size;

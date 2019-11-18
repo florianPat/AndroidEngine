@@ -12,12 +12,12 @@ public:
     UniquePtr(T* pointer);
     UniquePtr(const UniquePtr& other) = delete;
     UniquePtr& operator=(const UniquePtr& rhs) = delete;
-    UniquePtr(UniquePtr&& other);
+    UniquePtr(UniquePtr&& other) noexcept;
     template<class U, typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
-    UniquePtr(UniquePtr<U>&& other);
-    UniquePtr& operator=(UniquePtr&& rhs);
+    UniquePtr(UniquePtr<U>&& other) noexcept;
+    UniquePtr& operator=(UniquePtr&& rhs) noexcept;
     template<class U>
-    UniquePtr& operator=(UniquePtr<U>&& rhs);
+    UniquePtr& operator=(UniquePtr<U>&& rhs) noexcept;
     ~UniquePtr();
     void reset(T* pointer = nullptr);
     T* release();
@@ -37,10 +37,11 @@ public:
     UniquePtr(T* pointer);
     UniquePtr(const UniquePtr& other) = delete;
     UniquePtr& operator=(const UniquePtr& rhs) = delete;
-    UniquePtr(UniquePtr&& other);
-    UniquePtr& operator=(UniquePtr&& rhs);
+    UniquePtr(UniquePtr&& other) noexcept;
+    UniquePtr& operator=(UniquePtr&& rhs) noexcept;
     ~UniquePtr();
     void reset(T* pointer = nullptr);
+	T* release();
     T* get() const;
     explicit operator bool() const;
     T& operator[](size_t i) const;
@@ -105,23 +106,23 @@ inline UniquePtr<T[]>::UniquePtr(T* pointer) : pointer(pointer)
 }
 
 template<typename T>
-inline UniquePtr<T>::UniquePtr(UniquePtr&& other) : pointer(other.release())
+inline UniquePtr<T>::UniquePtr(UniquePtr&& other) noexcept : pointer(other.release())
 {
 }
 
 template<typename T>
-inline UniquePtr<T[]>::UniquePtr(UniquePtr&& other) : pointer(other.release())
+inline UniquePtr<T[]>::UniquePtr(UniquePtr&& other) noexcept : pointer(other.release())
 {
 }
 
 template<class T>
 template<class U, typename>
-inline UniquePtr<T>::UniquePtr(UniquePtr<U>&& other) : pointer(other.release())
+inline UniquePtr<T>::UniquePtr(UniquePtr<U>&& other) noexcept : pointer(other.release())
 {
 }
 
 template<typename T>
-inline UniquePtr<T>& UniquePtr<T>::operator=(UniquePtr&& rhs)
+inline UniquePtr<T>& UniquePtr<T>::operator=(UniquePtr&& rhs) noexcept
 {
     this->~UniquePtr();
 
@@ -131,7 +132,7 @@ inline UniquePtr<T>& UniquePtr<T>::operator=(UniquePtr&& rhs)
 }
 
 template<typename T>
-inline UniquePtr<T[]>& UniquePtr<T[]>::operator=(UniquePtr&& rhs)
+inline UniquePtr<T[]>& UniquePtr<T[]>::operator=(UniquePtr&& rhs) noexcept
 {
     this->~UniquePtr();
 
@@ -142,7 +143,7 @@ inline UniquePtr<T[]>& UniquePtr<T[]>::operator=(UniquePtr&& rhs)
 
 template<class T>
 template<class U>
-inline UniquePtr<T>& UniquePtr<T>::operator=(UniquePtr<U>&& rhs)
+inline UniquePtr<T>& UniquePtr<T>::operator=(UniquePtr<U>&& rhs) noexcept
 {
     this->~UniquePtr();
 
@@ -229,6 +230,14 @@ T* UniquePtr<T>::release()
     T* result = pointer;
     pointer = nullptr;
     return result;
+}
+
+template<class T>
+T* UniquePtr<T[]>::release()
+{
+	T* result = pointer;
+	pointer = nullptr;
+	return result;
 }
 
 template<typename T>
