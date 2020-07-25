@@ -231,7 +231,7 @@ Iterator<char> String::push_back(char c)
 
 Iterator<char> String::pop_back()
 {
-    CALL_STRING_ARRAY(erasePop_back(size()));
+    CALL_STRING_ARRAY(erasePop_back(size() - 1));
 }
 
 String & String::append(uint32_t count, char c)
@@ -443,13 +443,14 @@ bool String::operator==(const String & rhs) const
 
 bool String::operator==(const char * rhs) const
 {
-    for (uint32_t i = 0; (i < size()) && (rhs[i] != '\0'); ++i)
+    uint32_t i = 0;
+    for (; (i < size()) && (rhs[i] != '\0'); ++i)
     {
         if (at(i) != rhs[i])
             return false;
     }
 
-    return true;
+    return (i == size() && rhs[i] == '\0');
 }
 
 bool String::operator!=(const String & rhs) const

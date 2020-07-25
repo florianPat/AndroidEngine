@@ -36,5 +36,5 @@ uint32_t Actor::getComponentIndex(uint32_t componentId) const
 
     assert(result != -1);
 
-    return (uint64_t)result;
+    return (uint32_t)result;
 }

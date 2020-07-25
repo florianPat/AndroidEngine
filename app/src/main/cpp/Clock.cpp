@@ -5,7 +5,7 @@
 
 Clock::Clock()
 {
-	srand((unsigned int)time(nullptr));
+	srand((uint32_t)time(nullptr));
 	restart();
 }
 

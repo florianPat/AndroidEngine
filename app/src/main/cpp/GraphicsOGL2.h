@@ -30,9 +30,9 @@ private:
     IndexBuffer ib;
     VertexBuffer vb;
     GLuint currentBoundTexture = (GLuint)-1;
-    static constexpr int32_t NUM_SPRITES_TO_BATCH = 32;
-    static constexpr int32_t NUM_VERTICES_TO_BATCH = NUM_SPRITES_TO_BATCH * 4;
-    int32_t nSpritesBatched = 0;
+    static constexpr uint32_t NUM_SPRITES_TO_BATCH = 32;
+    static constexpr uint32_t NUM_VERTICES_TO_BATCH = NUM_SPRITES_TO_BATCH * 4;
+    uint32_t nSpritesBatched = 0;
     UniquePtr<Vertex[]> vertices;
     bool isFastRectDrawing = false;
 
@@ -47,9 +47,9 @@ private:
     };
 private:
     void setupSpriteRendering();
-    int32_t nVerticesBatched() const;
+    uint32_t nVerticesBatched() const;
 public:
-    GraphicsOGL2(int32_t renderWidth, int32_t renderHeight, View::ViewportType viewportType);
+    GraphicsOGL2(uint32_t renderWidth, uint32_t renderHeight, View::ViewportType viewportType);
 
     void setupGfxGpu();
     void freeGfxGpu();

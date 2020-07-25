@@ -10,6 +10,7 @@
 #include "NativeThreadQueue.h"
 #include "Audio.h"
 #include "Graphics.h"
+#include "KeyboardInput.h"
 
 class Window
 {
@@ -24,6 +25,7 @@ class Window
     Clock clock;
     AssetManager assetManager;
     TouchInput touchInput;
+    KeyboardInput keyboardInput;
     FT_Library fontLibrary = nullptr;
 
     Graphics gfx;
@@ -32,6 +34,13 @@ class Window
     uint32_t threadQueueEventBeginning = 0;
 
     Audio audio;
+private:
+    struct KeyboardJni
+    {
+        jclass classInputManager = nullptr;
+        jobject inputManager = nullptr;
+        jobject decorView = nullptr;
+    };
 public:
 	Window(android_app* app, int32_t width, int32_t height, View::ViewportType viewportType);
 	Window(const Window& other) = delete;
@@ -49,16 +58,20 @@ public:
     NativeThreadQueue& getNativeThreadQueue();
     Audio& getAudio();
     void callToGetEventJobsBeginning();
+    void showKeyboard();
+    void hideKeyboard();
+    KeyboardInput& getKeyboardInput();
 private:
 	void deactivate();
 	void processAppEvent(int32_t command);
 	static void AppEventCallback(android_app* app, int32_t command);
 	int processInputEvent(AInputEvent* event);
 	static int32_t InputEventCallback(android_app* app, AInputEvent* event);
-	void getAndSetTouchInputPos(AInputEvent* event, int32_t pointerId, uint pointerIndex);
+	void getAndSetTouchInputPos(AInputEvent* event, int32_t pointerId, uint32_t pointerIndex);
 	bool startFont();
 	void stopFont();
 	void checkAndRecoverFromContextLoss();
 	void finishInit();
 	void finishDeinit();
+	KeyboardJni getKeyboardJni() const;
 };

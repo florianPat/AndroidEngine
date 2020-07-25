@@ -17,7 +17,7 @@ class Font
         uint32_t advanceX = 0;
     };
 private:
-    static constexpr int32_t NUM_GLYPHS = '~' - ' ' + 1;
+    static constexpr uint32_t NUM_GLYPHS = '~' - ' ' + 1;
     uint32_t size = 0;
     uint32_t faceHeight = 0;
     RenderTexture renderTexture;
@@ -33,7 +33,7 @@ private:
 public:
     bool reloadFromFile(const String& filename);
 public:
-    Font(const String& filename, int32_t size = 0);
+    Font(const String& filename, uint32_t size = 0);
     Font(const Font& other) = delete;
     Font(Font&& other) noexcept;
     Font& operator=(const Font& rhs) = delete;

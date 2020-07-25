@@ -29,6 +29,7 @@ static void* startRoutine(void* args)
 
 	threadParameter->threadFunc(threadParameter->running, threadParameter->arg);
 
+	jniUtils::jniEnv = nullptr;
 	threadParameter->javaVm->DetachCurrentThread();
 	utils::log("pthread_exit");
 	pthread_exit(nullptr);

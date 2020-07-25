@@ -9,11 +9,14 @@
         android:icon="@mipmap/ic_launcher"
         android:label="AndroidEngine"
         android:hasCode="false"
-        android:roundIcon="@mipmap/ic_launcher_round">
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:isGame="true">
         
         <activity android:name="android.app.NativeActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="AndroidEngine">
+            android:configChanges="orientation|screenSize|screenLayout"
+            android:label="AndroidEngine"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:screenOrientation="userLandscape">
             <meta-data android:name="android.app.lib_name"
                 android:value="native-activity" />
             <intent-filter>

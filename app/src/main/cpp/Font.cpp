@@ -151,7 +151,7 @@ Font::Font(Font&& other) noexcept : size(std::exchange(other.size, 0)), faceHeig
                            renderTexture(std::exchange(other.renderTexture, RenderTexture())),
                            library(std::exchange(other.library, nullptr)), gfx(std::exchange(other.gfx, nullptr))
 {
-    for(int i = 0; i < NUM_GLYPHS; ++i)
+    for(uint32_t i = 0; i < NUM_GLYPHS; ++i)
     {
         new (&regions[i]) GlyphRegion(std::exchange(other.regions[i], GlyphRegion()));
     }
@@ -167,7 +167,7 @@ Font& Font::operator=(Font&& rhs) noexcept
     library = std::exchange(rhs.library, nullptr);
     gfx = std::exchange(rhs.gfx, nullptr);
 
-    for(int i = 0; i < NUM_GLYPHS; ++i)
+    for(int32_t i = 0; i < NUM_GLYPHS; ++i)
     {
         new (&regions[i]) GlyphRegion(std::exchange(rhs.regions[i], GlyphRegion()));
     }
@@ -258,7 +258,7 @@ void Font::drawText(const String& text, const Vector2f& pos, Color color)
     drawText(text, pos, size, color);
 }
 
-Font::Font(const String& filename, int32_t size) : size(size)
+Font::Font(const String& filename, uint32_t size) : size(size)
 {
     library = Globals::window->getFontLibrary();
     gfx = &Globals::window->getGfx();

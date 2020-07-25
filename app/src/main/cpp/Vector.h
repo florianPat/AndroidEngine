@@ -75,6 +75,10 @@ inline void Vector<T>::checkAndShrink(uint32_t newSize)
 {
 	uint32_t vectorCapacity = this->capacity();
 
+	//NOTE: Here for small buffer optimization!
+	if(newSize <= (sizeof(T) * newSize))
+		return;
+
 	if ((vectorCapacity / 2) >= (newSize + 2))
 	{
 		do

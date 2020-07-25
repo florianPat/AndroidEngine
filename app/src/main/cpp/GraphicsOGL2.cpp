@@ -2,7 +2,7 @@
 #include "GLUtils.h"
 #include "OGLTexture.h"
 
-GraphicsOGL2::GraphicsOGL2(int32_t renderWidth, int32_t renderHeight, View::ViewportType viewportType)
+GraphicsOGL2::GraphicsOGL2(uint32_t renderWidth, uint32_t renderHeight, View::ViewportType viewportType)
         : GraphicsOGLIniter(renderWidth, renderHeight, viewportType, DISPLAY_ATTRIBS),
           orhtoProj(), vertices(makeUnique<Vertex[]>(NUM_VERTICES_TO_BATCH))
 {
@@ -10,7 +10,7 @@ GraphicsOGL2::GraphicsOGL2(int32_t renderWidth, int32_t renderHeight, View::View
                                   {1.0f, 0.0f},
                                   {1.0f, 1.0f},
                                   {0.0f, 1.0f} };
-    for(int i = 0; i < NUM_VERTICES_TO_BATCH; i += 4)
+    for(uint32_t i = 0; i < NUM_VERTICES_TO_BATCH; i += 4)
     {
         vertices[i + 0].position = spriteVertices[0];
         vertices[i + 1].position = spriteVertices[1];
@@ -62,9 +62,9 @@ void GraphicsOGL2::draw(const Sprite& sprite)
 
     Mat4x4 mv = sprite.getTransform();
 
-    int32_t plusI = nVerticesBatched();
+    uint32_t plusI = nVerticesBatched();
 
-    for(int i = 0; i < 4; ++i)
+    for(uint32_t i = 0; i < 4; ++i)
     {
         //TODO: Think about: pass the pos, scl, angle in directly and compute the mv in the vertexShader
 
@@ -103,9 +103,9 @@ void GraphicsOGL2::draw(const RectangleShape& rect)
 
     Mat4x4 mv = rect.getTransform();
 
-    int32_t plusI = nVerticesBatched();
+    uint32_t plusI = nVerticesBatched();
 
-    for(int i = 0; i < 4; ++i)
+    for(uint32_t i = 0; i < 4; ++i)
     {
         //vertices[i + plusI].tex = { 0.0f, 0.0f };
         vertices[i + plusI].colorR = red;
@@ -149,7 +149,7 @@ void GraphicsOGL2::setupGfxGpu()
                                                                      "mvMatrixSclRot", "mvMatrixPos" });
 
     uint32_t indices[6 * NUM_SPRITES_TO_BATCH];
-    for(uint i = 0, counter = 0; i < NUM_SPRITES_TO_BATCH; ++i, counter += 6)
+    for(uint32_t i = 0, counter = 0; i < NUM_SPRITES_TO_BATCH; ++i, counter += 6)
     {
         indices[counter + 0] = 0 + i * 4;
         indices[counter + 1] = 2 + i * 4;
@@ -215,7 +215,7 @@ void GraphicsOGL2::flush()
     nSpritesBatched = 0;
 }
 
-int32_t GraphicsOGL2::nVerticesBatched() const
+uint32_t GraphicsOGL2::nVerticesBatched() const
 {
     return (nSpritesBatched * 4);
 }

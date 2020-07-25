@@ -8,13 +8,13 @@ View::View(uint32_t renderWidth, uint32_t renderHeight, uint32_t screenWidth, ui
 	float ratioGame = (float)renderWidth / (float)renderHeight;
 	if (ratioScreen > ratioGame)
 	{
-		viewportWidth = (int)((float)screenHeight * ratioGame);
+		viewportWidth = (uint32_t)((float)screenHeight * ratioGame);
 		viewportHeight = screenHeight;
 	}
 	else
 	{
 		viewportWidth = screenWidth;
-		viewportHeight = (int)((float)screenWidth / ratioGame);
+		viewportHeight = (uint32_t)((float)screenWidth / ratioGame);
 	}
 
 	if (viewportType == ViewportType::EXTEND)
@@ -22,13 +22,13 @@ View::View(uint32_t renderWidth, uint32_t renderHeight, uint32_t screenWidth, ui
 		if (viewportWidth == screenWidth)
 		{
 			float remainingSpace = (float)screenHeight - viewportHeight;
-			height += (int) (remainingSpace * ((float)renderHeight / (float)viewportHeight));
+			height += (int32_t) (remainingSpace * ((float)renderHeight / (float)viewportHeight));
 			viewportHeight = screenHeight;
 		}
 		else if (viewportHeight == screenHeight)
 		{
 			float remainingSpace = (float)screenWidth - viewportWidth;
-			width += (int) (remainingSpace * ((float)renderWidth / (float)viewportWidth));
+			width += (int32_t) (remainingSpace * ((float)renderWidth / (float)viewportWidth));
 			viewportWidth = screenWidth;
 		}
 		else
